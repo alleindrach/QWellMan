@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>QWMMain</class>
+ <widget class="QMainWindow" name="QWMMain">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="handleWidth">
+       <number>2</number>
+      </property>
+      <widget class="QTreeView" name="treeView"/>
+      <widget class="QTableView" name="tableView"/>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionNew"/>
+    <addaction name="actionOpen"/>
+    <addaction name="actionEdit"/>
+    <addaction name="separator"/>
+    <addaction name="actionDuplicate"/>
+    <addaction name="actionDelete"/>
+    <addaction name="separator"/>
+    <addaction name="actionImport"/>
+    <addaction name="actionExport"/>
+    <addaction name="separator"/>
+    <addaction name="actionChangeDB"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+   </widget>
+   <addaction name="menu_File"/>
+   <addaction name="menu_Help"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionOpen"/>
+   <addaction name="actionEdit"/>
+   <addaction name="separator"/>
+   <addaction name="actionAbout"/>
+  </widget>
+  <action name="actionNew">
+   <property name="icon">
+    <iconset resource="resource/resource.qrc">
+     <normaloff>:/images/icons/new.png</normaloff>:/images/icons/new.png</iconset>
+   </property>
+   <property name="text">
+    <string>New</string>
+   </property>
+   <property name="toolTip">
+    <string>Add New Well</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="icon">
+    <iconset resource="resource/resource.qrc">
+     <normaloff>:/images/icons/open.png</normaloff>:/images/icons/open.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open</string>
+   </property>
+   <property name="toolTip">
+    <string>Open Existed Well</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionEdit">
+   <property name="icon">
+    <iconset resource="resource/resource.qrc">
+     <normaloff>:/images/icons/edit.png</normaloff>:/images/icons/edit.png</iconset>
+   </property>
+   <property name="text">
+    <string>Edit</string>
+   </property>
+   <property name="toolTip">
+    <string>Edit Well Data</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="icon">
+    <iconset resource="resource/resource.qrc">
+     <normaloff>:/images/icons/delete-page.png</normaloff>:/images/icons/delete-page.png</iconset>
+   </property>
+   <property name="text">
+    <string>Delete</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete  Well</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="actionImport">
+   <property name="icon">
+    <iconset resource="resource/resource.qrc">
+     <normaloff>:/images/icons/import.png</normaloff>:/images/icons/import.png</iconset>
+   </property>
+   <property name="text">
+    <string>Import</string>
+   </property>
+   <property name="toolTip">
+    <string>Import Data</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="icon">
+    <iconset resource="resource/resource.qrc">
+     <normaloff>:/images/icons/export.png</normaloff>:/images/icons/export.png</iconset>
+   </property>
+   <property name="text">
+    <string>Export</string>
+   </property>
+   <property name="toolTip">
+    <string>Export DB</string>
+   </property>
+  </action>
+  <action name="actionChangeDB">
+   <property name="icon">
+    <iconset resource="resource/resource.qrc">
+     <normaloff>:/images/icons/database.png</normaloff>:/images/icons/database.png</iconset>
+   </property>
+   <property name="text">
+    <string>ChangeDB</string>
+   </property>
+   <property name="toolTip">
+    <string>Change DataBase</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="icon">
+    <iconset resource="resource/resource.qrc">
+     <normaloff>:/images/icons/exit.png</normaloff>:/images/icons/exit.png</iconset>
+   </property>
+   <property name="text">
+    <string>Exit</string>
+   </property>
+   <property name="toolTip">
+    <string>Exit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="icon">
+    <iconset resource="resource/resource.qrc">
+     <normaloff>:/images/icons/about.png</normaloff>:/images/icons/about.png</iconset>
+   </property>
+   <property name="text">
+    <string>About</string>
+   </property>
+   <property name="toolTip">
+    <string>About Me</string>
+   </property>
+  </action>
+  <action name="actionDuplicate">
+   <property name="icon">
+    <iconset resource="resource/resource.qrc">
+     <normaloff>:/images/icons/copy.png</normaloff>:/images/icons/copy.png</iconset>
+   </property>
+   <property name="text">
+    <string>Duplicate</string>
+   </property>
+   <property name="toolTip">
+    <string>Duplicate Well</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="resource/resource.qrc"/>
+ </resources>
+ <connections/>
+</ui>
