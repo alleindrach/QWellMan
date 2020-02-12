@@ -35,8 +35,26 @@
       <property name="handleWidth">
        <number>2</number>
       </property>
-      <widget class="QTreeView" name="treeView"/>
-      <widget class="QTableView" name="tableView"/>
+      <widget class="QTreeView" name="trvCatalogs">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="editTriggers">
+        <set>QAbstractItemView::NoEditTriggers</set>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <attribute name="headerVisible">
+        <bool>false</bool>
+       </attribute>
+      </widget>
+      <widget class="QTableView" name="tbvWells"/>
      </widget>
     </item>
    </layout>
@@ -72,14 +90,63 @@
     <property name="title">
      <string>&amp;Help</string>
     </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <widget class="QMenu" name="menuUnit">
+     <property name="title">
+      <string>Unit</string>
+     </property>
+     <property name="icon">
+      <iconset resource="resource/resource.qrc">
+       <normaloff>:/images/icons/unit@2x.png</normaloff>:/images/icons/unit@2x.png</iconset>
+     </property>
+    </widget>
+    <widget class="QMenu" name="menuReference_Datum">
+     <property name="title">
+      <string>Reference Datum</string>
+     </property>
+     <property name="icon">
+      <iconset resource="resource/resource.qrc">
+       <normaloff>:/images/icons/referenceLine@2x.png</normaloff>:/images/icons/referenceLine@2x.png</iconset>
+     </property>
+    </widget>
+    <widget class="QMenu" name="menuUser_Profile">
+     <property name="title">
+      <string>Profile</string>
+     </property>
+     <property name="icon">
+      <iconset resource="resource/resource.qrc">
+       <normaloff>:/images/icons/profile@2x.png</normaloff>:/images/icons/profile@2x.png</iconset>
+     </property>
+    </widget>
+    <addaction name="actionFavorite"/>
+    <addaction name="actionUnFavorite"/>
+    <addaction name="separator"/>
+    <addaction name="actionGroup"/>
+    <addaction name="actionListColumn"/>
+    <addaction name="separator"/>
+    <addaction name="menuUnit"/>
+    <addaction name="menuReference_Datum"/>
+    <addaction name="menuUser_Profile"/>
    </widget>
    <addaction name="menu_File"/>
+   <addaction name="menuTools"/>
    <addaction name="menu_Help"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
     <string>toolBar</string>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>16</width>
+     <height>16</height>
+    </size>
    </property>
    <property name="toolButtonStyle">
     <enum>Qt::ToolButtonTextUnderIcon</enum>
@@ -94,6 +161,12 @@
    <addaction name="actionEdit"/>
    <addaction name="separator"/>
    <addaction name="actionAbout"/>
+   <addaction name="separator"/>
+   <addaction name="actionFavorite"/>
+   <addaction name="actionUnFavorite"/>
+   <addaction name="actionGroup"/>
+   <addaction name="actionListColumn"/>
+   <addaction name="separator"/>
   </widget>
   <action name="actionNew">
    <property name="icon">
@@ -233,9 +306,96 @@
     <string>Duplicate Well</string>
    </property>
   </action>
+  <action name="actionFavorite">
+   <property name="icon">
+    <iconset resource="resource/resource.qrc">
+     <normaloff>:/images/icons/Favorite@2x.png</normaloff>:/images/icons/Favorite@2x.png</iconset>
+   </property>
+   <property name="text">
+    <string>Favorite</string>
+   </property>
+   <property name="toolTip">
+    <string>Add To Favorite</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionUnFavorite">
+   <property name="icon">
+    <iconset resource="resource/resource.qrc">
+     <normaloff>:/images/icons/unfavorite@2x.png</normaloff>:/images/icons/unfavorite@2x.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnFavorite</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove From Favorites</string>
+   </property>
+  </action>
+  <action name="actionAdd_to_Favorite">
+   <property name="text">
+    <string>Add to Favorite</string>
+   </property>
+  </action>
+  <action name="actionRemove_from_Favorite">
+   <property name="text">
+    <string>Remove from Favorite</string>
+   </property>
+  </action>
+  <action name="actionGroup">
+   <property name="icon">
+    <iconset resource="resource/resource.qrc">
+     <normaloff>:/images/icons/catalog@2x.png</normaloff>:/images/icons/catalog@2x.png</iconset>
+   </property>
+   <property name="text">
+    <string>Group</string>
+   </property>
+  </action>
+  <action name="actionListColumn">
+   <property name="icon">
+    <iconset resource="resource/resource.qrc">
+     <normaloff>:/images/icons/field@2x.png</normaloff>:/images/icons/field@2x.png</iconset>
+   </property>
+   <property name="text">
+    <string>Fields</string>
+   </property>
+  </action>
+  <action name="actionddsa">
+   <property name="text">
+    <string>ddsa</string>
+   </property>
+  </action>
+  <action name="actiond">
+   <property name="text">
+    <string>d</string>
+   </property>
+  </action>
+  <action name="actiondsd">
+   <property name="text">
+    <string>dsd</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="resource/resource.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>tbvWells</sender>
+   <signal>doubleClicked(QModelIndex)</signal>
+   <receiver>actionEdit</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>600</x>
+     <y>324</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

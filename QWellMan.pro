@@ -16,19 +16,29 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    dao/appinfodao.cpp \
+    dao/mdldao.cpp \
+    dao/udldao.cpp \
+    dao/welldao.cpp \
     main.cpp \
     qwmapplication.cpp \
-    qwmmain.cpp
+    qwmmain.cpp \
+    ui/qwmdataeditor.cpp \
+    widget/qdlgwellfieldsselector.cpp
 
 HEADERS += \
     common.h \
-    dao/appinfodao.h \
+    dao/mdldao.h \
+    dao/udldao.h \
+    dao/welldao.h \
     qwmapplication.h \
-    qwmmain.h
+    qwmmain.h \
+    ui/qwmdataeditor.h \
+    widget/qdlgwellfieldsselector.h
 
 FORMS += \
-    qwmmain.ui
+    qwmmain.ui \
+    ui/qwmdataeditor.ui \
+    widget/qdlgwellfieldsselector.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -43,3 +53,5 @@ TRANSLATIONS +=  \
 
 DISTFILES += \
     resource/i18n/QWellMan_zh_CN.ts
+
+INCLUDEPATH += $$PWD/dao $$PWD/widget $$PWD/ui

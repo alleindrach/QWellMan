@@ -156,5 +156,41 @@
         <file>images/icons/moveForward.png</file>
         <file>images/icons/add.png</file>
         <file>images/icons/band.toolbar.png</file>
+        <file>images/icons/query@1x.png</file>
+        <file>images/icons/query@2x.png</file>
+        <file>images/icons/query@4x.png</file>
+        <file>images/icons/files@1x.png</file>
+        <file>images/icons/files@2x.png</file>
+        <file>images/icons/files@4x.png</file>
+        <file>images/icons/folder@1x.png</file>
+        <file>images/icons/folder@2x.png</file>
+        <file>images/icons/folder@4x.png</file>
+        <file>images/icons/Favorite@4x.png</file>
+        <file>images/icons/Favorite@2x.png</file>
+        <file>images/icons/Favorite@1x.png</file>
+        <file>images/icons/favorite@4x.png</file>
+        <file>images/icons/favorite@2x.png</file>
+        <file>images/icons/favorite@1x.png</file>
+        <file>images/icons/unfavorite@1x.png</file>
+        <file>images/icons/unfavorite@2x.png</file>
+        <file>images/icons/unfavorite@4x.png</file>
+        <file>images/icons/unit@1x.png</file>
+        <file>images/icons/unit@2x.png</file>
+        <file>images/icons/unit@4x.png</file>
+        <file>images/icons/profile@1x.png</file>
+        <file>images/icons/profile@2x.png</file>
+        <file>images/icons/profile@4x.png</file>
+        <file>images/icons/referenceLine@4x.png</file>
+        <file>images/icons/referenceLine@2x.png</file>
+        <file>images/icons/referenceLine@1x.png</file>
+        <file>images/icons/catalog@4x.png</file>
+        <file>images/icons/catalog@2x.png</file>
+        <file>images/icons/catalog@1x.png</file>
+        <file>images/icons/grouping@1x.png</file>
+        <file>images/icons/grouping@2x.png</file>
+        <file>images/icons/grouping@4x.png</file>
+        <file>images/icons/field@4x.png</file>
+        <file>images/icons/field@2x.png</file>
+        <file>images/icons/field@1x.png</file>
     </qresource>
 </RCC>
