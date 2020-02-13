@@ -35,8 +35,10 @@ public:
     void setDatumPref(QString v);
     QStringList wellDisplayList();
     void setWellDisplayList(QStringList list);
-    enum Catalog{ RECENT,ALL,FAVORITE,QUERY,QUICK_QUERY};
+
+    enum Catalog{ RECENT,ALL,FAVORITE,QUERY,QUICK_QUERY,GROUP,TABLE};
     Q_ENUM(Catalog)
+
 signals:
     void shutdown(int  code);
 public slots:

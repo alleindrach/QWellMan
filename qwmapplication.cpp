@@ -16,6 +16,12 @@ QWMApplication::QWMApplication(int &argc, char **argv):QApplication(argc,argv)
     _iconMap[QStringLiteral("folder@1x")]=QIcon(QStringLiteral(":/images/icons/folder@1x.png"));
     _iconMap[QStringLiteral("folder@2x")]=QIcon(QStringLiteral(":/images/icons/folder@2x.png"));
     _iconMap[QStringLiteral("folder@4x")]=QIcon(QStringLiteral(":/images/icons/folder@4x.png"));
+    _iconMap[QStringLiteral("folder-open@1x")]=QIcon(QStringLiteral(":/images/icons/folder-open@1x.png"));
+    _iconMap[QStringLiteral("folder-open@2x")]=QIcon(QStringLiteral(":/images/icons/folder-open@2x.png"));
+    _iconMap[QStringLiteral("folder-open@4x")]=QIcon(QStringLiteral(":/images/icons/folder-open@4x.png"));
+    _iconMap[QStringLiteral("data@1x")]=QIcon(QStringLiteral(":/images/icons/data@1x.png"));
+    _iconMap[QStringLiteral("data@2x")]=QIcon(QStringLiteral(":/images/icons/data@2x.png"));
+    _iconMap[QStringLiteral("data@4x")]=QIcon(QStringLiteral(":/images/icons/data@4x.png"));
     _iconMap[QStringLiteral("query@1x")]=QIcon(QStringLiteral(":/images/icons/query@1x.png"));
     _iconMap[QStringLiteral("query@2x")]=QIcon(QStringLiteral(":/images/icons/query@2x.png"));
     _iconMap[QStringLiteral("query@4x")]=QIcon(QStringLiteral(":/images/icons/query@4x.png"));

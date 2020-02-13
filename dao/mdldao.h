@@ -23,6 +23,13 @@ public:
     QStringList units();
     QStringList datumPref();
     QSqlQuery tableFields(QString table);
+    QSqlRecord baseUnitOfField(QString table,QString field);
+    QVariant unitBase2User(QString baseUnit,QString userUnit,QVariant v);
+    QVariant unitUser2Base(QString baseUnit,QString userUnit,QVariant v);
+    QSqlRecord userUnitKey(QString unitSet,QString unitType);
+    QSqlRecord baseUnitKey(QString unitType);
+    QSqlRecord unitConversion(QString baseUnitKey,QString userUnitKey);
+    QSqlRecord tableInfo(QString Table);
 signals:
 private:
     QSqlDatabase  _db;

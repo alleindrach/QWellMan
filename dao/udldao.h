@@ -5,7 +5,7 @@
 #include <QObject>
 #include <QSqlDatabase>
 #include <QSqlQueryModel>
-
+#include <QPair>
 class UDLDao : public QObject
 {
     Q_OBJECT
@@ -15,6 +15,8 @@ public:
     ~UDLDao();
     static UDLDao * instance();
     QStringList profiles();
+    QStringList tableGroup(QString profile);
+    QSqlQuery  tablesOfGroup(QString group,QString profile=QString());
 signals:
 private:
     QSqlDatabase  _db;

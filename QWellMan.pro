@@ -16,6 +16,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    aux/utility.cpp \
     dao/mdldao.cpp \
     dao/udldao.cpp \
     dao/welldao.cpp \
@@ -23,9 +24,11 @@ SOURCES += \
     qwmapplication.cpp \
     qwmmain.cpp \
     ui/qwmdataeditor.cpp \
+    undo/qfieldeditcommand.cpp \
     widget/qdlgwellfieldsselector.cpp
 
 HEADERS += \
+    aux/utility.h \
     common.h \
     dao/mdldao.h \
     dao/udldao.h \
@@ -33,6 +36,7 @@ HEADERS += \
     qwmapplication.h \
     qwmmain.h \
     ui/qwmdataeditor.h \
+    undo/qfieldeditcommand.h \
     widget/qdlgwellfieldsselector.h
 
 FORMS += \
@@ -54,4 +58,6 @@ TRANSLATIONS +=  \
 DISTFILES += \
     resource/i18n/QWellMan_zh_CN.ts
 
-INCLUDEPATH += $$PWD/dao $$PWD/widget $$PWD/ui
+INCLUDEPATH += $$PWD/dao $$PWD/widget $$PWD/ui $$PWD/undo $$PWD/aux
+
+DEFINES += QT_MESSAGELOGCONTEXT

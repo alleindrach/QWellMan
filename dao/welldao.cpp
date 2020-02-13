@@ -7,15 +7,19 @@
 #include "QSqlRecord"
 #include "QDebug"
 #include "QSqlField"
+#include "utility.h"
 WellDao * WellDao::_instance=nullptr;
 
 WellDao::WellDao(QSqlDatabase &db,QObject *parent) : QObject(parent),_db(db)
 {
-    DECL_SQL(select_wells,"select  w.* from %1  w  where  not exists(select * from %2 d where w.%3=d.%4 )  order by %5 ");
+    DECL_SQL(select_wells,"select  w.* from %1  w  where  not exists(select * from %2 d where w.%3=d.%4 and w.%3=d.IDRec )  order by %5 ");
     DECL_SQL(select_table_of_group,"select t.* from pceMDLTableGrpLink l,pceMDLTable t where KeyGrp=:group and l.KeyTbl=t.KeyTbl order by l.DisplayOrder");
-    DECL_SQL(select_spec_wells,"select  w.* from %1  w  where  not exists(select * from %2 d where w.%3=d.%4 ) and  exists(select *  from %6 r where w.%3=r.%7)  order by %5 ");
+    DECL_SQL(select_spec_wells,"select  w.* from %1  w  where  not exists(select * from %2 d where w.%3=d.%4 and w.%3=d.IDRec) and  exists(select *  from %6 r where w.%3=r.%7)  order by %5 ");
     DECL_SQL(insert_well_to_catlog,"insert into %1 (%2) values(?)");
     DECL_SQL(delete_well_from_catlog,"delete from %1 where %2=?");
+
+    DECL_SQL(select_record,"select  w.* from %1  w  where  not exists(select * from %2 d where w.%3=d.%4  and w.%3=d.IDRec) and w.%3=:id ");
+
 }
 
 WellDao::~WellDao()
@@ -108,6 +112,25 @@ QSqlQueryModel *WellDao::processWells(QSqlQueryModel * model)
 
 }
 
+QSqlRecord WellDao::well(QString idWell)
+{
+    QSqlQuery q(APP->well());
+    q.prepare(SQL(select_record)
+              .arg(CFG(KeyTblMain)) //%1 wvWellHeader
+              .arg(SYS_DEL_REC) //%2 wvSysDelRec
+              .arg(CFG(IDMainFieldName)) //%3 IDWell
+              .arg(CFG(IDMainFieldName))) //%4 IDWell
+              ;
+    q.bindValue(":id",idWell);
+    q.exec();
+    PRINT_ERROR(q);
+    if(q.next())
+        return  q.record();
+    else {
+        return QSqlRecord();//当在当前单位制下，无用户单位时，应使用基本单位
+    }
+}
+
 int WellDao::addRecentWell(QString idWell)
 {
     QSqlQuery q(SQL(insert_well_to_catlog)
@@ -143,6 +166,61 @@ int WellDao::removeFavoriteWell(QString idWell)
     q.exec();
     PRINT_ERROR(q);
     return q.numRowsAffected();
+}
+//选中的记录的显示信息，比如<NSDist>(<NSDist.unit>) -->25(m)
+QString WellDao::recordDes(QString table, QSqlRecord record)
+{
+    QSqlRecord tableInfoQuery=MDL->tableInfo(table);
+    QString rd=RS(tableInfoQuery,RecordDes);
+    QString rdResult=rd;
+    QHash<QString,QVariant> cachedValue;
+    QHash<QString,QVariant> cachedTransferedValue;
+    if(!rd.isNull()&&!rd.isEmpty()){
+        QRegExp pat("<([\\w\.]*)>");
+        int count = 0;
+        int pos = 0;
+        while ((pos = pat.indexIn(rd, pos)) != -1) {
+            ++count;
+            QString var=pat.cap(1);
+            if(!cachedValue[var].isNull()){
+//                rdResult.replace("<"+var+">",cachedValue[var]);
+            }else{
+                if(!var.contains(".unit")){
+                    QVariant value=record.value(record.indexOf(var));
+                    cachedValue.insert(var,value);
+                    cachedTransferedValue.insert(var,value);
+//                    rdResult.replace("<"+var+">",value);
+                }else{
+                    QString refVarName=var.replace(".unit","");
+                    QSqlRecord rec=MDL->baseUnitOfField(table,refVarName);
+                    QString baseUnit=RS(rec,BaseUnits);
+                    QSqlRecord recUserUnit=MDL->userUnitKey(APP->unit(),RS(rec,KeyType));
+                    if(!recUserUnit.isEmpty()){
+
+                        //需要转换
+                        QString userUnit=RS(recUserUnit,UserUnits);
+                        cachedValue.insert(var,userUnit);
+                        cachedTransferedValue.insert(var,userUnit);
+                        QVariant value=cachedValue[refVarName];
+                        value=MDL->unitBase2User(baseUnit,userUnit,value);
+                        QString fmtstr=RS(recUserUnit,UserFormat);
+                        cachedTransferedValue.remove(refVarName);
+                        cachedTransferedValue.insert(refVarName,Utility::format(fmtstr,value));//这个是转换后的数值,<NSDist.Unit>:10(ft)
+                    }else{
+                        cachedValue.insert(var,baseUnit);
+                        cachedTransferedValue.insert(var,baseUnit);
+                    }
+                }
+            }
+//            qDebug()<<"pos:"<<pos<<",c:"<<count<<","<<pat.cap(1).toUtf8().data();
+            pos += pat.matchedLength();
+        }
+        foreach(QString key,cachedTransferedValue.keys()){
+            QVariant value=cachedTransferedValue[key];
+            rdResult.replace("<"+key+">",value.toString());
+        }
+    }
+    return rdResult;
 }
 
 QSqlQueryModel*  WellDao::wells()

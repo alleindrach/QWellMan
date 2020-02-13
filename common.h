@@ -1,5 +1,6 @@
 #ifndef COMMON_H
 #define COMMON_H
+
 #define CLOSEDB(db)   \
     if(db.isValid() && db.isOpen() && db.isOpenError()){ \
     db.close(); \
@@ -29,8 +30,8 @@
 #define DECL_SQL(name,sql) _sql.insert(#name,sql);
 #define SQL(name) (_sql[#name])
 #define PRINT_ERROR(q) \
-if(q.lastError().isValid()) qDebug()<<" Query["<<q.lastQuery()<<"] Error["<<q.lastError().text()<<"],bind["<< q.boundValues()<<"]";\
-    else qDebug()<<" Query["<<q.lastQuery()<<"]"<<",bind["<< q.boundValues()<<"]";
+if(q.lastError().isValid()) qDebug()<<" Query["<<q.lastQuery()<<"] Error["<<q.lastError().text()<<"],bind["<< q.boundValues()<<"]"<<endl<<flush;\
+    else qDebug()<<" Query["<<q.lastQuery()<<"]"<<",bind["<< q.boundValues()<<"]"<<endl<<flush;
 
 #define CFG(x) APP->config()[#x]
 #define MDL (MDLDao::instance())
@@ -41,6 +42,8 @@ if(q.lastError().isValid()) qDebug()<<" Query["<<q.lastQuery()<<"] Error["<<q.la
 #define SYS_FAVORITE_WELL "wvSys02"
 #define StringToUUID(x) QUuid::fromString(x.replace(QRegExp("((?:\\w){8})((?:\\w){4})((?:\\w){4})((?:\\w){4})((?:\\w){12})"),"\\1-\\2-\\3-\\4-\\5"))
 #define UUIDToString(x) x.toString(QUuid::Id128).toUpper()
-
+#define DEFAULT_PROFILE "All Data"
+#define QS(x,f) (x.value(x.record().indexOf(#f)).toString())
+#define RS(x,f) (x.value(x.indexOf(#f)).toString())
 
 #endif // COMMON_H

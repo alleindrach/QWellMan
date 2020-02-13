@@ -403,10 +403,11 @@ void QWMMain::on_actionEdit_triggered()
         QSqlRecord rec=model->record(index.row());
         int fieldIndex=rec.indexOf(CFG(IDMainFieldName));
         QString idwell=rec.value(fieldIndex).toString();
+        QString wellName=RS(rec,WellName);
 
-
-        QWMDataEditor * editor=new QWMDataEditor(idwell,this);
-        editor->exec();
+        QWMDataEditor * editor=new QWMDataEditor(idwell,wellName,this);
+        editor->showMaximized();
+        this->hide();
 
     }
 }

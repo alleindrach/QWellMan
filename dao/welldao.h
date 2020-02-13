@@ -18,9 +18,12 @@ public:
     QSqlQueryModel * recentWells();
     QSqlQueryModel * favoriteWells();
     QSqlQueryModel * processWells(QSqlQueryModel *);
+    QSqlRecord well(QString idWell);
     int addRecentWell(QString idWell);
     int addFavoriteWell(QString idWell);
     int removeFavoriteWell(QString idWell);
+    QString recordDes(QString table,QSqlRecord record);
+
 signals:
 private:
     QSqlDatabase  _db;

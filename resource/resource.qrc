@@ -192,5 +192,14 @@
         <file>images/icons/field@4x.png</file>
         <file>images/icons/field@2x.png</file>
         <file>images/icons/field@1x.png</file>
+        <file>images/icons/calc@4x.png</file>
+        <file>images/icons/calc@2x.png</file>
+        <file>images/icons/calc@1x.png</file>
+        <file>images/icons/folder-open@1x.png</file>
+        <file>images/icons/folder-open@2x.png</file>
+        <file>images/icons/folder-open@4x.png</file>
+        <file>images/icons/data@4x.png</file>
+        <file>images/icons/data@2x.png</file>
+        <file>images/icons/data@1x.png</file>
     </qresource>
 </RCC>
