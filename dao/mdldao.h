@@ -30,6 +30,7 @@ public:
     QSqlRecord baseUnitKey(QString unitType);
     QSqlRecord unitConversion(QString baseUnitKey,QString userUnitKey);
     QSqlRecord tableInfo(QString Table);
+    QSqlQuery childTables(QString table,QStringList hidden,QString profile=QString());
 signals:
 private:
     QSqlDatabase  _db;

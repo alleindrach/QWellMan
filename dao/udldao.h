@@ -17,6 +17,8 @@ public:
     QStringList profiles();
     QStringList tableGroup(QString profile);
     QSqlQuery  tablesOfGroup(QString group,QString profile=QString());
+    QSqlQuery childTables(QString table,QString profile=QString());
+    QStringList tablesHidden(QString profile);
 signals:
 private:
     QSqlDatabase  _db;

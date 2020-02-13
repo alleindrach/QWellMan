@@ -24,8 +24,10 @@ UDLDao::UDLDao(QSqlDatabase &db,QObject *parent) : QObject(parent),_db(db)
                       where p.KeyProfile=:profile and p.KeySetTblGroup=g.KeySet and g.KeySet=d.KeySet \
             order by d.DisplayOrder");
              DECL_SQL(select_tables_of_group_profile,"select tl.* from pceUDLSetTblGroupTblData t,pceUDLProfile p,pceListTbl tl \
-                      where p.KeyProfile=:profile and p.KeySetTblGroup=t.KeySet and t.GroupName=:group and tl.KeyTbl=t.KeyTbl");
+                      where p.KeyProfile=:profile and tl.Calculated=false and p.KeySetTblGroup=t.KeySet and t.GroupName=:group and tl.KeyTbl=t.KeyTbl  order by t.DisplayOrder");
 //qInstallMessageHandler(outputMessage);
+            DECL_SQL(select_hidden_tables_of_profile,"select hd.KeyTbl from pceUDLProfile p ,pceUDLSetTblHiddenData hd \
+                     where p.KeyProfile=:profile and p.KeySetTblHidden=hd.KeySet")
 }
 
 UDLDao::~UDLDao()
@@ -97,3 +99,22 @@ QSqlQuery UDLDao::tablesOfGroup(QString group, QString profile)
 
 }
 
+QSqlQuery UDLDao::childTables(QString table, QString profile)
+{
+    QStringList tablesHidden=this->tablesHidden(profile);
+    QSqlQuery childTablesQuery=MDL->childTables(table,tablesHidden,APP->profile());
+    return childTablesQuery;
+}
+
+QStringList UDLDao::tablesHidden(QString profile){
+    QStringList result;
+    QSqlQuery q(APP->udl());
+    q.prepare(SQL(select_hidden_tables_of_profile));
+    q.bindValue(":profile",profile);
+    q.exec();
+    PRINT_ERROR(q);
+    while(q.next()){
+        result<<QS(q,KeyTbl);
+    }
+    return  result;
+}

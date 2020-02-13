@@ -27,6 +27,8 @@
 #define CAT_ROLE (Qt::UserRole+100)
 #define VISIBLE_ROLE (Qt::UserRole+102)
 #define DATA_ROLE (Qt::UserRole+104)
+#define TEXT_ROLE (Qt::UserRole+106)
+#define RECORD_DES_ROLE (Qt::UserRole+108)
 #define DECL_SQL(name,sql) _sql.insert(#name,sql);
 #define SQL(name) (_sql[#name])
 #define PRINT_ERROR(q) \

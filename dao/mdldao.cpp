@@ -33,6 +33,9 @@ MDLDao::MDLDao(QSqlDatabase &db,QObject *parent) : QObject(parent),_db(db)
              where us.KeyType=:unitType");
             DECL_SQL(select_unit_conversion,"select * from pceMDLUnitConversion where BaseUnits=:baseUnitKey and  UserUnits=:userUnitKey");
             DECL_SQL(select_table_info,"select  * from pceMDLTable where KeyTbl=:table");
+    DECL_SQL(select_child_tables,"select t2.* from pceMDLTableChildren c,pceMDLTable t,pceMDLTable t2 \
+             where c.KeyTbl=:table and t.Calculated=false and t.KeyTbl=c.KeyTbl and t2.KeyTbl=c.KeyTblChild and not exists(select * from pceMDLTableGrpLink l where l.KeyTbl=c.KeyTblChild ) \
+            and c.KeyTblChild not in (%1) order by c.DisplayOrder")
 }
 
 MDLDao::~MDLDao()
@@ -285,4 +288,16 @@ QSqlRecord MDLDao::tableInfo(QString table)
     else {
         return QSqlRecord();
     }
+}
+
+QSqlQuery MDLDao::childTables(QString table,QStringList hidden, QString profile)
+{
+    QSqlQuery q(APP->mdl());
+    QStringList critieal=hidden.replaceInStrings(QRegExp("^(\\w)"), "'\\1")
+            .replaceInStrings(QRegExp("(\\w)$"), "\\1'");
+    q.prepare(SQL(select_child_tables).arg(critieal.join(",")));
+    q.bindValue(":table",table);
+    q.exec();
+    PRINT_ERROR(q);
+    return q;
 }

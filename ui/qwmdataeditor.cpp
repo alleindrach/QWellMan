@@ -75,10 +75,41 @@ void QWMDataEditor::loadDataTree()
             //        item->setText(MainWindow::colItemType,"type=itTopItem");  //设置第2列的文字
             tableItem->setFlags(Qt::ItemIsEnabled );
             tableItem->setData(0,CAT_ROLE,QWMApplication::TABLE); //设置节点第1列的Qt::UserRole的Data
+            tableItem->setData(0,DATA_ROLE,key); //设置节点第1列的Qt::UserRole的Data
+            tableItem->setData(0,TEXT_ROLE,text); //设置节点第1列的Qt::UserRole的Data
+            tableItem->setData(0,RECORD_DES_ROLE,""); //设置节点第1列的Qt::UserRole的Data
             item->addChild(tableItem);
+             QSqlQuery childTables=UDL->childTables(key,APP->profile());
+
+             loadChildTable(tableItem);
+
         }
 
     }
+}
+
+void QWMDataEditor::loadChildTable(QTreeWidgetItem * parent)
+{
+    QString strTblKey=parent->data(0,DATA_ROLE).toString();
+
+    QSqlQuery childTables=UDL->childTables(strTblKey,APP->profile());
+    while(childTables.next()){
+        QString strChildTblKey=QS(childTables,KeyTbl);
+        QString strChildTblName=QS(childTables,CaptionLongP);
+        QTreeWidgetItem*  tableItem=new QTreeWidgetItem(parent); //新建节点时设定类型为 itTopItem
+        tableItem->setIcon(0,APP->icons()["data@4x"]); //设置第1列的图标
+
+        tableItem->setText(0,strChildTblName); //设置第1列的文字
+        //        item->setText(MainWindow::colItemType,"type=itTopItem");  //设置第2列的文字
+        tableItem->setFlags(Qt::ItemIsEnabled );
+        tableItem->setData(0,CAT_ROLE,QWMApplication::TABLE); //设置节点第1列的Qt::UserRole的Data
+        tableItem->setData(0,DATA_ROLE,strChildTblKey); //设置节点第1列的Qt::UserRole的Data
+        tableItem->setData(0,TEXT_ROLE,strChildTblName); //设置节点第1列的Qt::UserRole的Data
+        tableItem->setData(0,RECORD_DES_ROLE,""); //设置节点第1列的Qt::UserRole的Data
+        parent->addChild(tableItem);
+        loadChildTable(tableItem);
+    }
+
 }
 
 void QWMDataEditor::closeEvent(QCloseEvent *event)

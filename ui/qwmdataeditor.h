@@ -3,7 +3,7 @@
 #include <QUndoCommand>
 #include <QUndoStack>
 #include <QMainWindow>
-
+#include <QTreeWidgetItem>
 namespace Ui {
 class QWMDataEditor;
 }
@@ -18,6 +18,7 @@ public:
     void undo();
     void redo(QUndoCommand * command);
     void loadDataTree();
+    void loadChildTable(QTreeWidgetItem*);
 protected:
      virtual void closeEvent(QCloseEvent *event);
 private slots:
