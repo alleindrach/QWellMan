@@ -11,7 +11,7 @@
 #include "udldao.h"
 #include "qwmapplication.h"
 #include "welldao.h"
-
+#include "QLabel"
 QWMDataEditor::QWMDataEditor(QString idWell,QString name,QWidget *parent) :
     QMainWindow(parent),_idWell(idWell),_wellName(name),
     ui(new Ui::QWMDataEditor)
@@ -19,9 +19,32 @@ QWMDataEditor::QWMDataEditor(QString idWell,QString name,QWidget *parent) :
     ui->setupUi(this);
     ui->splitter->setStretchFactor(0,1);
     ui->splitter->setStretchFactor(1,4);
-    ui->trwTables->setStyle(QStyleFactory::create("windows"));
+//    ui->trwTables->setStyle(QStyleFactory::create("windows"));
     this->loadDataTree();
 
+
+    _lblStatus = new QLabel(this);
+    QFont font=_lblStatus->font();
+    font.setPixelSize(10);
+    _lblStatus->setFont(font);
+    _lblProfile = new QLabel(this);
+    _lblProfile->setFont(font);
+    _lblUnit=new  QLabel(this);
+    _lblUnit->setFont(font);
+    _lblReferenceDatum =new QLabel(this);
+    _lblReferenceDatum->setFont(font);
+    _lblMessage= new QLabel(this);
+    _lblMessage->setFont(font);
+
+    ui->statusbar->addWidget(_lblStatus,1);
+    ui->statusbar->addWidget(_lblProfile,1);
+    ui->statusbar->addWidget(_lblUnit,1);
+    ui->statusbar->addWidget(_lblReferenceDatum,1);
+    ui->statusbar->addPermanentWidget(_lblMessage,1);
+
+    this->showProfile(APP->profile());
+    this->showReferenceDatum(APP->referenceDatumName( APP->datumPreference()));
+    this->showUnitSetting(APP->unit());
     //    QToolBar * toolBar =new QToolBar(this);
     //    toolBar->setObjectName(QString::fromUtf8("toolBar"));
     //    toolBar->setIconSize(QSize(16, 16));
@@ -78,6 +101,7 @@ void QWMDataEditor::loadDataTree()
             tableItem->setData(0,DATA_ROLE,key); //设置节点第1列的Qt::UserRole的Data
             tableItem->setData(0,TEXT_ROLE,text); //设置节点第1列的Qt::UserRole的Data
             tableItem->setData(0,RECORD_DES_ROLE,""); //设置节点第1列的Qt::UserRole的Data
+            tableItem->setToolTip(0,QString("[%1] %2").arg(QS(qTables,KeyTbl)).arg(QS(qTables,Help)));
             item->addChild(tableItem);
              QSqlQuery childTables=UDL->childTables(key,APP->profile());
 
@@ -86,6 +110,7 @@ void QWMDataEditor::loadDataTree()
         }
 
     }
+    ui->trwTables->expandAll();
 }
 
 void QWMDataEditor::loadChildTable(QTreeWidgetItem * parent)
@@ -106,10 +131,30 @@ void QWMDataEditor::loadChildTable(QTreeWidgetItem * parent)
         tableItem->setData(0,DATA_ROLE,strChildTblKey); //设置节点第1列的Qt::UserRole的Data
         tableItem->setData(0,TEXT_ROLE,strChildTblName); //设置节点第1列的Qt::UserRole的Data
         tableItem->setData(0,RECORD_DES_ROLE,""); //设置节点第1列的Qt::UserRole的Data
+        tableItem->setToolTip(0,QString("[%1] %2").arg(QS(childTables,KeyTbl)).arg(QS(childTables,Help)));
         parent->addChild(tableItem);
         loadChildTable(tableItem);
     }
 
+}
+void QWMDataEditor::showStatus(QString status)
+{
+    this->_lblStatus->setText(status);
+}
+
+void QWMDataEditor::showProfile(QString profile)
+{
+    this->_lblProfile->setText(profile);
+}
+
+void QWMDataEditor::showUnitSetting(QString unit)
+{
+    this->_lblUnit->setText(unit);
+}
+
+void QWMDataEditor::showReferenceDatum(QString datum)
+{
+    this->_lblReferenceDatum->setText(datum);
 }
 
 void QWMDataEditor::closeEvent(QCloseEvent *event)

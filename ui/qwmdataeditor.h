@@ -4,6 +4,7 @@
 #include <QUndoStack>
 #include <QMainWindow>
 #include <QTreeWidgetItem>
+#include <QLabel>
 namespace Ui {
 class QWMDataEditor;
 }
@@ -19,6 +20,12 @@ public:
     void redo(QUndoCommand * command);
     void loadDataTree();
     void loadChildTable(QTreeWidgetItem*);
+
+    void showStatus(QString status);
+    void showProfile(QString profile);
+    void showUnitSetting(QString unit);
+    void showReferenceDatum(QString datum);
+
 protected:
      virtual void closeEvent(QCloseEvent *event);
 private slots:
@@ -32,6 +39,11 @@ private:
     QString _wellName;
     QUndoStack _undoStack;
 
+    QLabel * _lblStatus ;
+    QLabel * _lblProfile ;
+    QLabel * _lblUnit;
+    QLabel * _lblReferenceDatum ;
+    QLabel * _lblMessage;
 };
 
 #endif // QWMDATAEDITOR_H

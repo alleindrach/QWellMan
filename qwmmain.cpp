@@ -43,7 +43,6 @@ QWMMain::QWMMain(QWidget *parent)
 
     // create objects for the label and progress bar
     _lblStatus = new QLabel(this);
-
     _lblStatus->setFont(font);
     _lblProfile = new QLabel(this);
     _lblProfile->setFont(font);
@@ -53,18 +52,7 @@ QWMMain::QWMMain(QWidget *parent)
     _lblReferenceDatum->setFont(font);
     _lblMessage= new QLabel(this);
     _lblMessage->setFont(font);
-    //   m_lblStatusInfo=new QLabel(this);
-    //   m_pbStatusProgress = new QProgressBar(this);
 
-    // set text for the label
-    //   m_lblStatusInfo->setText("Status Info");
-
-
-    // make progress bar text invisible
-    //   m_pbStatusProgress->setTextVisible(false);
-
-    // add the two controls to the status bar
-    //   ui->statusbar->addPermanentWidget(m_pbStatusProgress,0);
     ui->statusbar->addWidget(_lblStatus,1);
     ui->statusbar->addWidget(_lblProfile,1);
     ui->statusbar->addWidget(_lblUnit,1);

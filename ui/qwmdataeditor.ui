@@ -47,6 +47,9 @@
          <height>16</height>
         </size>
        </property>
+       <property name="indentation">
+        <number>10</number>
+       </property>
        <property name="columnCount">
         <number>1</number>
        </property>
