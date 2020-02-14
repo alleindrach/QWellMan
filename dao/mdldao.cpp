@@ -16,26 +16,26 @@ MDLDao::MDLDao(QSqlDatabase &db,QObject *parent) : QObject(parent),_db(db)
 {
     DECL_SQL(select_table_group,"select  keyGrp from pceMDLTableGrp order by  DisplayOrder");
     DECL_SQL(select_ini,"select  * from pceMDLINI ");
-    DECL_SQL(select_table_of_group,"select t.* from pceMDLTableGrpLink l,pceMDLTable t where KeyGrp=:group and l.KeyTbl=t.KeyTbl order by l.DisplayOrder");
-    DECL_SQL(select_table_order,"select  SQLOrderBy from pceMDLTable where KeyTbl=:table ");
-    DECL_SQL(select_table_long_headers,"select  CaptionLong from pceMDLTableField where KeyTbl=:table order by DisplayOrder");
+    DECL_SQL(select_table_of_group,"select t.* from pceMDLTableGrpLink l,pceMDLTable t where KeyGrp=:group and l.KeyTbl=t.KeyTbl COLLATE NOCASE order by l.DisplayOrder ");
+    DECL_SQL(select_table_order,"select  SQLOrderBy from pceMDLTable where KeyTbl=:table COLLATE NOCASE");
+    DECL_SQL(select_table_long_headers,"select  CaptionLong from pceMDLTableField where KeyTbl=:table COLLATE NOCASE order by DisplayOrder ");
     DECL_SQL(select_main_table_headers,"select  t.*,m.KeyFld as VisableFld from pceMDLTableField t left join pceMDLTableMainIDFields m  on "
-                                       "t.KeyTbl=:table and upper(t.KeyFld)=upper(m.KeyFld) order by m.DisplayOrder")
+                                       "t.KeyTbl=:table  COLLATE NOCASE and t.KeyFld=m.KeyFld COLLATE NOCASE order by m.DisplayOrder ")
             DECL_SQL(select_unit_set,"select  * from pceMDLUnitSet s   "
                                      "order by s.DisplayOrder");
     DECL_SQL(select_profile_set,"select  * from pceMDLUnitSet s   "
                                 " order by s.DisplayOrder");
-    DECL_SQL(select_table_fields,"select  * from pceMDLTableField where KeyTbl=:table order by DisplayOrder");
-    DECL_SQL(select_base_unit_of_field,"select u.* from pceMDLTableField f ,pceMDLUnitType u  where f.KeyTbl=:table and  f.KeyFld=:field and u.KeyType=f.KeyUnit")
-            DECL_SQL(select_user_unit,"select * from pceMDLUnitTypeSet us  where us.KeyType=:unitType and us.KeySet in (select KeySet from pceMDLUnitSet u where  u.KeySet=:unitSet union select KeySetInherit  from  pceMDLUnitSet uh where uh.KeySet=:unitSet)");
+    DECL_SQL(select_table_fields,"select  * from pceMDLTableField where KeyTbl=:table COLLATE NOCASE order by DisplayOrder ");
+    DECL_SQL(select_base_unit_of_field,"select u.* from pceMDLTableField f ,pceMDLUnitType u  where f.KeyTbl=:table COLLATE NOCASE and  f.KeyFld=:field COLLATE NOCASE and u.KeyType=f.KeyUnit COLLATE NOCASE")
+            DECL_SQL(select_user_unit,"select * from pceMDLUnitTypeSet us  where us.KeyType=:unitType and us.KeySet in (select KeySet from pceMDLUnitSet u where  u.KeySet=:unitSet COLLATE NOCASE union select KeySetInherit  from  pceMDLUnitSet uh where uh.KeySet=:unitSet COLLATE NOCASE) ");
 
     DECL_SQL(select_base_unit,"select * from pceMDLUnitType us \
-             where us.KeyType=:unitType");
-            DECL_SQL(select_unit_conversion,"select * from pceMDLUnitConversion where BaseUnits=:baseUnitKey and  UserUnits=:userUnitKey");
-            DECL_SQL(select_table_info,"select  * from pceMDLTable where KeyTbl=:table");
+             where us.KeyType=:unitType  COLLATE NOCASE");
+            DECL_SQL(select_unit_conversion,"select * from pceMDLUnitConversion where BaseUnits=:baseUnitKey COLLATE NOCASE and  UserUnits=:userUnitKey COLLATE NOCASE");
+            DECL_SQL(select_table_info,"select  * from pceMDLTable where KeyTbl=:table COLLATE NOCASE");
     DECL_SQL(select_child_tables,"select t2.* from pceMDLTableChildren c,pceMDLTable t,pceMDLTable t2 \
-             where c.KeyTbl=:table and t.Calculated=false and t.KeyTbl=c.KeyTbl and t2.KeyTbl=c.KeyTblChild and not exists(select * from pceMDLTableGrpLink l where l.KeyTbl=c.KeyTblChild ) \
-            and c.KeyTblChild not in (%1) order by c.DisplayOrder")
+             where   c.KeyTbl=:table COLLATE NOCASE and t2.Calculated=false and t.KeyTbl=c.KeyTbl COLLATE NOCASE and t2.KeyTbl=c.KeyTblChild COLLATE NOCASE and not exists(select * from pceMDLTableGrpLink l where l.KeyTbl=c.KeyTblChild COLLATE NOCASE) \
+            and c.KeyTblChild not in (%1) order by c.DisplayOrder ")
 }
 
 MDLDao::~MDLDao()

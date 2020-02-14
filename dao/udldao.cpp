@@ -21,13 +21,13 @@ UDLDao::UDLDao(QSqlDatabase &db,QObject *parent) : QObject(parent),_db(db)
     DECL_SQL(select_profile_set,"select  * from pceUDLProfile p \
              order by p.DisplayOrder");
              DECL_SQL(select_table_group_by_profile,"select d.* from pceUDLSetTblGroupData d,pceUDLSetTblGroup g,pceUDLProfile p \
-                      where p.KeyProfile=:profile and p.KeySetTblGroup=g.KeySet and g.KeySet=d.KeySet \
-            order by d.DisplayOrder");
+                      where p.KeyProfile=:profile COLLATE NOCASE and p.KeySetTblGroup=g.KeySet COLLATE NOCASE and g.KeySet=d.KeySet COLLATE NOCASE \
+            order by d.DisplayOrder ");
              DECL_SQL(select_tables_of_group_profile,"select tl.* from pceUDLSetTblGroupTblData t,pceUDLProfile p,pceListTbl tl \
-                      where p.KeyProfile=:profile and tl.Calculated=false and p.KeySetTblGroup=t.KeySet and t.GroupName=:group and tl.KeyTbl=t.KeyTbl  order by t.DisplayOrder");
+                      where p.KeyProfile=:profile COLLATE NOCASE and tl.Calculated=false  and p.KeySetTblGroup=t.KeySet COLLATE NOCASE and t.GroupName=:group COLLATE NOCASE and tl.KeyTbl=t.KeyTbl COLLATE NOCASE order by t.DisplayOrder ");
 //qInstallMessageHandler(outputMessage);
             DECL_SQL(select_hidden_tables_of_profile,"select hd.KeyTbl from pceUDLProfile p ,pceUDLSetTblHiddenData hd \
-                     where p.KeyProfile=:profile and p.KeySetTblHidden=hd.KeySet")
+                     where p.KeyProfile=:profile COLLATE NOCASE and p.KeySetTblHidden=hd.KeySet COLLATE NOCASE")
 }
 
 UDLDao::~UDLDao()
