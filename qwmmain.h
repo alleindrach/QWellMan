@@ -21,9 +21,6 @@ public:
     void loadAllWells();
     void loadFavoriateWells();
     void loadRecentWells();
-    void addToFavorite(QString idWell);
-    void removeFromFavorite(QString idWell);
-    void addToRecent(QString idWell);
     void resizeEvent(QResizeEvent *event) override;
     void showStatus(QString status);
     void showProfile(QString profile);
@@ -51,6 +48,8 @@ private slots:
 
     void on_well_view_header_fields_change();
     void on_actionEdit_triggered();
+
+    void on_actionNew_triggered();
 
 private:
     Ui::QWMMain *ui;

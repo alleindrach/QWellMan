@@ -19,6 +19,7 @@ public:
     QSqlQueryModel * favoriteWells();
     QSqlQueryModel * processWells(QSqlQueryModel *);
     QSqlRecord well(QString idWell);
+    int addRecord(QString table,QString parentId=QString());
     int addRecentWell(QString idWell);
     int addFavoriteWell(QString idWell);
     int removeFavoriteWell(QString idWell);

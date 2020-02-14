@@ -39,9 +39,10 @@ if(q.lastError().isValid()) qDebug()<<" Query["<<q.lastQuery()<<"] Error["<<q.la
 #define MDL (MDLDao::instance())
 #define UDL (UDLDao::instance())
 #define WELL (WellDao::instance())
-#define SYS_DEL_REC "wvSysRecDel"
-#define SYS_RECENT_WELL"wvSys01"
-#define SYS_FAVORITE_WELL "wvSys02"
+//#define SYS_DEL_REC "wvSysRecDel"
+//#define SYS_RECENT_WELL"wvSys01"
+//#define SYS_FAVORITE_WELL "wvSys02"
+
 #define StringToUUID(x) QUuid::fromString(x.replace(QRegExp("((?:\\w){8})((?:\\w){4})((?:\\w){4})((?:\\w){4})((?:\\w){12})"),"\\1-\\2-\\3-\\4-\\5"))
 #define UUIDToString(x) x.toString(QUuid::Id128).toUpper()
 #define DEFAULT_PROFILE "All Data"

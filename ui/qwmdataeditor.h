@@ -4,6 +4,7 @@
 #include <QUndoStack>
 #include <QMainWindow>
 #include <QTreeWidgetItem>
+#include <QStandardItem>
 #include <QLabel>
 namespace Ui {
 class QWMDataEditor;
@@ -19,7 +20,7 @@ public:
     void undo();
     void redo(QUndoCommand * command);
     void loadDataTree();
-    void loadChildTable(QTreeWidgetItem*);
+    void loadChildTable(QStandardItem *);
 
     void showStatus(QString status);
     void showProfile(QString profile);

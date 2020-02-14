@@ -35,11 +35,17 @@
       <property name="handleWidth">
        <number>2</number>
       </property>
-      <widget class="QTreeWidget" name="trwTables">
+      <widget class="QTreeView" name="trvTables">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
         </font>
+       </property>
+       <property name="editTriggers">
+        <set>QAbstractItemView::NoEditTriggers</set>
+       </property>
+       <property name="tabKeyNavigation">
+        <bool>true</bool>
        </property>
        <property name="iconSize">
         <size>
@@ -47,22 +53,11 @@
          <height>16</height>
         </size>
        </property>
-       <property name="indentation">
-        <number>10</number>
-       </property>
-       <property name="columnCount">
-        <number>1</number>
-       </property>
        <attribute name="headerVisible">
         <bool>false</bool>
        </attribute>
-       <column>
-        <property name="text">
-         <string notr="true">1</string>
-        </property>
-       </column>
       </widget>
-      <widget class="QTableView" name="tableView"/>
+      <widget class="QTableView" name="tbvData"/>
      </widget>
     </item>
    </layout>

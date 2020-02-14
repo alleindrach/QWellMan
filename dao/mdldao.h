@@ -23,6 +23,9 @@ public:
     QStringList units();
     QStringList datumPref();
     QSqlQuery tableFields(QString table);
+    bool tableHasField(QString table,QString field);
+    QString parentTable(QString table);
+    QString parentRefName(QString table);
     QSqlRecord baseUnitOfField(QString table,QString field);
     QVariant unitBase2User(QString baseUnit,QString userUnit,QVariant v);
     QVariant unitUser2Base(QString baseUnit,QString userUnit,QVariant v);

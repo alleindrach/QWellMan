@@ -18,7 +18,7 @@ WellDao::WellDao(QSqlDatabase &db,QObject *parent) : QObject(parent),_db(db)
     DECL_SQL(insert_well_to_catlog,"insert into %1 (%2) values(?)");
     DECL_SQL(delete_well_from_catlog,"delete from %1 where %2=? COLLATE NOCASE");
     DECL_SQL(select_record,"select  w.* from %1  w  where  not exists(select * from %2 d where w.%3=d.%4 COLLATE NOCASE  and w.%3=d.IDRec COLLATE NOCASE) and w.%3=:id COLLATE NOCASE");
-
+    DECL_SQL(insert_record,"insert into %1 (%2) values( %3)")
 }
 
 WellDao::~WellDao()
@@ -45,11 +45,11 @@ QSqlQueryModel *WellDao::recentWells()
 
     QSqlQuery q(SQL(select_spec_wells)
                 .arg(keytableMain)
-                .arg(SYS_DEL_REC)
+                .arg(CFG(SysRecDelTable))
                 .arg(CFG(IDMainFieldName))
                 .arg(CFG(IDMainFieldName))
                 .arg(orderKey)
-                .arg(SYS_RECENT_WELL)
+                .arg(CFG(SysRecentTable))
                 .arg(CFG(IDMainFieldName))
                 ,APP->well());
     q.exec();
@@ -68,11 +68,11 @@ QSqlQueryModel *WellDao::favoriteWells()
 
     QSqlQuery q(SQL(select_spec_wells)
                 .arg(keytableMain)
-                .arg(SYS_DEL_REC)
+                .arg(CFG(SysRecDelTable))
                 .arg(CFG(IDMainFieldName))
                 .arg(CFG(IDMainFieldName))
                 .arg(orderKey)
-                .arg(SYS_FAVORITE_WELL)
+                .arg(CFG(SysFavoriteTable))
                 .arg(CFG(IDMainFieldName))
                 ,APP->well());
     q.exec();
@@ -116,7 +116,7 @@ QSqlRecord WellDao::well(QString idWell)
     QSqlQuery q(APP->well());
     q.prepare(SQL(select_record)
               .arg(CFG(KeyTblMain)) //%1 wvWellHeader
-              .arg(SYS_DEL_REC) //%2 wvSysDelRec
+              .arg(CFG(SysRecDelTable)) //%2 wvSysDelRec
               .arg(CFG(IDMainFieldName)) //%3 IDWell
               .arg(CFG(IDMainFieldName))) //%4 IDWell
               ;
@@ -130,10 +130,15 @@ QSqlRecord WellDao::well(QString idWell)
     }
 }
 
+int WellDao::addRecord(QString table, QString parentId)
+{
+
+}
+
 int WellDao::addRecentWell(QString idWell)
 {
     QSqlQuery q(SQL(insert_well_to_catlog)
-                .arg(SYS_RECENT_WELL)
+                .arg(CFG(SysRecentTable))
                 .arg(CFG(IDMainFieldName))
                 ,APP->well());
     q.bindValue(0,idWell);
@@ -145,7 +150,7 @@ int WellDao::addRecentWell(QString idWell)
 int WellDao::addFavoriteWell(QString idWell)
 {
     QSqlQuery q(SQL(insert_well_to_catlog)
-                .arg(SYS_FAVORITE_WELL)
+                .arg(CFG(SysFavoriteTable))
                 .arg(CFG(IDMainFieldName))
                 ,APP->well());
     q.bindValue(0,idWell);
@@ -158,7 +163,7 @@ int WellDao::removeFavoriteWell(QString idWell)
 {
     QSqlQuery q(APP->well());
     q.prepare(SQL(delete_well_from_catlog)
-              .arg(SYS_FAVORITE_WELL)
+              .arg(CFG(SysFavoriteTable))
               .arg(CFG(IDMainFieldName))
               );
     q.bindValue(0,idWell);
@@ -232,7 +237,7 @@ QSqlQueryModel*  WellDao::wells()
 
     QSqlQuery q(SQL(select_wells)
                 .arg(keytableMain)
-                .arg(SYS_DEL_REC)
+                .arg(CFG(SysRecDelTable))
                 .arg(CFG(IDMainFieldName))
                 .arg(CFG(IDMainFieldName))
                 .arg(orderKey)

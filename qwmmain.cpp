@@ -226,6 +226,7 @@ void QWMMain::loadRecentWells()
 }
 
 
+
 void QWMMain::on_actionChangeDB_triggered()
 {
     QString error;
@@ -396,6 +397,12 @@ void QWMMain::on_actionEdit_triggered()
         QWMDataEditor * editor=new QWMDataEditor(idwell,wellName,this);
         editor->showMaximized();
         this->hide();
+        WELL->addRecentWell(idwell);
 
     }
+}
+
+void QWMMain::on_actionNew_triggered()
+{
+
 }

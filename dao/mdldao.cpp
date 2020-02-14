@@ -36,6 +36,8 @@ MDLDao::MDLDao(QSqlDatabase &db,QObject *parent) : QObject(parent),_db(db)
     DECL_SQL(select_child_tables,"select t2.* from pceMDLTableChildren c,pceMDLTable t,pceMDLTable t2 \
              where   c.KeyTbl=:table COLLATE NOCASE and t2.Calculated=false and t.KeyTbl=c.KeyTbl COLLATE NOCASE and t2.KeyTbl=c.KeyTblChild COLLATE NOCASE and not exists(select * from pceMDLTableGrpLink l where l.KeyTbl=c.KeyTblChild COLLATE NOCASE) \
             and c.KeyTblChild not in (%1) order by c.DisplayOrder ")
+            DECL_SQL(select_table_field_count,"select count(1) as cnt from pceMDLTableField f where f.KeyTbl=:table COLLATE NOCASE and KeyFld=:field COLLATE NOCASE ")
+            DECL_SQL(select_parent_table,"select KeyTbl  from pceMDLTableChildren c where c.KeyTblChild=:table COLLATE NOCASE ")
 }
 
 MDLDao::~MDLDao()
@@ -88,6 +90,11 @@ void MDLDao::readConfig(QHash<QString,QString>&  config){
             config.insert(colname,q.value(rec.indexOf(colname)).toString());
         }
     }
+    config.insert("ID","IDRec");
+    config.insert("ParentIDField","IDRecParent");
+    config.insert("SysRecDelTable","wvSysRecDel");
+    config.insert("SysRecentTable","wvSys01");
+    config.insert("SysFavoriteTable","wvSys02");
     return ;
 
 }
@@ -171,7 +178,41 @@ QSqlQuery MDLDao::tableFields(QString table)
     PRINT_ERROR(q);
     return q;
 }
+bool MDLDao::tableHasField(QString table,QString field){
+    QSqlQuery q(APP->mdl());
+    q.prepare(SQL(select_table_field_count));
+    q.bindValue(":table",table);
+    q.bindValue(":field",field);
+    q.exec();
+    PRINT_ERROR(q);
+    if(q.next()){
+        return QS(q,cnt).toInt()>0;
+    }
+    return false;
 
+}
+
+QString MDLDao::parentTable(QString table)
+{
+    QSqlQuery q(APP->mdl());
+    q.prepare(SQL(select_parent_table));
+    q.bindValue(":table",table);
+    q.exec();
+    PRINT_ERROR(q);
+    if(q.next()){
+        return QS(q,KeyTbl);
+    }
+    return QString();
+}
+QString MDLDao::parentRefName(QString table){
+    QString parentTableName=parentTable(table);
+    if(parentTableName.compare(CFG(KeyTblMain),Qt::CaseInsensitive)==0){
+        return CFG(IDMainFieldName);
+    }else if (!parentTableName.isNull()&& !parentTableName.isEmpty()){
+        return CFG(ParentIDField);
+    }
+    return CFG(IDMainFieldName);
+}
 // unitType:比如长度度量： Length (0.00m,0.00ft)
 // unitSet: 单位制，比如美制(US)，英制，公制(Metric)
 // unitKey: 单位，比如 m
