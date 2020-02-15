@@ -49,7 +49,7 @@ void outputMessage(QtMsgType type, const QMessageLogContext &context, const QStr
 
     QString message = QString("%1 %2 %3 %4").arg(text).arg(context_info).arg(msg).arg(current_date);
 
-    QFile file("/Users/allein/QWellMan/QWellMan/log.txt");
+    QFile file("/Users/allein/QWellMan/log.txt");
 
     file.open(QIODevice::WriteOnly | QIODevice::Append);
 
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 {
     QWMApplication a(argc, argv);
     QWMMain w;
-    qInstallMessageHandler(outputMessage);
+//    qInstallMessageHandler(outputMessage);
     qDebug("This is a debug message");
     qWarning("This is a warning message");
     qCritical("This is a critical message");

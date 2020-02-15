@@ -9,8 +9,21 @@
 #include <QIcon>
 #include  "common.h"
 #include "mdldao.h"
+#include "record.h"
+#include "mdltable.h"
 QWMApplication::QWMApplication(int &argc, char **argv):QApplication(argc,argv)
 {
+    REGISTER_ALL(Record);
+    REGISTER_ALL(MDLTable);
+    REGISTER_ALL(MDLField);
+    REGISTER_ALL(MDLFieldVisible);
+    REGISTER_ALL(MDLUnitSet);
+    REGISTER_ALL(MDLUnitType);
+    REGISTER_ALL(MDLUnitTypeSet);
+    REGISTER_ALL(MDLUnitConversion);
+
+//    qRegisterMetaType<Record>("Record");
+//    qRegisterMetaType<MDLTable>("MDLTable");
     connect(this,&QWMApplication::shutdown,this,&QCoreApplication::exit,Qt::QueuedConnection);
 
     _iconMap[QStringLiteral("folder@1x")]=QIcon(QStringLiteral(":/images/icons/folder@1x.png"));

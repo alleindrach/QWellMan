@@ -3,6 +3,7 @@
 #include "QStyleFactory"
 #include <QSqlQuery>
 #include <QSqlRecord>
+#include <QList>
 #include <QStandardItem>
 #include "qwmdataeditor.h"
 #include "ui_qwmdataeditor.h"
@@ -13,6 +14,7 @@
 #include "qwmapplication.h"
 #include "welldao.h"
 #include "QLabel"
+#include "mdltable.h"
 QWMDataEditor::QWMDataEditor(QString idWell,QString name,QWidget *parent) :
     QMainWindow(parent),_idWell(idWell),_wellName(name),
     ui(new Ui::QWMDataEditor)
@@ -89,10 +91,10 @@ void QWMDataEditor::loadDataTree()
         item->setFlags(Qt::ItemIsEnabled );
         item->setData(CAT_ROLE,QWMApplication::GROUP); //设置节点第1列的Qt::UserRole的Data
         model->appendRow(item);//添加顶层节点
-        QSqlQuery qTables=UDL->tablesOfGroup(group,APP->profile());
-        while(qTables.next()){
-            QString text=QS(qTables,CaptionLongP);
-            QString key=QS(qTables,KeyTbl);
+        QList<MDLTable*> tables=UDL->tablesOfGroup(group,APP->profile());
+        foreach(MDLTable * table ,tables){
+            QString text=table->CaptionLongP();
+            QString key=table->KeyTbl();
             QStandardItem*  tableItem=new QStandardItem(); //新建节点时设定类型为 itTopItem
             tableItem->setIcon(APP->icons()["data@4x"]); //设置第1列的图标
 
@@ -103,9 +105,9 @@ void QWMDataEditor::loadDataTree()
             tableItem->setData(key,DATA_ROLE); //设置节点第1列的Qt::UserRole的Data
             tableItem->setData(text,TEXT_ROLE); //设置节点第1列的Qt::UserRole的Data
             tableItem->setData("",RECORD_DES_ROLE); //设置节点第1列的Qt::UserRole的Data
-            tableItem->setToolTip(QString("[%1] %2").arg(QS(qTables,KeyTbl)).arg(QS(qTables,Help)));
+            tableItem->setToolTip(QString("[%1] %2").arg(table->KeyTbl()).arg(table->Help()));
             item->appendRow(tableItem);
-            QSqlQuery childTables=UDL->childTables(key,APP->profile());
+
             loadChildTable(tableItem);
         }
 
@@ -118,10 +120,10 @@ void QWMDataEditor::loadChildTable(QStandardItem * parent)
 {
     QString strTblKey=parent->data(DATA_ROLE).toString();
     QStandardItemModel * model=parent->model();
-    QSqlQuery childTables=UDL->childTables(strTblKey,APP->profile());
-    while(childTables.next()){
-        QString strChildTblKey=QS(childTables,KeyTbl);
-        QString strChildTblName=QS(childTables,CaptionLongP);
+    QList<MDLTable *> childTables=UDL->childTables(strTblKey,APP->profile());
+    foreach(MDLTable * table,childTables){
+        QString strChildTblKey=table->KeyTbl();
+        QString strChildTblName=table->CaptionLongP();
         QStandardItem*  tableItem=new QStandardItem(); //新建节点时设定类型为 itTopItem
         tableItem->setIcon(APP->icons()["data@4x"]); //设置第1列的图标
 
@@ -132,7 +134,7 @@ void QWMDataEditor::loadChildTable(QStandardItem * parent)
         tableItem->setData(strChildTblKey,DATA_ROLE); //设置节点第1列的Qt::UserRole的Data
         tableItem->setData(strChildTblName,TEXT_ROLE); //设置节点第1列的Qt::UserRole的Data
         tableItem->setData("",RECORD_DES_ROLE); //设置节点第1列的Qt::UserRole的Data
-        tableItem->setToolTip(QString("[%1] %2").arg(QS(childTables,KeyTbl)).arg(QS(childTables,Help)));
+        tableItem->setToolTip(QString("[%1] %2").arg(table->KeyTbl()).arg(table->Help()));
         parent->appendRow(tableItem);
         loadChildTable(tableItem);
     }

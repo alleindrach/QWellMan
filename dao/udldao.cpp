@@ -11,6 +11,8 @@
 #include "iostream"
 #include <QtMsgHandler>
 #include <QMessageLogContext>
+#include "QMetaObject"
+#include "QMetaType"
 #include "qlogging.h"
 
 void outputMessage(QtMsgType type, const QMessageLogContext &context, const QString &msg);
@@ -46,6 +48,9 @@ UDLDao *UDLDao::instance()
 
 QStringList UDLDao::profiles()
 {
+    QString key=QString("profiles");
+    CS(key,QStringList);
+
     QStringList result;
     QSqlQuery q(SQL(select_profile_set),APP->udl());
     q.exec();
@@ -53,12 +58,14 @@ QStringList UDLDao::profiles()
     while(q.next()){
         result<<QS(q,KeyProfile);
     }
-    return  result;
+    CI(key,result);
 }
 
 QStringList UDLDao::tableGroup(QString profile)
 {
 
+    QString key=QString("tableGroup.%1").arg(profile);
+    CS(key,QStringList);
 
     bool isDefult=profile.compare(QString(DEFAULT_PROFILE),Qt::CaseInsensitive)==0;
     qDebug()<<"Profile"<<isDefult<< endl<<flush;
@@ -75,11 +82,11 @@ QStringList UDLDao::tableGroup(QString profile)
         while(q.next()){
             result<<QS(q,GroupName);
         }
-        return  result;
+        CI(key,result)
     }
 }
 
-QSqlQuery UDLDao::tablesOfGroup(QString group, QString profile)
+QList<MDLTable*> UDLDao::tablesOfGroup(QString group, QString profile)
 {
 
     bool isDefult=profile.compare(QString(DEFAULT_PROFILE),Qt::CaseInsensitive)==0;
@@ -87,6 +94,8 @@ QSqlQuery UDLDao::tablesOfGroup(QString group, QString profile)
     if(profile.isNull()||profile.isEmpty()||isDefult){
         return MDL->tablesOfGroup(group);
     }else{
+        QString key=QString("tablesOfGroup.%1.%2").arg(group).arg(profile);
+        CS_LIST(key,MDLTable);
         QStringList result;
         QSqlQuery q(APP->udl());
         q.prepare(SQL(select_tables_of_group_profile));
@@ -94,19 +103,23 @@ QSqlQuery UDLDao::tablesOfGroup(QString group, QString profile)
         q.bindValue(":group",group);
         q.exec();
         PRINT_ERROR(q);
-        return  q;
+        auto r=Record::fromSqlQuery<MDLTable>(MDLTable::staticMetaObject.className(),q,this);
+        CI(key,r);
     }
 
 }
 
-QSqlQuery UDLDao::childTables(QString table, QString profile)
+QList<MDLTable*> UDLDao::childTables(QString table, QString profile)
 {
     QStringList tablesHidden=this->tablesHidden(profile);
-    QSqlQuery childTablesQuery=MDL->childTables(table,tablesHidden,APP->profile());
+    QList<MDLTable*> childTablesQuery=MDL->childTables(table,tablesHidden,APP->profile());
     return childTablesQuery;
 }
 
 QStringList UDLDao::tablesHidden(QString profile){
+    QString key=QString("tablesHidden.%1").arg(profile);
+    CS(key,QStringList);
+
     QStringList result;
     QSqlQuery q(APP->udl());
     q.prepare(SQL(select_hidden_tables_of_profile));
@@ -116,5 +129,5 @@ QStringList UDLDao::tablesHidden(QString profile){
     while(q.next()){
         result<<QS(q,KeyTbl);
     }
-    return  result;
+    CI(key,result);
 }

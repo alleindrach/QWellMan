@@ -8,6 +8,9 @@
 #include "QDebug"
 #include "QSqlField"
 #include "utility.h"
+#include "qwmsortfilterproxymodel.h"
+#include "qwmtablemodel.h"
+#include "QSqlTableModel"
 WellDao * WellDao::_instance=nullptr;
 
 WellDao::WellDao(QSqlDatabase &db,QObject *parent) : QObject(parent),_db(db)
@@ -19,6 +22,9 @@ WellDao::WellDao(QSqlDatabase &db,QObject *parent) : QObject(parent),_db(db)
     DECL_SQL(delete_well_from_catlog,"delete from %1 where %2=? COLLATE NOCASE");
     DECL_SQL(select_record,"select  w.* from %1  w  where  not exists(select * from %2 d where w.%3=d.%4 COLLATE NOCASE  and w.%3=d.IDRec COLLATE NOCASE) and w.%3=:id COLLATE NOCASE");
     DECL_SQL(insert_record,"insert into %1 (%2) values( %3)")
+    DECL_SQL(select_well_cnt_in_cat,"select  count(1) as cnt from %1  w  \
+where  not exists(select * from %2 d where w.%3=d.%4 COLLATE NOCASE and w.%3=d.IDRec  COLLATE NOCASE) \
+and w.%3=:idwell");
 }
 
 WellDao::~WellDao()
@@ -34,67 +40,95 @@ WellDao *WellDao::instance()
     return _instance;
 }
 
-QSqlQueryModel *WellDao::recentWells()
+QAbstractItemModel *WellDao::recentWells()
 {
 
-    QSqlQueryModel*  model=new QSqlQueryModel(this);
-    QStringList result;
-    QString keytableMain=CFG(KeyTblMain);
-    QString orderKey=MDL->tableOrderKey(keytableMain);
+//    QSqlQueryModel*  model=new QSqlQueryModel(this);
+//    QStringList result;
+//    QString keytableMain=CFG(KeyTblMain);
+//    QString orderKey=MDL->tableOrderKey(keytableMain);
 
 
-    QSqlQuery q(SQL(select_spec_wells)
-                .arg(keytableMain)
-                .arg(CFG(SysRecDelTable))
-                .arg(CFG(IDMainFieldName))
-                .arg(CFG(IDMainFieldName))
-                .arg(orderKey)
-                .arg(CFG(SysRecentTable))
-                .arg(CFG(IDMainFieldName))
-                ,APP->well());
-    q.exec();
-    PRINT_ERROR(q);
-    model->setQuery(q);
-    return processWells(model);
+//    QSqlQuery q(SQL(select_spec_wells)
+//                .arg(keytableMain)
+//                .arg(CFG(SysRecDelTable))
+//                .arg(CFG(IDMainFieldName))
+//                .arg(CFG(IDMainFieldName))
+//                .arg(orderKey)
+//                .arg(CFG(SysRecentTable))
+//                .arg(CFG(IDMainFieldName))
+//                ,APP->well());
+//    q.exec();
+//    PRINT_ERROR(q);
+//    model->setQuery(q);
+//    return processWells(model);
+
+    QSqlTableModel *  model=new QWMTableModel(this,APP->well());
+    model->setTable(CFG(KeyTblMain));
+    model->select();
+
+    if(model->lastError().isValid())
+    {
+        QString e=model->lastError().text();
+        qDebug()<<e;
+    }
+    processWells(model);
+    QWMSortFilterProxyModel * proxy=new QWMSortFilterProxyModel(QWMApplication::RECENT,this);
+    proxy->setSourceModel(model);
+    return proxy;
+
 }
 
-QSqlQueryModel *WellDao::favoriteWells()
+QAbstractItemModel *WellDao::favoriteWells()
 {
-    QSqlQueryModel*  model=new QSqlQueryModel(this);
-    QStringList result;
-    QString keytableMain=CFG(KeyTblMain);
-    QString orderKey=MDL->tableOrderKey(keytableMain);
+//    QSqlQueryModel*  model=new QSqlQueryModel(this);
+//    QStringList result;
+//    QString keytableMain=CFG(KeyTblMain);
+//    QString orderKey=MDL->tableOrderKey(keytableMain);
 
 
-    QSqlQuery q(SQL(select_spec_wells)
-                .arg(keytableMain)
-                .arg(CFG(SysRecDelTable))
-                .arg(CFG(IDMainFieldName))
-                .arg(CFG(IDMainFieldName))
-                .arg(orderKey)
-                .arg(CFG(SysFavoriteTable))
-                .arg(CFG(IDMainFieldName))
-                ,APP->well());
-    q.exec();
-    PRINT_ERROR(q);
-    model->setQuery(q);
-    return processWells(model);
+//    QSqlQuery q(SQL(select_spec_wells)
+//                .arg(keytableMain)
+//                .arg(CFG(SysRecDelTable))
+//                .arg(CFG(IDMainFieldName))
+//                .arg(CFG(IDMainFieldName))
+//                .arg(orderKey)
+//                .arg(CFG(SysFavoriteTable))
+//                .arg(CFG(IDMainFieldName))
+//                ,APP->well());
+//    q.exec();
+//    PRINT_ERROR(q);
+//    model->setQuery(q);
+//    return processWells(model);
+    QSqlTableModel *  model=new QWMTableModel(this,APP->well());
+    model->setTable(CFG(KeyTblMain));
+    model->select();
+
+    if(model->lastError().isValid())
+    {
+        QString e=model->lastError().text();
+        qDebug()<<e;
+    }
+    processWells(model);
+    QWMSortFilterProxyModel * proxy=new QWMSortFilterProxyModel(QWMApplication::FAVORITE,this);
+    proxy->setSourceModel(model);
+    return proxy;
 }
 
-QSqlQueryModel *WellDao::processWells(QSqlQueryModel * model)
+QAbstractItemModel *WellDao::processWells(QSqlQueryModel * model)
 {
 
-    QSqlQuery visibleFieldsQuery=MDL->tableMainHeadersVisible();
+    QList<MDLFieldVisible*> visibleFieldsList=MDL->tableMainHeadersVisible();
     QStringList visibleFields;
     QStringList visibleHeaders;
     QHash<QString,QString> visibleHeaderData;
     QHash<QString,QString> headerData;
-    QSqlRecord rec=visibleFieldsQuery.record();
-    while(visibleFieldsQuery.next()){
-        QString fieldName=visibleFieldsQuery.value(rec.indexOf("KeyFld")).toString();
-        bool isVisible=!visibleFieldsQuery.value(rec.indexOf("VisibleFld")).toString().isEmpty();
+
+    foreach(MDLFieldVisible * field,visibleFieldsList){
+        QString fieldName=field->KeyFld();
+        bool isVisible=field->Visible()>0;
         QString fieldNameUpper=fieldName.toUpper();
-        QString fieldHeader=visibleFieldsQuery.value(rec.indexOf("CaptionLong")).toString();
+        QString fieldHeader=field->CaptionLong();
         visibleFields<<fieldName;
         visibleHeaders<<fieldHeader;
         headerData.insert(fieldNameUpper,fieldHeader);
@@ -105,7 +139,13 @@ QSqlQueryModel *WellDao::processWells(QSqlQueryModel * model)
         bool isVisible=visibleHeaderData.contains(model->query().record().field(i).name().toUpper());
 //        qDebug()<<"Field["<<i<<"]="<<model->query().record().field(i).name()<<"  is visible["<<isVisible<<"]";
         model->setHeaderData(i,Qt::Horizontal, headerData[model->query().record().field(i).name().toUpper()],Qt::DisplayRole);
-        model->setHeaderData(i,Qt::Horizontal, isVisible,VISIBLE_ROLE);
+        QString fieldName=model->record().field(i).name();
+        if(APP->wellDisplayList().contains( fieldName,Qt::CaseInsensitive)||isVisible){
+            model->setHeaderData(i,Qt::Horizontal, true,VISIBLE_ROLE);
+        }else
+        {
+           model->setHeaderData(i,Qt::Horizontal, false,VISIBLE_ROLE);
+        }
     }
     return model;
 
@@ -129,7 +169,38 @@ QSqlRecord WellDao::well(QString idWell)
         return QSqlRecord();//当在当前单位制下，无用户单位时，应使用基本单位
     }
 }
+bool WellDao::isRecentWell(QString idwell){
 
+    QSqlQuery q(APP->well());
+    q.prepare(SQL(select_well_cnt_in_cat)
+               .arg(CFG(SysRecentTable)) //%1 wvWellHeader
+              .arg(CFG(SysRecDelTable)) //%2 wvSysDelRec
+              .arg(CFG(IDMainFieldName)) //%3 IDWell
+              .arg(CFG(IDMainFieldName))) //%4 IDWell
+              ;
+    q.bindValue(":idwell",idwell);
+    q.exec();
+    PRINT_ERROR(q);
+    if(q.next())
+        return  QS(q,cnt).toUInt()>0;
+    return false;
+}
+bool WellDao::isFavoriteWell(QString idwell)
+{
+    QSqlQuery q(APP->well());
+    q.prepare(SQL(select_well_cnt_in_cat)
+              .arg(CFG(SysFavoriteTable)) //%1 wvWellHeader
+              .arg(CFG(SysRecDelTable)) //%2 wvSysDelRec
+              .arg(CFG(IDMainFieldName)) //%3 IDWell
+              .arg(CFG(IDMainFieldName))) //%4 IDWell
+              ;
+    q.bindValue(":idwell",idwell);
+    q.exec();
+    PRINT_ERROR(q);
+    if(q.next())
+        return  QS(q,cnt).toUInt()>0;
+    return false;
+}
 int WellDao::addRecord(QString table, QString parentId)
 {
 
@@ -174,8 +245,8 @@ int WellDao::removeFavoriteWell(QString idWell)
 //选中的记录的显示信息，比如<NSDist>(<NSDist.unit>) -->25(m)
 QString WellDao::recordDes(QString table, QSqlRecord record)
 {
-    QSqlRecord tableInfoQuery=MDL->tableInfo(table);
-    QString rd=RS(tableInfoQuery,RecordDes);
+    MDLTable* tableInfo=MDL->tableInfo(table);
+    QString rd=tableInfo->RecordDes();
     QString rdResult=rd;
     QHash<QString,QVariant> cachedValue;
     QHash<QString,QVariant> cachedTransferedValue;
@@ -196,18 +267,18 @@ QString WellDao::recordDes(QString table, QSqlRecord record)
 //                    rdResult.replace("<"+var+">",value);
                 }else{
                     QString refVarName=var.replace(".unit","");
-                    QSqlRecord rec=MDL->baseUnitOfField(table,refVarName);
-                    QString baseUnit=RS(rec,BaseUnits);
-                    QSqlRecord recUserUnit=MDL->userUnitKey(APP->unit(),RS(rec,KeyType));
-                    if(!recUserUnit.isEmpty()){
+                    MDLUnitType *unitType=MDL->baseUnitOfField(table,refVarName);
+                    QString baseUnit=unitType->BaseUnits();
+                    MDLUnitTypeSet* userUnitInfo=MDL->userUnitKey(APP->unit(),unitType->KeyType());
+                    if(userUnitInfo!=nullptr){
 
                         //需要转换
-                        QString userUnit=RS(recUserUnit,UserUnits);
+                        QString userUnit=userUnitInfo->UserUnits();
                         cachedValue.insert(var,userUnit);
                         cachedTransferedValue.insert(var,userUnit);
                         QVariant value=cachedValue[refVarName];
                         value=MDL->unitBase2User(baseUnit,userUnit,value);
-                        QString fmtstr=RS(recUserUnit,UserFormat);
+                        QString fmtstr=userUnitInfo->UserFormat();
                         cachedTransferedValue.remove(refVarName);
                         cachedTransferedValue.insert(refVarName,Utility::format(fmtstr,value));//这个是转换后的数值,<NSDist.Unit>:10(ft)
                     }else{
@@ -227,23 +298,35 @@ QString WellDao::recordDes(QString table, QSqlRecord record)
     return rdResult;
 }
 
-QSqlQueryModel*  WellDao::wells()
+QAbstractItemModel*  WellDao::wells()
 {
-    QSqlQueryModel*  model=new QSqlQueryModel(this);
-    QStringList result;
-    QString keytableMain=CFG(KeyTblMain);
-    QString orderKey=MDL->tableOrderKey(keytableMain);
+//    QSqlQueryModel*  model=new QSqlQueryModel(this);
+//    QStringList result;
+//    QString keytableMain=CFG(KeyTblMain);
+//    QString orderKey=MDL->tableOrderKey(keytableMain);
 
 
-    QSqlQuery q(SQL(select_wells)
-                .arg(keytableMain)
-                .arg(CFG(SysRecDelTable))
-                .arg(CFG(IDMainFieldName))
-                .arg(CFG(IDMainFieldName))
-                .arg(orderKey)
-                ,APP->well());
-    q.exec();
-    PRINT_ERROR(q);
-    model->setQuery(q);
-    return processWells(model);
+//    QSqlQuery q(SQL(select_wells)
+//                .arg(keytableMain)
+//                .arg(CFG(SysRecDelTable))
+//                .arg(CFG(IDMainFieldName))
+//                .arg(CFG(IDMainFieldName))
+//                .arg(orderKey)
+//                ,APP->well());
+//    q.exec();
+//    PRINT_ERROR(q);
+//    model->setQuery(q);
+    QSqlTableModel *  model=new QWMTableModel(this,APP->well());
+    model->setTable(CFG(KeyTblMain));
+    model->select();
+
+    if(model->lastError().isValid())
+    {
+        QString e=model->lastError().text();
+        qDebug()<<e;
+    }
+    processWells(model);
+    QWMSortFilterProxyModel * proxy=new QWMSortFilterProxyModel(QWMApplication::ALL,this);
+    proxy->setSourceModel(model);
+    return proxy;
 }

@@ -29,6 +29,8 @@
 #define DATA_ROLE (Qt::UserRole+104)
 #define TEXT_ROLE (Qt::UserRole+106)
 #define RECORD_DES_ROLE (Qt::UserRole+108)
+#define PK_ROLE (Qt::UserRole+110)
+
 #define DECL_SQL(name,sql) _sql.insert(#name,sql);
 #define SQL(name) (_sql[#name])
 #define PRINT_ERROR(q) \
@@ -47,6 +49,36 @@ if(q.lastError().isValid()) qDebug()<<" Query["<<q.lastQuery()<<"] Error["<<q.la
 #define UUIDToString(x) x.toString(QUuid::Id128).toUpper()
 #define DEFAULT_PROFILE "All Data"
 #define QS(x,f) (x.value(x.record().indexOf(#f)).toString())
+#define QI(x,f) (x.value(x.record().indexOf(#f)).toInt())
+#define QB(x,f) (x.value(x.record().indexOf(#f)).toBool())
+#define QD(x,f) (x.value(x.record().indexOf(#f)).toDouble())
 #define RS(x,f) (x.value(x.indexOf(#f)).toString())
+#define RI(x,f) (x.value(x.indexOf(#f)).toInt())
+#define RB(x,f) (x.value(x.indexOf(#f)).toBool())
+#define RD(x,f) (x.value(x.indexOf(#f)).toDouble())
+#define REGISTER_ALL(x) \
+    REGISTER(x) \
+    REGISTER(x*) \
+    REGISTER(QList<x*>)
+
+#define REGISTER(x) qDebug() << (#x) << "type id:" << qMetaTypeId<x>();
+#define CS(key,typ) \
+    QVariant  cachedValue =_cache[key]; \
+    if(cachedValue.isValid()) \
+        return cachedValue.value<typ>(); \
+
+#define CS_LIST(key,typ) \
+    QVariant  cachedValue =_cache[key]; \
+    if(cachedValue.isValid()) \
+        return  cachedValue.value<QList<typ*>>(); \
+
+#define CI(key,v) \
+    _cache.insert(key,QVariant::fromValue (v));\
+    return v;
+
+#define R(r,typ) \
+    Record::fromSqlRecord<typ>(typ::staticMetaObject.className(), r,this);
+#define Q(q,typ) \
+    Record::fromSqlQuery<typ>(typ::staticMetaObject.className(),q,this);
 
 #endif // COMMON_H

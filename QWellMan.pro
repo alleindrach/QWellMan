@@ -20,7 +20,13 @@ SOURCES += \
     dao/mdldao.cpp \
     dao/udldao.cpp \
     dao/welldao.cpp \
+    dto/mdlfield.cpp \
+    dto/mdltable.cpp \
+    dto/mdlunit.cpp \
+    dto/record.cpp \
     main.cpp \
+    model/qwmsortfilterproxymodel.cpp \
+    model/qwmtablemodel.cpp \
     qwmapplication.cpp \
     qwmmain.cpp \
     ui/qwmdataeditor.cpp \
@@ -33,6 +39,13 @@ HEADERS += \
     dao/mdldao.h \
     dao/udldao.h \
     dao/welldao.h \
+    dto/dto.h \
+    dto/mdlfield.h \
+    dto/mdltable.h \
+    dto/mdlunit.h \
+    dto/record.h \
+    model/qwmsortfilterproxymodel.h \
+    model/qwmtablemodel.h \
     qwmapplication.h \
     qwmmain.h \
     ui/qwmdataeditor.h \
@@ -58,6 +71,6 @@ TRANSLATIONS +=  \
 DISTFILES += \
     resource/i18n/QWellMan_zh_CN.ts
 
-INCLUDEPATH += $$PWD/dao $$PWD/widget $$PWD/ui $$PWD/undo $$PWD/aux
+INCLUDEPATH += $$PWD/dao $$PWD/widget $$PWD/ui $$PWD/undo $$PWD/aux $$PWD/model $$PWD/dto
 
 DEFINES += QT_MESSAGELOGCONTEXT

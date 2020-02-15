@@ -24,6 +24,7 @@
 #include "udldao.h"
 #include "qdlgwellfieldsselector.h"
 #include "qwmdataeditor.h"
+#include "QSqlTableModel"
 QWMMain::QWMMain(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::QWMMain)
@@ -101,21 +102,11 @@ QWMMain::QWMMain(QWidget *parent)
 
         QStringList  groups=MDLDao::instance()->tableGroup();
 
-        foreach(QString group ,groups){
-            //            qDebug()<<"Group --:"<<group;
-            QSqlQuery tables=MDLDao::instance()->tablesOfGroup(group);
-            QSqlRecord rec = tables.record();
-            if(tables.lastError().isValid()){
-                //                qDebug()<<"error:"<<tables.lastError().text();
-            }
-            //            for(int  i=0;i<rec.count();i++){
-            //                qDebug()<<"rec["<<i<<"]="<<rec.field(i).name();
-            //            }
-            //            qDebug()<<"index of CaptionLongP:"<< rec.indexOf("CaptionLongP");
-            while(tables.next()){
-                //                qDebug()<<"\t table:"<<tables.value("CaptionLongP").toString();
-            }
-        }
+//        foreach(QString group ,groups){
+//            //            qDebug()<<"Group --:"<<group;
+//            QList<MDLTable*> tables=MDLDao::instance()->tablesOfGroup(group);
+
+//        }
         ui->menuUnit->clear();
         QStringList units=MDL->units();
         QActionGroup *unitsGroup = new QActionGroup(this);
@@ -171,14 +162,11 @@ QWMMain::~QWMMain()
 void QWMMain::loadAllWells()
 {
 
-    QSqlQueryModel * model= WELL->wells();
+    QAbstractItemModel * model= WELL->wells();
     ui->tbvWells->setModel(model);
 
-    for(int j=0;j<model->record().count();j++){
-        QString fieldName=model->record().field(j).name();
-        //        qDebug()<<"fieldName["<<fieldName<<"],list["<<APP->wellDisplayList()<<"],header["<<model->headerData(j,Qt::Horizontal,VISIBLE_ROLE)<<"]";
-        //        qDebug()<<"Field["<<j<<"].caption="<<model->headerData(j,Qt::Horizontal,Qt::DisplayRole)<<",visible="<<model->headerData(j,Qt::Horizontal,VISIBLE_ROLE).toBool();
-        if(!(model->headerData(j,Qt::Horizontal,VISIBLE_ROLE).toBool()||APP->wellDisplayList().contains( fieldName,Qt::CaseInsensitive))){
+    for(int j=0;j<model->columnCount();j++){
+       if(!(model->headerData(j,Qt::Horizontal,VISIBLE_ROLE).toBool())){
             //            qDebug()<<"set visible to false "<<model->headerData(j,Qt::Horizontal,Qt::DisplayRole);
             ui->tbvWells->setColumnHidden(j,true);
         }else
@@ -192,11 +180,10 @@ void QWMMain::loadAllWells()
 void QWMMain::loadFavoriateWells()
 {
 
-    QSqlQueryModel * model= WELL->favoriteWells();
+    QAbstractItemModel * model= WELL->favoriteWells();
     ui->tbvWells->setModel(model);
-    for(int j=0;j<model->record().count();j++){
-        //        qDebug()<<"Field["<<j<<"].caption="<<model->headerData(j,Qt::Horizontal,Qt::DisplayRole)<<",visible="<<model->headerData(j,Qt::Horizontal,VISIBLE_ROLE).toBool();
-        if(!(model->headerData(j,Qt::Horizontal,VISIBLE_ROLE).toBool()||APP->wellDisplayList().contains( model->record().field(j).name(),Qt::CaseInsensitive))){
+    for(int j=0;j<model->columnCount();j++){
+       if(!(model->headerData(j,Qt::Horizontal,VISIBLE_ROLE).toBool())){
             //            qDebug()<<"set visible to false "<<model->headerData(j,Qt::Horizontal,Qt::DisplayRole);
             ui->tbvWells->setColumnHidden(j,true);
         }else
@@ -210,11 +197,10 @@ void QWMMain::loadFavoriateWells()
 void QWMMain::loadRecentWells()
 {
 
-    QSqlQueryModel * model= WELL->recentWells();
+    QAbstractItemModel * model= WELL->recentWells();
     ui->tbvWells->setModel(model);
-    for(int j=0;j<model->record().count();j++){
-        //        qDebug()<<"Field["<<j<<"].caption="<<model->headerData(j,Qt::Horizontal,Qt::DisplayRole)<<",visible="<<model->headerData(j,Qt::Horizontal,VISIBLE_ROLE).toBool();
-        if(!(model->headerData(j,Qt::Horizontal,VISIBLE_ROLE).toBool()||APP->wellDisplayList().contains( model->record().field(j).name(),Qt::CaseInsensitive))){
+    for(int j=0;j<model->columnCount();j++){
+       if(!(model->headerData(j,Qt::Horizontal,VISIBLE_ROLE).toBool())){
             //            qDebug()<<"set visible to false "<<model->headerData(j,Qt::Horizontal,Qt::DisplayRole);
             ui->tbvWells->setColumnHidden(j,true);
         }else
@@ -279,8 +265,8 @@ void QWMMain::resizeEvent(QResizeEvent *event)
     ui->tbvWells->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     //第四列和第五列适应内容长短分配大小（从0开始计数）
-    ui->tbvWells->horizontalHeader()->setSectionResizeMode(0,QHeaderView::ResizeToContents);
-    ui->tbvWells->horizontalHeader()->setSectionResizeMode(1,QHeaderView::ResizeToContents);
+//    ui->tbvWells->horizontalHeader()->setSectionResizeMode(0,QHeaderView::ResizeToContents);
+//    ui->tbvWells->horizontalHeader()->setSectionResizeMode(1,QHeaderView::ResizeToContents);
 
 }
 

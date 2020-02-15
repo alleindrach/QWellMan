@@ -6,6 +6,7 @@
 #include <QSqlDatabase>
 #include <QSqlQueryModel>
 #include <QPair>
+#include "mdltable.h"
 class UDLDao : public QObject
 {
     Q_OBJECT
@@ -16,14 +17,15 @@ public:
     static UDLDao * instance();
     QStringList profiles();
     QStringList tableGroup(QString profile);
-    QSqlQuery  tablesOfGroup(QString group,QString profile=QString());
-    QSqlQuery childTables(QString table,QString profile=QString());
+    QList<MDLTable*>  tablesOfGroup(QString group,QString profile=QString());
+    QList<MDLTable*> childTables(QString table,QString profile=QString());
     QStringList tablesHidden(QString profile);
 signals:
 private:
     QSqlDatabase  _db;
     QHash<QString,QString> _sql;
     static UDLDao* _instance;
+    QHash<QString ,QVariant> _cache;
 public slots:
 };
 #endif // UDLDAO_H

@@ -14,15 +14,17 @@ public:
     ~WellDao();
     static WellDao * instance();
 
-    QSqlQueryModel * wells();
-    QSqlQueryModel * recentWells();
-    QSqlQueryModel * favoriteWells();
-    QSqlQueryModel * processWells(QSqlQueryModel *);
+    QAbstractItemModel * wells();
+    QAbstractItemModel * recentWells();
+    QAbstractItemModel * favoriteWells();
+    QAbstractItemModel * processWells(QSqlQueryModel *);
     QSqlRecord well(QString idWell);
     int addRecord(QString table,QString parentId=QString());
     int addRecentWell(QString idWell);
     int addFavoriteWell(QString idWell);
     int removeFavoriteWell(QString idWell);
+    bool isRecentWell(QString idwell);
+    bool isFavoriteWell(QString idwell);
     QString recordDes(QString table,QSqlRecord record);
 
 signals:
