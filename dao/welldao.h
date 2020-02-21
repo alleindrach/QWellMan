@@ -4,7 +4,8 @@
 #include <QObject>
 #include <QSqlDatabase>
 #include <QSqlQueryModel>
-
+#include "qwmrotatableproxymodel.h"
+#include "qwmtablemodel.h"
 class WellDao : public QObject
 {
     Q_OBJECT
@@ -15,9 +16,9 @@ public:
     static WellDao * instance();
 
     QAbstractItemModel * wells(int type);
-    QAbstractItemModel * recentWells();
-    QAbstractItemModel * favoriteWells();
-    QAbstractItemModel * processWells(QSqlQueryModel *);
+    bool  processWells(QWMTableModel *);
+    QWMRotatableProxyModel * tableForEdit(QString tablename,QString parentID);
+    QWMRotatableProxyModel * table(QString tablename);
     QSqlRecord well(QString idWell);
     int addRecord(QString table,QString parentId=QString());
     int addRecentWell(QString idWell);
@@ -28,6 +29,7 @@ public:
     bool isFavoriteWell(QString idwell);
     bool isDeletedWell(QString  idwell);
     QString recordDes(QString table,QSqlRecord record);
+    void initRecord(QSqlRecord &,QString IDWell=QString(),QString parentID=QString() );
 
 signals:
 private:

@@ -12,6 +12,8 @@
 #include "qwmrotatableproxymodel.h"
 #include "qwmtablemodel.h"
 #include "QSqlTableModel"
+#include "QUuid"
+#include "QDateTime"
 WellDao * WellDao::_instance=nullptr;
 
 WellDao::WellDao(QSqlDatabase &db,QObject *parent) : QObject(parent),_db(db)
@@ -44,83 +46,8 @@ WellDao *WellDao::instance()
     }
     return _instance;
 }
-
-QAbstractItemModel *WellDao::recentWells()
-{
-
-//    QSqlQueryModel*  model=new QSqlQueryModel(this);
-//    QStringList result;
-//    QString keytableMain=CFG(KeyTblMain);
-//    QString orderKey=MDL->tableOrderKey(keytableMain);
-
-
-//    QSqlQuery q(SQL(select_spec_wells)
-//                .arg(keytableMain)
-//                .arg(CFG(SysRecDelTable))
-//                .arg(CFG(IDMainFieldName))
-//                .arg(CFG(IDMainFieldName))
-//                .arg(orderKey)
-//                .arg(CFG(SysRecentTable))
-//                .arg(CFG(IDMainFieldName))
-//                ,APP->well());
-//    q.exec();
-//    PRINT_ERROR(q);
-//    model->setQuery(q);
-//    return processWells(model);
-
-    QSqlTableModel *  model=new QWMTableModel(this,APP->well());
-    model->setTable(CFG(KeyTblMain));
-    model->select();
-
-    if(model->lastError().isValid())
-    {
-        QString e=model->lastError().text();
-        qDebug()<<e;
-    }
-    processWells(model);
-    QWMSortFilterProxyModel * proxy=new QWMSortFilterProxyModel(QWMApplication::RECENT,this);
-    proxy->setSourceModel(model);
-    return proxy;
-
-}
-
-QAbstractItemModel *WellDao::favoriteWells()
-{
-//    QSqlQueryModel*  model=new QSqlQueryModel(this);
-//    QStringList result;
-//    QString keytableMain=CFG(KeyTblMain);
-//    QString orderKey=MDL->tableOrderKey(keytableMain);
-
-
-//    QSqlQuery q(SQL(select_spec_wells)
-//                .arg(keytableMain)
-//                .arg(CFG(SysRecDelTable))
-//                .arg(CFG(IDMainFieldName))
-//                .arg(CFG(IDMainFieldName))
-//                .arg(orderKey)
-//                .arg(CFG(SysFavoriteTable))
-//                .arg(CFG(IDMainFieldName))
-//                ,APP->well());
-//    q.exec();
-//    PRINT_ERROR(q);
-//    model->setQuery(q);
-//    return processWells(model);
-    QSqlTableModel *  model=new QWMTableModel(this,APP->well());
-    model->setTable(CFG(KeyTblMain));
-    model->select();
-
-    if(model->lastError().isValid())
-    {
-        QString e=model->lastError().text();
-        qDebug()<<e;
-    }
-    processWells(model);
-    QWMSortFilterProxyModel * proxy=new QWMSortFilterProxyModel(QWMApplication::FAVORITE,this);
-    proxy->setSourceModel(model);
-    return proxy;
-}
-
-QAbstractItemModel *WellDao::processWells(QSqlQueryModel * model)
+//model是QWMTableModel
+bool WellDao::processWells(QWMTableModel * model)
 {
 
     QList<MDLFieldVisible*> visibleFieldsList=MDL->tableMainHeadersVisible();
@@ -153,7 +80,45 @@ QAbstractItemModel *WellDao::processWells(QSqlQueryModel * model)
            model->setHeaderData(i,Qt::Horizontal, false,VISIBLE_ROLE);
         }
     }
-    return model;
+    return true;
+
+}
+QWMRotatableProxyModel *WellDao::table(QString tablename)
+{
+    QString key=QString("tableForEdit.%1.%2").arg(tablename);
+    CS(key,QWMRotatableProxyModel*);
+
+
+    QSqlTableModel *  model=new QWMTableModel(this,APP->well());
+    model->setTable(tablename);
+    model->setSort(model->fieldIndex( MDL->tableOrderKey(tablename)),Qt::AscendingOrder);
+
+    if(model->lastError().isValid())
+    {
+        QString e=model->lastError().text();
+        qDebug()<<e;
+    }
+
+    QWMSortFilterProxyModel * proxy=new QWMSortFilterProxyModel(model);
+    proxy->setSourceModel(model);
+
+    QWMRotatableProxyModel * rotateProxy=new QWMRotatableProxyModel(QWMRotatableProxyModel::H,proxy);
+    rotateProxy->setSourceModel(proxy);
+    CI(key,rotateProxy);
+
+}
+QWMRotatableProxyModel *WellDao::tableForEdit(QString tablename, QString parentID)
+{
+    QWMRotatableProxyModel * model=table(tablename);
+    PX(proxyModel,model);
+    //如果有parentid，则根据IDRecParent字段进行过滤
+    QSqlRecord record=APP->udl().record(tablename);
+    if(record.indexOf(CFG(ParentID))>=0)
+    {
+        proxyModel->setFilterKeyColumn(record.indexOf(CFG(ParentID)));
+        proxyModel->setFilterFixedString(parentID);
+        proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    }
 
 }
 
@@ -342,7 +307,7 @@ QAbstractItemModel*  WellDao::wells(int type)
     QString key=QString("wells.%1").arg(type);
     CS(key,QAbstractItemModel*);
 
-    QSqlTableModel *  model=new QWMTableModel(this,APP->well());
+    QWMTableModel *  model=new QWMTableModel(this,APP->well());
     model->setTable(CFG(KeyTblMain));
     model->setSort(model->fieldIndex( MDL->tableOrderKey(CFG(KeyTblMain))),Qt::AscendingOrder);
     model->select();
@@ -352,10 +317,9 @@ QAbstractItemModel*  WellDao::wells(int type)
         QString e=model->lastError().text();
         qDebug()<<e;
     }
-//    return  model;
     processWells(model);
 
-    QWMSortFilterProxyModel * proxy=new QWMSortFilterProxyModel(type,model);
+    QWMSortFilterProxyModel * proxy=new QWMSortFilterProxyModel(model);
     proxy->setSourceModel(model);
 
     proxy->setFilterFunction( [model,type](int sourceRow, const QModelIndex &sourceParent)->bool {
@@ -375,4 +339,22 @@ QAbstractItemModel*  WellDao::wells(int type)
     QWMRotatableProxyModel * rotateProxy=new QWMRotatableProxyModel(QWMRotatableProxyModel::H,proxy);
     rotateProxy->setSourceModel(proxy);
     CI(key,rotateProxy);
+}
+void WellDao::initRecord(QSqlRecord & record,QString idWell,QString parentID){
+    int idIndex=record.indexOf(CFG(ID));
+    QUuid id=QUuid::createUuid();
+    QString strID=UUIDToString(id);
+    if(idIndex>=0){// 如果有idwell和 idrec，则idrec是初始化值，idwell需要引用 赋值
+        record.setValue(idIndex,strID);
+        INITFLD(record,CFG(IDWell),idWell);
+    }else{ //如果 只有 idwell，则idwell需要初始化
+        INITFLD(record,CFG(IDWell),strID);
+        INITFLD(record,"WellName",strID);
+    }
+    QDateTime now=QDateTime::currentDateTimeUtc();
+    INITFLD(record,CFG(SysCD),now);
+    INITFLD(record,CFG(SysCU),QString(""));
+    INITFLD(record,CFG(SysMD),now);
+    INITFLD(record,CFG(SysMU),QString(""));
+
 }

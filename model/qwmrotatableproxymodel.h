@@ -26,7 +26,10 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-
+    QString fieldName(QModelIndex  index);
+    QString tableName();
+    bool showGroup();
+    void setShowGroup(bool show);
     bool submitAll() ;
     bool submit() override;
     void revert() override;
@@ -44,7 +47,7 @@ protected:
 
 private :
     Mode _mode{H};
-
+    bool _showGroup{false};
     friend class QWMMain;
 };
 

@@ -164,6 +164,32 @@ QVariant QWMRotatableProxyModel::headerData(int section, Qt::Orientation orienta
     }
 }
 
+QString QWMRotatableProxyModel::fieldName(QModelIndex index)
+{
+    P(model);
+    QModelIndex preProxyIndex=mapToSource(index);
+
+    QVariant fieldInfo= model->headerData(preProxyIndex.column(),Qt::Horizontal,FIELD_ROLE);
+    return fieldInfo.toString();
+}
+
+QString QWMRotatableProxyModel::tableName()
+{
+    S(model);
+    return model->tableName();
+}
+
+bool QWMRotatableProxyModel::showGroup()
+{
+    return _showGroup;
+}
+
+void QWMRotatableProxyModel::setShowGroup(bool show)
+{
+    _showGroup=show;
+    return;
+}
+
 bool QWMRotatableProxyModel::submitAll()
 {
     P(proxyModel);

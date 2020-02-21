@@ -20,6 +20,8 @@ public:
     QList<MDLTable*>  tablesOfGroup(QString group,QString profile=QString());
     QList<MDLTable*> childTables(QString table,QString profile=QString());
     QStringList tablesHidden(QString profile);
+    QStringList fieldsHidden(QString profile,QString tablename);
+    QStringList fieldsVisibleInOrder(QString profile, QString table);
 signals:
 private:
     QSqlDatabase  _db;

@@ -13,7 +13,7 @@
 #include "QSqlIndex"
 #define S(model)\
     QWMTableModel * model=static_cast<QWMTableModel *>(this->sourceModel());
-QWMSortFilterProxyModel::QWMSortFilterProxyModel(int type,QObject *parent) : QSortFilterProxyModel(parent),_type(type)
+QWMSortFilterProxyModel::QWMSortFilterProxyModel(QObject *parent) : QSortFilterProxyModel(parent)
 {
 
 }
@@ -95,45 +95,12 @@ QSqlError QWMSortFilterProxyModel::lastError()
 
 QVariant QWMSortFilterProxyModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-//    if( role == Qt::DisplayRole){
-//        if(this->mode()==Qt::Orientation::Horizontal){
-//            if( orientation==Qt::Orientation::Horizontal)
-//            {
-//                Nut::FieldModel  * field=fieldBySection(section);
-//                if(field)
-//                    return field->displayName;
-//            }else
-//            {
-//                return QString::number(section+1, 3);
-//            }
-//        }else if(this->mode()==Qt::Orientation::Vertical){
-//            if( orientation==Qt::Orientation::Vertical){
-//                Nut::FieldModel  * field=fieldBySection(section);
-//                if(field)
-//                    return field->displayName;
-//            }else
-//            {
-//                return QString::number(section+1, 3);
-//            }
-//        }
-//    }
-
-//    Q_D(const QSortFilterProxyModel);
-//    IndexMap::const_iterator it = d->create_mapping(QModelIndex());
-//    if (it.value()->source_rows.count() * it.value()->source_columns.count() > 0)
-//        return QAbstractProxyModel::headerData(section, orientation, role);
-//    int source_section;
-//    if (orientation == Qt::Vertical) {
-//        if (section < 0 || section >= it.value()->source_rows.count())
-//            return QVariant();
-//        source_section = it.value()->source_rows.at(section);
-//    } else {
-//        if (section < 0 || section >= it.value()->source_columns.count())
-//            return QVariant();
-//        source_section = it.value()->source_columns.at(section);
-//    }
+    S(model);
     if(orientation==Qt::Horizontal){
-        return QSortFilterProxyModel::headerData(section,orientation,role);
+//        if(role==FIELD_ROLE){
+//            return model->headerData(section,orientation,role);
+//        }else
+            return QSortFilterProxyModel::headerData(section,orientation,role);
     }else
     {
         if(role==Qt::DisplayRole)

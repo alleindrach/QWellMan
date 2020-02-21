@@ -31,6 +31,8 @@
 #define RECORD_DES_ROLE (Qt::UserRole+108)
 #define PK_ROLE (Qt::UserRole+110)
 #define FIELD_ROLE (Qt::UserRole+120)
+#define TABLE_NAME_ROLE (Qt::UserRole+130)
+#define PK_VALUE_ROLE (Qt::UserRole+150)
 
 #define DECL_SQL(name,sql) _sql.insert(#name,sql);
 #define SQL(name) (_sql[#name])
@@ -92,4 +94,12 @@ if(q.lastError().isValid()) qDebug()<<" Query["<<q.lastQuery()<<"] Error["<<q.la
 #define PX(model,proxy) \
     QWMSortFilterProxyModel * model=static_cast<QWMSortFilterProxyModel *>(static_cast<QWMRotatableProxyModel *>(proxy)->sourceModel());
 
+#define INITFLD(record,fld,value) \
+    if(!value.isNull()){ \
+        int index=record.indexOf(fld); \
+        if(index>=0){ \
+            record.setValue(index,value); \
+            record.setGenerated(index,true);\
+        }\
+    }
 #endif // COMMON_H

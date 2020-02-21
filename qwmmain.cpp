@@ -450,25 +450,31 @@ void QWMMain::on_actionNew_triggered()
         PX(proxyModel,ui->tbvWells->model());
         SX(tableModel,ui->tbvWells->model());
         QSqlRecord record=model->record();
-        int ind=record.indexOf("IDWell");
-        int ind2=record.indexOf("WellName");
-        QUuid uuid=QUuid::createUuid();
-        QString idWell=UUIDToString(uuid);
-        record.setValue("IDWell",idWell);
-        record.setValue(record.indexOf("WellName"),idWell);
+        WELL->initRecord(record);
+//        int ind=record.indexOf("IDWell");
+//        int ind2=record.indexOf("WellName");
+//        QUuid uuid=QUuid::createUuid();
+//        QString idWell=UUIDToString(uuid);
+//        record.setValue("IDWell",idWell);
+//        record.setValue(record.indexOf("WellName"),idWell);
         bool success=model->insertRecord(0,record);
+        if(!success)
+            QMessageBox::information(this,"插入井数据错误",model->lastError().text());
+
+        QString idWell=record.value(CFG(IDWell)).toString();
         //        bool success= model->insertRow(0);
         //        QString idWell=model->data(model->index(0,ind)).toString();
         //        QModelIndex index=model->index(0,ind);
 
         //        model->setData(model->index(0,ind),idWell);
         //        model->setData(model->index(0,ind2),idWell);
-        qDebug()<<" insert success:"<<success<<",id:"<<idWell;
+        //qDebug()<<" insert success:"<<success<<",id:"<<idWell;
         //        for(int i=0;i<record.count();i++){
         //            qDebug()<<"["<<record.fieldName(i)<<"]="<<record.value(i);
         //        }
+        success=model->submitAll();
         if(!success)
-            QMessageBox::information(this,"保存导数据错误",model->lastError().text());
+            QMessageBox::information(this,"保存井数据错误",model->lastError().text());
 
         if(model->lastError().isValid()){
             qDebug()<<" Submit all:"<<model->lastError().text();

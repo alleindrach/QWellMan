@@ -22,6 +22,7 @@ SOURCES += \
     dao/welldao.cpp \
     dto/mdlfield.cpp \
     dto/mdltable.cpp \
+    dto/mdltablechildren.cpp \
     dto/mdlunit.cpp \
     dto/record.cpp \
     main.cpp \
@@ -32,7 +33,11 @@ SOURCES += \
     qwmmain.cpp \
     ui/qwmdataeditor.cpp \
     undo/qfieldeditcommand.cpp \
-    widget/qdlgwellfieldsselector.cpp
+    widget/comboboxdelegate.cpp \
+    widget/datedelegate.cpp \
+    widget/qdlgwellfieldsselector.cpp \
+    widget/qwmdatatableview.cpp \
+    widget/spinboxdelegate.cpp
 
 HEADERS += \
     aux/utility.h \
@@ -43,6 +48,7 @@ HEADERS += \
     dto/dto.h \
     dto/mdlfield.h \
     dto/mdltable.h \
+    dto/mdltablechildren.h \
     dto/mdlunit.h \
     dto/record.h \
     model/qwmrotatableproxymodel.h \
@@ -52,7 +58,11 @@ HEADERS += \
     qwmmain.h \
     ui/qwmdataeditor.h \
     undo/qfieldeditcommand.h \
-    widget/qdlgwellfieldsselector.h
+    widget/comboboxdelegate.h \
+    widget/datedelegate.h \
+    widget/qdlgwellfieldsselector.h \
+    widget/qwmdatatableview.h \
+    widget/spinboxdelegate.h
 
 FORMS += \
     qwmmain.ui \

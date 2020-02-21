@@ -21,12 +21,12 @@ MDLDao::MDLDao(QSqlDatabase &db,QObject *parent) : QObject(parent),_db(db)
     DECL_SQL(select_table_long_headers,"select  CaptionLong from pceMDLTableField where KeyTbl=:table COLLATE NOCASE order by DisplayOrder ");
     DECL_SQL(select_main_table_headers,"select  t.*, case ifnull(m.KeyFld,'0') when '0' then 0 else 1 end as Visible \
              from pceMDLTableField t left join pceMDLTableMainIDFields m  on \
-             t.KeyTbl=:table  COLLATE NOCASE and t.KeyFld=m.KeyFld COLLATE NOCASE order by m.DisplayOrder ")
+             t.KeyTbl=:table  COLLATE NOCASE and t.KeyFld=m.KeyFld COLLATE NOCASE order by m.DisplayOrder ");
 
             DECL_SQL(select_unit_set,"select  * from pceMDLUnitSet s   "
                                      "order by s.DisplayOrder");
-    DECL_SQL(select_profile_set,"select  * from pceMDLUnitSet s   "
-                                " order by s.DisplayOrder");
+            DECL_SQL(select_profile_set,"select  * from pceMDLUnitSet s   "
+                                        " order by s.DisplayOrder");
     DECL_SQL(select_table_fields,"select  * from pceMDLTableField where KeyTbl=:table COLLATE NOCASE order by DisplayOrder ");
     DECL_SQL(select_table_field,"select  * from pceMDLTableField where KeyTbl=:table  COLLATE NOCASE  and KeyFld=:field COLLATE NOCASE order by DisplayOrder ");
     DECL_SQL(select_base_unit_of_field,"select u.* from pceMDLTableField f ,pceMDLUnitType u  where f.KeyTbl=:table COLLATE NOCASE and  f.KeyFld=:field COLLATE NOCASE and u.KeyType=f.KeyUnit COLLATE NOCASE")
@@ -38,19 +38,20 @@ MDLDao::MDLDao(QSqlDatabase &db,QObject *parent) : QObject(parent),_db(db)
             DECL_SQL(select_table_info,"select  * from pceMDLTable where KeyTbl=:table COLLATE NOCASE");
     DECL_SQL(select_child_tables,"select t2.* from pceMDLTableChildren c,pceMDLTable t,pceMDLTable t2 \
              where   c.KeyTbl=:table COLLATE NOCASE and t2.Calculated=false and t.KeyTbl=c.KeyTbl COLLATE NOCASE and t2.KeyTbl=c.KeyTblChild COLLATE NOCASE and not exists(select * from pceMDLTableGrpLink l where l.KeyTbl=c.KeyTblChild COLLATE NOCASE) \
-            and c.KeyTblChild not in (%1) order by c.DisplayOrder ")
-            DECL_SQL(select_table_field_count,"select count(1) as cnt from pceMDLTableField f where f.KeyTbl=:table COLLATE NOCASE and KeyFld=:field COLLATE NOCASE ")
-            DECL_SQL(select_parent_table,"select KeyTbl  from pceMDLTableChildren c where c.KeyTblChild=:table COLLATE NOCASE ")
+            and c.KeyTblChild not in (%1) order by c.DisplayOrder ");
+            DECL_SQL(select_table_field_count,"select count(1) as cnt from pceMDLTableField f where f.KeyTbl=:table COLLATE NOCASE and KeyFld=:field COLLATE NOCASE ");
+            DECL_SQL(select_parent_table,"select KeyTbl  from pceMDLTableChildren c where c.KeyTblChild=:table COLLATE NOCASE ");
+
 }
 
 MDLDao::~MDLDao()
 {
     //    if(_instance)
     //        delete _instance;
-//    if(!_cache.isEmpty())
-//    {
-//        qDeleteAll(_cache);
-//    }
+    //    if(!_cache.isEmpty())
+    //    {
+    //        qDeleteAll(_cache);
+    //    }
 }
 
 MDLDao *MDLDao::instance()
@@ -67,7 +68,7 @@ QStringList MDLDao::tableGroup()
     CS("tableGroup",QStringList)
 
 
-    QSqlQuery q(SQL(select_table_group),APP->mdl());
+            QSqlQuery q(SQL(select_table_group),APP->mdl());
     q.exec();
     while(q.next()){
         result<<q.value("KeyGrp").toString();
@@ -79,7 +80,7 @@ QList<MDLTable*> MDLDao::tablesOfGroup(QString group)
 {
     QString key="tablesOfGroup."+group;
     CS_LIST(key,MDLTable)
-    QSqlQuery q(APP->mdl());
+            QSqlQuery q(APP->mdl());
     q.prepare(SQL(select_table_of_group));
     q.bindValue(":group",group);
     q.exec();
@@ -103,10 +104,16 @@ void MDLDao::readConfig(QHash<QString,QString>&  config){
         }
     }
     config.insert("ID","IDRec");
-    config.insert("ParentIDField","IDRecParent");
+    config.insert("IDWell",config["IDMainFieldName"]);
+    config.insert("ParentID","IDRecParent");
     config.insert("SysRecDelTable","wvSysRecDel");
     config.insert("SysRecentTable","wvSys01");
     config.insert("SysFavoriteTable","wvSys02");
+    config.insert("SysCD","sysCreateDate");
+    config.insert("SysMD","sysModDate");
+    config.insert("SysCU","sysCreateUser");
+    config.insert("SysMU","sysModUser");
+    config.insert("SysLD","sysLockDate");
     return ;
 
 }
@@ -115,7 +122,7 @@ QString MDLDao::tableOrderKey(QString table)
 {
     QString key="tableOrderKey."+table;
     CS(key,QString)
-    QSqlQuery q(APP->mdl());
+            QSqlQuery q(APP->mdl());
     q.prepare(SQL(select_table_order));
     q.bindValue(":table",table);
     q.exec();
@@ -133,7 +140,7 @@ QStringList MDLDao::tableHeaders(QString table)
 {
     QString key="tableHeaders."+table;
     CS(key,QStringList)
-    QSqlQuery q(APP->mdl());
+            QSqlQuery q(APP->mdl());
     q.prepare(SQL(select_table_long_headers));
     q.bindValue(":table",table);
     q.exec();
@@ -250,7 +257,7 @@ QString MDLDao::parentTable(QString table)
     q.bindValue(":table",table);
     q.exec();
     PRINT_ERROR(q);
-    QString result;
+    QString result=QString();
     if(q.next()){
         result= QS(q,KeyTbl);
     }
@@ -261,7 +268,7 @@ QString MDLDao::parentRefName(QString table){
     if(parentTableName.compare(CFG(KeyTblMain),Qt::CaseInsensitive)==0){
         return CFG(IDMainFieldName);
     }else if (!parentTableName.isNull()&& !parentTableName.isEmpty()){
-        return CFG(ParentIDField);
+        return CFG(ParentID);
     }
     return CFG(IDMainFieldName);
 }

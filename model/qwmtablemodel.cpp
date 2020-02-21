@@ -44,8 +44,21 @@ QVariant QWMTableModel::headerData(int section, Qt::Orientation orientation, int
         //            return QString::number(section+1, 3);
         //        }
 
+        //    }else if(role=FIELD_ROLE && orientation==Qt::Horizontal){
+        //         QString fieldName=this->record().fieldName(section);
+        //         return fieldName;
     }
+//    if(orientation==Qt::Horizontal && role==VISIBLE_ROLE){
+//        QVariant   v=QSqlRelationalTableModel::headerData(section,orientation,role);
+//        qDebug()<<"V["<<section<<"]="<<v.toString();
+//    }else if(orientation==Qt::Horizontal && role==Qt::SizeHintRole){
+//        qDebug()<<"y";
+//    }
     return QSqlRelationalTableModel::headerData(section,orientation,role);
+}
+void QWMTableModel::setTable(const QString &tableName){
+    this->initFields(tableName);
+    return QSqlRelationalTableModel::setTable(tableName);
 }
 QVariant QWMTableModel::data(const QModelIndex &index, int role) const
 {
@@ -64,9 +77,9 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
 
     QString fieldName=this->record().fieldName(index.column());
     QString tableName=this->tableName();
-//    if(fieldName=="WellName" && index.row()==0 && role==Qt::DisplayRole){
-//        qDebug()<<"["<<fieldName<<"]="<<value<<",["<<index.row()<<","<<index.column()<<"]";
-//    }
+    //    if(fieldName=="WellName" && index.row()==0 && role==Qt::DisplayRole){
+    //        qDebug()<<"["<<fieldName<<"]="<<value<<",["<<index.row()<<","<<index.column()<<"]";
+    //    }
     if(role== PK_ROLE){
         QString idField=MDL->idField(this->tableName());
         int col=record.indexOf(idField);
@@ -191,6 +204,25 @@ bool QWMTableModel::readonly()
 void QWMTableModel::setReadonly(bool v)
 {
     _readonly=v;
+}
+
+void QWMTableModel::initFields(const QString &tableName)
+{
+    QStringList visibleFieldsList=UDL->fieldsVisibleInOrder(APP->profile(),tableName);
+    _visibleFieldsInOrder.clear();
+    for(int i=0;i<visibleFieldsList.length();i++){
+        _visibleFieldsInOrder.insert(i,visibleFieldsList[i]);
+    }
+}
+
+void QWMTableModel::setVisibleFields(const QHash<int, QString> lst)
+{
+    _visibleFieldsInOrder=lst;
+}
+
+QHash<int, QString> &QWMTableModel::visibleFields()
+{
+    return _visibleFieldsInOrder;
 }
 
 void QWMTableModel::init_record_on_prime_insert(int row, QSqlRecord &record)

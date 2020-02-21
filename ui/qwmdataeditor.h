@@ -6,6 +6,7 @@
 #include <QTreeWidgetItem>
 #include <QStandardItem>
 #include <QLabel>
+#include "qwmdatatableview.h"
 namespace Ui {
 class QWMDataEditor;
 }
@@ -32,7 +33,7 @@ protected:
 private slots:
     void on_actionSaveExit_triggered();
 
-
+    void on_trv_data_table_node_clicked(const QModelIndex &index);
 
 private:
     Ui::QWMDataEditor *ui;
@@ -45,6 +46,7 @@ private:
     QLabel * _lblUnit;
     QLabel * _lblReferenceDatum ;
     QLabel * _lblMessage;
+    QWMDataTableView * _tbvData;
 };
 
 #endif // QWMDATAEDITOR_H

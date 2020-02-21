@@ -25,11 +25,24 @@ UDLDao::UDLDao(QSqlDatabase &db,QObject *parent) : QObject(parent),_db(db)
              DECL_SQL(select_table_group_by_profile,"select d.* from pceUDLSetTblGroupData d,pceUDLSetTblGroup g,pceUDLProfile p \
                       where p.KeyProfile=:profile COLLATE NOCASE and p.KeySetTblGroup=g.KeySet COLLATE NOCASE and g.KeySet=d.KeySet COLLATE NOCASE \
             order by d.DisplayOrder ");
-             DECL_SQL(select_tables_of_group_profile,"select tl.* from pceUDLSetTblGroupTblData t,pceUDLProfile p,pceListTbl tl \
-                      where p.KeyProfile=:profile COLLATE NOCASE and tl.Calculated=false  and p.KeySetTblGroup=t.KeySet COLLATE NOCASE and t.GroupName=:group COLLATE NOCASE and tl.KeyTbl=t.KeyTbl COLLATE NOCASE order by t.DisplayOrder ");
-//qInstallMessageHandler(outputMessage);
+            DECL_SQL(select_tables_of_group_profile,"select tl.* from pceUDLSetTblGroupTblData t,pceUDLProfile p,pceListTbl tl \
+                     where p.KeyProfile=:profile COLLATE NOCASE and tl.Calculated=false  and p.KeySetTblGroup=t.KeySet COLLATE NOCASE and t.GroupName=:group COLLATE NOCASE and tl.KeyTbl=t.KeyTbl COLLATE NOCASE order by t.DisplayOrder ");
+            //qInstallMessageHandler(outputMessage);
             DECL_SQL(select_hidden_tables_of_profile,"select hd.KeyTbl from pceUDLProfile p ,pceUDLSetTblHiddenData hd \
                      where p.KeyProfile=:profile COLLATE NOCASE and p.KeySetTblHidden=hd.KeySet COLLATE NOCASE")
+            DECL_SQL(select_hidden_fields_of_profile,"select hd.KeyFld from pceUDLProfile p ,pceUDLSetFldHiddenData hd \
+                     where p.KeyProfile=:profile COLLATE NOCASE \
+            and p.KeySetFldHidden=hd.KeySet COLLATE NOCASE \
+            and hd.KeyTbl=:table COLLATE  NOCASE");
+
+            DECL_SQL(select_table_visible_fields_in_order,"select * from pceListTblFld f where f.KeyTbl=:table  and not  exists ( \
+                     select hd.KeyFld from pceUDLProfile p ,pceUDLSetFldHiddenData hd \
+                     where p.KeyProfile=:profile COLLATE NOCASE \
+            and p.KeySetFldHidden=hd.KeySet COLLATE NOCASE \
+            and hd.KeyTbl=f.KeyTbl COLLATE  NOCASE \
+            and hd.KeyFld=f.KeyFLd COLLATE  NOCASE \
+            )  order by f.DisplayOrder")
+
 }
 
 UDLDao::~UDLDao()
@@ -128,6 +141,40 @@ QStringList UDLDao::tablesHidden(QString profile){
     PRINT_ERROR(q);
     while(q.next()){
         result<<QS(q,KeyTbl);
+    }
+    CI(key,result);
+}
+QStringList UDLDao::fieldsHidden(QString profile,QString tablename){
+    QString key=QString("fieldsHidden.%1.%2").arg(profile).arg(tablename);
+    CS(key,QStringList);
+
+    QStringList result;
+    QSqlQuery q(APP->udl());
+    q.prepare(SQL(select_hidden_fields_of_profile));
+    q.bindValue(":profile",profile);
+    q.bindValue(":table",tablename);
+    q.exec();
+    PRINT_ERROR(q);
+    while(q.next()){
+        result<<QS(q,KeyFld);
+    }
+    CI(key,result);
+}
+
+QStringList UDLDao::fieldsVisibleInOrder(QString profile, QString table)
+{
+    QString key=QString("fieldsVisibleInOrder.%1.%2").arg(profile).arg(table);
+    CS(key,QStringList);
+
+    QStringList result;
+    QSqlQuery q(APP->udl());
+    q.prepare(SQL(select_table_visible_fields_in_order));
+    q.bindValue(":profile",profile);
+    q.bindValue(":table",table);
+    q.exec();
+    PRINT_ERROR(q);
+    while(q.next()){
+        result<<QS(q,KeyFld);
     }
     CI(key,result);
 }

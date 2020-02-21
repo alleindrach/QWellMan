@@ -10,7 +10,7 @@ class QWMSortFilterProxyModel : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    explicit QWMSortFilterProxyModel(int type,QObject *parent = nullptr);
+    explicit QWMSortFilterProxyModel(QObject *parent = nullptr);
 
     bool insertRecord(int row, const QSqlRecord &record);
     QSqlRecord record() const;
@@ -30,7 +30,6 @@ protected:
     //    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 
 private :
-    int _type{0};
     std::function<bool (int , const QModelIndex &)>  _filterFunction{nullptr};
 };
 

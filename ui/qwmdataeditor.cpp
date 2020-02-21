@@ -15,11 +15,17 @@
 #include "welldao.h"
 #include "QLabel"
 #include "mdltable.h"
+#include  "qwmdatatableview.h"
 QWMDataEditor::QWMDataEditor(QString idWell,QString name,QWidget *parent) :
     QMainWindow(parent),_idWell(idWell),_wellName(name),
     ui(new Ui::QWMDataEditor)
 {
     ui->setupUi(this);
+
+    _tbvData = new QWMDataTableView(ui->splitter);
+    _tbvData->setObjectName(QString::fromUtf8("tbvData"));
+    ui->splitter->addWidget(_tbvData);
+
     ui->splitter->setStretchFactor(0,1);
     ui->splitter->setStretchFactor(1,4);
     ui->trvTables->setStyle(QStyleFactory::create("windows"));
@@ -61,7 +67,7 @@ QWMDataEditor::QWMDataEditor(QString idWell,QString name,QWidget *parent) :
     //    m_dataToolbar->addAction(ui->actDelItem);
     //    m_dataToolbar->addAction(ui->actRotate);
     //    m_dataGrid=tableviewData;
-
+    connect(ui->trvTables,&QTreeView::clicked,this,&QWMDataEditor::on_trv_data_table_node_clicked);
 }
 
 QWMDataEditor::~QWMDataEditor()
@@ -102,9 +108,10 @@ void QWMDataEditor::loadDataTree()
             //        item->setText(MainWindow::colItemType,"type=itTopItem");  //设置第2列的文字
             tableItem->setFlags(Qt::ItemIsEnabled );
             tableItem->setData(QWMApplication::TABLE,CAT_ROLE); //设置节点第1列的Qt::UserRole的Data
-            tableItem->setData(key,DATA_ROLE); //设置节点第1列的Qt::UserRole的Data
-            tableItem->setData(text,TEXT_ROLE); //设置节点第1列的Qt::UserRole的Data
-            tableItem->setData("",RECORD_DES_ROLE); //设置节点第1列的Qt::UserRole的Data
+            tableItem->setData(key,TABLE_NAME_ROLE);
+//            tableItem->setData(text,TEXT_ROLE);
+            tableItem->setData("",RECORD_DES_ROLE);
+            tableItem->setData("",PK_VALUE_ROLE);
             tableItem->setToolTip(QString("[%1] %2").arg(table->KeyTbl()).arg(table->Help()));
             item->appendRow(tableItem);
 
@@ -131,9 +138,10 @@ void QWMDataEditor::loadChildTable(QStandardItem * parent)
         //        item->setText(MainWindow::colItemType,"type=itTopItem");  //设置第2列的文字
         tableItem->setFlags(Qt::ItemIsEnabled );
         tableItem->setData(QWMApplication::TABLE,CAT_ROLE); //设置节点第1列的Qt::UserRole的Data
-        tableItem->setData(strChildTblKey,DATA_ROLE); //设置节点第1列的Qt::UserRole的Data
-        tableItem->setData(strChildTblName,TEXT_ROLE); //设置节点第1列的Qt::UserRole的Data
-        tableItem->setData("",RECORD_DES_ROLE); //设置节点第1列的Qt::UserRole的Data
+        tableItem->setData(strChildTblKey,TABLE_NAME_ROLE); //设置节点第1列的Qt::UserRole的Data
+//        tableItem->setData(strChildTblName,TEXT_ROLE); //设置节点第1列的Qt::UserRole的Data
+        tableItem->setData("",RECORD_DES_ROLE);
+        tableItem->setData("",PK_VALUE_ROLE);
         tableItem->setToolTip(QString("[%1] %2").arg(table->KeyTbl()).arg(table->Help()));
         parent->appendRow(tableItem);
         loadChildTable(tableItem);
@@ -172,4 +180,19 @@ void QWMDataEditor::closeEvent(QCloseEvent *event)
 void QWMDataEditor::on_actionSaveExit_triggered()
 {
     this->close();
+}
+
+void QWMDataEditor::on_trv_data_table_node_clicked(const QModelIndex &index)
+{
+    //1 如果当前的表和well是1：1的，且无记录，则必须生成一个新纪录
+    //2 如果当前表有记录，且当前节点无选中历史，则 选中第一条记录 ，将当前记录的key保存 到treeview node的key_field中 。当前几点的RecordDes显示
+    //3 如果当前表有父表，则必须父表的节点有选中记录，否则报警，如果当前的父表有选中记录，则将父表的id设置为当前表的parentid进行过滤 。
+    QString tableName=index.data(TABLE_NAME_ROLE).toString();
+    QString parentTableName=MDL->parentTable(tableName);
+    MDLTable * tableInfo=MDL->tableInfo(tableName);
+
+    if(!parentTableName.isNull()  && !parentTableName.isEmpty()){
+
+    }
+
 }
