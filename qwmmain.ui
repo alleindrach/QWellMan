@@ -54,7 +54,11 @@
         <bool>false</bool>
        </attribute>
       </widget>
-      <widget class="QTableView" name="tbvWells"/>
+      <widget class="QTableView" name="tbvWells">
+       <property name="editTriggers">
+        <set>QAbstractItemView::NoEditTriggers</set>
+       </property>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -65,7 +69,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>24</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -161,6 +165,7 @@
    <addaction name="actionOpen"/>
    <addaction name="actionEdit"/>
    <addaction name="separator"/>
+   <addaction name="actionDelete"/>
    <addaction name="actionAbout"/>
    <addaction name="separator"/>
    <addaction name="actionFavorite"/>
@@ -168,6 +173,7 @@
    <addaction name="actionGroup"/>
    <addaction name="actionListColumn"/>
    <addaction name="separator"/>
+   <addaction name="actionRotate"/>
   </widget>
   <action name="actionNew">
    <property name="icon">
@@ -375,6 +381,21 @@
   <action name="actiondsd">
    <property name="text">
     <string>dsd</string>
+   </property>
+  </action>
+  <action name="actionRotate">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resource/resource.qrc">
+     <normaloff>:/images/icons/rotate.png</normaloff>:/images/icons/rotate.png</iconset>
+   </property>
+   <property name="text">
+    <string>Rotate</string>
+   </property>
+   <property name="toolTip">
+    <string>Rotate </string>
    </property>
   </action>
  </widget>

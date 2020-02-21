@@ -25,6 +25,7 @@ SOURCES += \
     dto/mdlunit.cpp \
     dto/record.cpp \
     main.cpp \
+    model/qwmrotatableproxymodel.cpp \
     model/qwmsortfilterproxymodel.cpp \
     model/qwmtablemodel.cpp \
     qwmapplication.cpp \
@@ -44,6 +45,7 @@ HEADERS += \
     dto/mdltable.h \
     dto/mdlunit.h \
     dto/record.h \
+    model/qwmrotatableproxymodel.h \
     model/qwmsortfilterproxymodel.h \
     model/qwmtablemodel.h \
     qwmapplication.h \

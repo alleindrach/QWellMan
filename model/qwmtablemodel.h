@@ -18,6 +18,7 @@ public:
 signals:
 
 public slots:
+    void init_record_on_prime_insert(int row, QSqlRecord &record);
 private :
     bool  _readonly;
 

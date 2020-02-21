@@ -14,7 +14,7 @@ public:
     ~WellDao();
     static WellDao * instance();
 
-    QAbstractItemModel * wells();
+    QAbstractItemModel * wells(int type);
     QAbstractItemModel * recentWells();
     QAbstractItemModel * favoriteWells();
     QAbstractItemModel * processWells(QSqlQueryModel *);
@@ -23,8 +23,10 @@ public:
     int addRecentWell(QString idWell);
     int addFavoriteWell(QString idWell);
     int removeFavoriteWell(QString idWell);
+    int deleteItem(QString idWell,QString idRec);
     bool isRecentWell(QString idwell);
     bool isFavoriteWell(QString idwell);
+    bool isDeletedWell(QString  idwell);
     QString recordDes(QString table,QSqlRecord record);
 
 signals:
@@ -32,6 +34,7 @@ private:
     QSqlDatabase  _db;
     QHash<QString,QString> _sql;
     static WellDao* _instance;
+    QHash<QString ,QVariant> _cache;
 public slots:
 };
 

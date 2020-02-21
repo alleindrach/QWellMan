@@ -6,6 +6,8 @@
 #include <QSqlDatabase>
 #include <QStandardItem>
 #include <QLabel>
+#include <QSortFilterProxyModel>
+#include  "qwmrotatableproxymodel.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class QWMMain; }
 QT_END_NAMESPACE
@@ -27,7 +29,14 @@ public:
     void showUnitSetting(QString unit);
     void showReferenceDatum(QString datum);
 
+private:
+    void editWell(QString idWell);
+    void showWellGrid(QWMRotatableProxyModel *  model);
+    virtual bool eventFilter(QObject *watched, QEvent *event);
 private slots:
+
+    void init_record_on_prime_insert(int row, QSqlRecord &record);
+
     void on_actionChangeDB_triggered();
 
     void on_trvCatalogs_clicked(const QModelIndex &index);
@@ -50,6 +59,10 @@ private slots:
     void on_actionEdit_triggered();
 
     void on_actionNew_triggered();
+
+    void on_actionDelete_triggered();
+
+    void on_actionRotate_triggered(bool checked);
 
 private:
     Ui::QWMMain *ui;

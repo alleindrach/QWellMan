@@ -9,6 +9,7 @@
 #include "QSqlField"
 #include "utility.h"
 #include "qwmsortfilterproxymodel.h"
+#include "qwmrotatableproxymodel.h"
 #include "qwmtablemodel.h"
 #include "QSqlTableModel"
 WellDao * WellDao::_instance=nullptr;
@@ -25,6 +26,10 @@ WellDao::WellDao(QSqlDatabase &db,QObject *parent) : QObject(parent),_db(db)
     DECL_SQL(select_well_cnt_in_cat,"select  count(1) as cnt from %1  w  \
 where  not exists(select * from %2 d where w.%3=d.%4 COLLATE NOCASE and w.%3=d.IDRec  COLLATE NOCASE) \
 and w.%3=:idwell");
+
+     DECL_SQL(select_is_deleted,"select  count(1) as cnt from %1  w  \
+        where   w.%2=:idwell  COLLATE NOCASE and w.%3=:idrec COLLATE NOCASE  \
+        ");
 }
 
 WellDao::~WellDao()
@@ -140,6 +145,7 @@ QAbstractItemModel *WellDao::processWells(QSqlQueryModel * model)
 //        qDebug()<<"Field["<<i<<"]="<<model->query().record().field(i).name()<<"  is visible["<<isVisible<<"]";
         model->setHeaderData(i,Qt::Horizontal, headerData[model->query().record().field(i).name().toUpper()],Qt::DisplayRole);
         QString fieldName=model->record().field(i).name();
+        model->setHeaderData(i,Qt::Horizontal,fieldName,FIELD_ROLE);
         if(APP->wellDisplayList().contains( fieldName,Qt::CaseInsensitive)||isVisible){
             model->setHeaderData(i,Qt::Horizontal, true,VISIBLE_ROLE);
         }else
@@ -201,6 +207,23 @@ bool WellDao::isFavoriteWell(QString idwell)
         return  QS(q,cnt).toUInt()>0;
     return false;
 }
+
+bool WellDao::isDeletedWell(QString idwell)
+{
+    QSqlQuery q(APP->well());
+    q.prepare(SQL(select_is_deleted)
+              .arg(CFG(SysRecDelTable)) //%1 wvSysDelRec
+              .arg(CFG(IDMainFieldName)) //%2 IDWell
+              .arg(CFG(ID))) //%4 IDWell
+              ;
+    q.bindValue(":idwell",idwell);
+    q.bindValue(":idrec",idwell);
+    q.exec();
+    PRINT_ERROR(q);
+    if(q.next())
+        return  QS(q,cnt).toUInt()>0;
+    return false;
+}
 int WellDao::addRecord(QString table, QString parentId)
 {
 
@@ -238,6 +261,22 @@ int WellDao::removeFavoriteWell(QString idWell)
               .arg(CFG(IDMainFieldName))
               );
     q.bindValue(0,idWell);
+    q.exec();
+    PRINT_ERROR(q);
+    return q.numRowsAffected();
+}
+
+int WellDao::deleteItem(QString idWell, QString idRec)
+{
+    QSqlQuery q(APP->well());
+    QStringList fields,values;
+    fields<<QString("%1").arg(CFG(IDMainFieldName))<<QString("%1").arg(CFG(ID));
+    values<<QString("'%1'").arg(idWell)<<QString("'%1'").arg(idRec);
+    q.prepare(SQL(insert_record)
+              .arg(CFG(SysRecDelTable)) //%2 wvSysDelRec
+              .arg(fields.join(",")) //%1 wvWellHeader
+              .arg(values.join(","))) //%4 IDWell
+              ;
     q.exec();
     PRINT_ERROR(q);
     return q.numRowsAffected();
@@ -298,26 +337,14 @@ QString WellDao::recordDes(QString table, QSqlRecord record)
     return rdResult;
 }
 
-QAbstractItemModel*  WellDao::wells()
+QAbstractItemModel*  WellDao::wells(int type)
 {
-//    QSqlQueryModel*  model=new QSqlQueryModel(this);
-//    QStringList result;
-//    QString keytableMain=CFG(KeyTblMain);
-//    QString orderKey=MDL->tableOrderKey(keytableMain);
+    QString key=QString("wells.%1").arg(type);
+    CS(key,QAbstractItemModel*);
 
-
-//    QSqlQuery q(SQL(select_wells)
-//                .arg(keytableMain)
-//                .arg(CFG(SysRecDelTable))
-//                .arg(CFG(IDMainFieldName))
-//                .arg(CFG(IDMainFieldName))
-//                .arg(orderKey)
-//                ,APP->well());
-//    q.exec();
-//    PRINT_ERROR(q);
-//    model->setQuery(q);
     QSqlTableModel *  model=new QWMTableModel(this,APP->well());
     model->setTable(CFG(KeyTblMain));
+    model->setSort(model->fieldIndex( MDL->tableOrderKey(CFG(KeyTblMain))),Qt::AscendingOrder);
     model->select();
 
     if(model->lastError().isValid())
@@ -325,8 +352,27 @@ QAbstractItemModel*  WellDao::wells()
         QString e=model->lastError().text();
         qDebug()<<e;
     }
+//    return  model;
     processWells(model);
-    QWMSortFilterProxyModel * proxy=new QWMSortFilterProxyModel(QWMApplication::ALL,this);
+
+    QWMSortFilterProxyModel * proxy=new QWMSortFilterProxyModel(type,model);
     proxy->setSourceModel(model);
-    return proxy;
+
+    proxy->setFilterFunction( [model,type](int sourceRow, const QModelIndex &sourceParent)->bool {
+        QModelIndex index0 = model->index(sourceRow, 0, sourceParent);
+        QString idwell=index0.data(PK_ROLE).toString();
+        if(type==QWMApplication::RECENT){
+            bool isvalid=WELL->isRecentWell(idwell);
+            return isvalid;
+        }else if(type==QWMApplication::FAVORITE){
+            bool isvalid=WELL->isFavoriteWell(idwell);
+            return isvalid;
+        }else{
+            bool isvalid=WELL->isDeletedWell(idwell);
+            return !isvalid;
+        }
+    });
+    QWMRotatableProxyModel * rotateProxy=new QWMRotatableProxyModel(QWMRotatableProxyModel::H,proxy);
+    rotateProxy->setSourceModel(proxy);
+    CI(key,rotateProxy);
 }

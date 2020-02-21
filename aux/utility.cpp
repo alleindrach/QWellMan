@@ -39,3 +39,12 @@ QString Utility::format(QString fmtstr,QVariant v){
         return v.toString();
     }
 }
+
+bool Utility::isNumber(QVariant v)
+{
+    bool isNumber=false;
+    QRegExp re("[-+]?[0-9]*(\\.)?[0-9]*");  // a digit (\d), zero or more times (*)
+    if (re.exactMatch(v.toString()))
+        isNumber=true;
+    return isNumber;
+}

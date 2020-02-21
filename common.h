@@ -30,6 +30,7 @@
 #define TEXT_ROLE (Qt::UserRole+106)
 #define RECORD_DES_ROLE (Qt::UserRole+108)
 #define PK_ROLE (Qt::UserRole+110)
+#define FIELD_ROLE (Qt::UserRole+120)
 
 #define DECL_SQL(name,sql) _sql.insert(#name,sql);
 #define SQL(name) (_sql[#name])
@@ -80,5 +81,15 @@ if(q.lastError().isValid()) qDebug()<<" Query["<<q.lastQuery()<<"] Error["<<q.la
     Record::fromSqlRecord<typ>(typ::staticMetaObject.className(), r,this);
 #define Q(q,typ) \
     Record::fromSqlQuery<typ>(typ::staticMetaObject.className(),q,this);
+
+#define S(model) \
+    QWMTableModel * model=static_cast<QWMTableModel *>(static_cast<QWMSortFilterProxyModel *>(this->sourceModel())->sourceModel());
+#define P(model) \
+    QWMSortFilterProxyModel * model=static_cast<QWMSortFilterProxyModel *>(this->sourceModel());
+
+#define SX(model,proxy) \
+    QWMTableModel * model=static_cast<QWMTableModel *>(static_cast<QWMSortFilterProxyModel *>(static_cast<QWMRotatableProxyModel *>(proxy)->sourceModel())->sourceModel());
+#define PX(model,proxy) \
+    QWMSortFilterProxyModel * model=static_cast<QWMSortFilterProxyModel *>(static_cast<QWMRotatableProxyModel *>(proxy)->sourceModel());
 
 #endif // COMMON_H
