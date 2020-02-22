@@ -51,35 +51,9 @@ bool WellDao::processWells(QWMTableModel * model)
 {
 
     QList<MDLFieldVisible*> visibleFieldsList=MDL->tableMainHeadersVisible();
-    QStringList visibleFields;
-    QStringList visibleHeaders;
-    QHash<QString,QString> visibleHeaderData;
-    QHash<QString,QString> headerData;
 
-    foreach(MDLFieldVisible * field,visibleFieldsList){
-        QString fieldName=field->KeyFld();
-        bool isVisible=field->Visible()>0;
-        QString fieldNameUpper=fieldName.toUpper();
-        QString fieldHeader=field->CaptionLong();
-        visibleFields<<fieldName;
-        visibleHeaders<<fieldHeader;
-        headerData.insert(fieldNameUpper,fieldHeader);
-        if(isVisible)
-            visibleHeaderData.insert(fieldNameUpper,fieldHeader);
-    }
-    for(int i=0;i<model->query().record().count();i++){
-        bool isVisible=visibleHeaderData.contains(model->query().record().field(i).name().toUpper());
-//        qDebug()<<"Field["<<i<<"]="<<model->query().record().field(i).name()<<"  is visible["<<isVisible<<"]";
-        model->setHeaderData(i,Qt::Horizontal, headerData[model->query().record().field(i).name().toUpper()],Qt::DisplayRole);
-        QString fieldName=model->record().field(i).name();
-        model->setHeaderData(i,Qt::Horizontal,fieldName,FIELD_ROLE);
-        if(APP->wellDisplayList().contains( fieldName,Qt::CaseInsensitive)||isVisible){
-            model->setHeaderData(i,Qt::Horizontal, true,VISIBLE_ROLE);
-        }else
-        {
-           model->setHeaderData(i,Qt::Horizontal, false,VISIBLE_ROLE);
-        }
-    }
+    model->setVisibleFields(APP->wellDisplayList());
+
     return true;
 
 }
@@ -106,6 +80,11 @@ QWMRotatableProxyModel *WellDao::table(QString tablename)
     rotateProxy->setSourceModel(proxy);
     CI(key,rotateProxy);
 
+}
+
+bool WellDao::processTable(QWMTableModel *model)
+{
+    return true;
 }
 QWMRotatableProxyModel *WellDao::tableForEdit(QString tablename, QString parentID)
 {

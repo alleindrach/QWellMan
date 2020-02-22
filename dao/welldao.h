@@ -19,6 +19,7 @@ public:
     bool  processWells(QWMTableModel *);
     QWMRotatableProxyModel * tableForEdit(QString tablename,QString parentID);
     QWMRotatableProxyModel * table(QString tablename);
+    bool processTable(QWMTableModel *);
     QSqlRecord well(QString idWell);
     int addRecord(QString table,QString parentId=QString());
     int addRecentWell(QString idWell);

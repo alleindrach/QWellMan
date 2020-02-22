@@ -18,6 +18,36 @@ QWMSortFilterProxyModel::QWMSortFilterProxyModel(QObject *parent) : QSortFilterP
 
 }
 
+QModelIndex QWMSortFilterProxyModel::mapToSource(const QModelIndex &proxyIndex) const
+{
+    if(!proxyIndex.isValid())
+        return QModelIndex();
+    S(model);
+    QString sourceColName= model->fieldInPosByOrder(proxyIndex.column());
+    if(sourceColName.isNull()||sourceColName.isEmpty()){
+        return QModelIndex();
+    }
+    int sourceColPos=model->fieldIndex(sourceColName);
+    QModelIndex index=this->index(proxyIndex.row(),sourceColPos);
+    return QSortFilterProxyModel::mapToSource(index);
+//    return model->index(proxyIndex.row(),sourceColPos);
+}
+
+QModelIndex QWMSortFilterProxyModel::mapFromSource(const QModelIndex &sourceIndex) const
+{
+    if(!sourceIndex.isValid())
+        return QModelIndex();
+    S(model);
+    QString sourceColName= model->record().fieldName(sourceIndex.column());
+    int visiblePos=model->fieldPosByOrder(sourceColName);
+    if(visiblePos<0)
+        return QModelIndex();
+    QModelIndex index=model->index(sourceIndex.row(),visiblePos);
+    return  QSortFilterProxyModel::mapFromSource(index);
+//    return createIndex(sourceIndex.row(),visiblePos);
+}
+
+
 bool QWMSortFilterProxyModel::insertRecord(int row, const QSqlRecord &record)
 {
     QWMTableModel * model=static_cast<QWMTableModel *>(this->sourceModel());
@@ -82,8 +112,20 @@ bool QWMSortFilterProxyModel::submit()
 
 void QWMSortFilterProxyModel::revert()
 {
-    QWMTableModel *model=static_cast<QWMTableModel *>(this->sourceModel());
+    S(model);//QWMTableModel *model=static_cast<QWMTableModel *>(this->sourceModel());
     return model->revert();
+}
+
+int QWMSortFilterProxyModel::visibleFieldsCount()
+{
+    S(model);
+    return model->visibleFieldsCount();
+}
+
+bool QWMSortFilterProxyModel::isFieldVisible(const QString &field)
+{
+    S(model);
+    return model->isFieldVisible(field);
 }
 
 

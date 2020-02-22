@@ -255,12 +255,13 @@ void QWMMain::on_actionFavorite_triggered()
 void QWMMain::resizeEvent(QResizeEvent *event)
 {
     //列宽随窗口大小改变而改变，每列平均分配，充满整个表，但是此时列宽不能拖动进行改变
-    ui->tbvWells->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
-    //第四列和第五列适应内容长短分配大小（从0开始计数）
-    //    ui->tbvWells->horizontalHeader()->setSectionResizeMode(0,QHeaderView::ResizeToContents);
-    //    ui->tbvWells->horizontalHeader()->setSectionResizeMode(1,QHeaderView::ResizeToContents);
-
+    QWMRotatableProxyModel * model=static_cast<QWMRotatableProxyModel *>( ui->tbvWells->model());
+    if(model->mode()==QWMRotatableProxyModel::H){
+        ui->tbvWells->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    }else
+    {
+        ui->tbvWells->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    }
 }
 
 void QWMMain::showStatus(QString status)
@@ -300,15 +301,15 @@ void QWMMain::editWell(QString idWell)
 void QWMMain::showWellGrid(QWMRotatableProxyModel * model)
 {
 
-    if(model->mode()==QWMRotatableProxyModel::H){
+    PX(pmodel,model);
 
+    if(model->mode()==QWMRotatableProxyModel::H){
         for(int j=0;j<model->columnCount();j++){
-            if(!(model->headerData(j,Qt::Horizontal,VISIBLE_ROLE).toBool())){
-                //            qDebug()<<"set visible to false "<<model->headerData(j,Qt::Horizontal,Qt::DisplayRole);
-                ui->tbvWells->setColumnHidden(j,true);
+            if(j<model->visibleFieldsCount()){
+                ui->tbvWells->setColumnHidden(j,false);
             }else
             {
-                ui->tbvWells->setColumnHidden(j,false);
+                ui->tbvWells->setColumnHidden(j,true);
             }
         }
         for(int i=0;i<model->rowCount();i++){
@@ -316,12 +317,11 @@ void QWMMain::showWellGrid(QWMRotatableProxyModel * model)
         }
     }else{
         for(int i=0;i<model->rowCount();i++){
-            if(!(model->headerData(i,Qt::Vertical,VISIBLE_ROLE).toBool())){
-                //            qDebug()<<"set visible to false "<<model->headerData(j,Qt::Horizontal,Qt::DisplayRole);
-                ui->tbvWells->setRowHidden(i,true);
+            if(i<model->visibleFieldsCount()){
+                ui->tbvWells->setRowHidden(i,false);
             }else
             {
-                ui->tbvWells->setRowHidden(i,false);
+                ui->tbvWells->setRowHidden(i,true);
             }
         }
         for(int j=0;j<model->columnCount();j++){
@@ -409,17 +409,21 @@ void QWMMain::on_actionListColumn_triggered()
 void QWMMain::on_well_view_header_fields_change()
 {
     QWMRotatableProxyModel * model=static_cast<QWMRotatableProxyModel*>(ui->tbvWells->model());
+    SX(sourceModel,ui->tbvWells->model());
+    model->beginResetModel();
+    sourceModel->setVisibleFields(APP->wellDisplayList());
+    model->endResetModel();
 
-    for(int j=0;j<model->record().count();j++){
-        //        qDebug()<<"Field["<<j<<"].caption="<<model->headerData(j,Qt::Horizontal,Qt::DisplayRole)<<",visible="<<model->headerData(j,Qt::Horizontal,VISIBLE_ROLE).toBool();
-        if(!(model->headerData(j,Qt::Horizontal,VISIBLE_ROLE).toBool())){
-            //            qDebug()<<"set visible to false "<<model->headerData(j,Qt::Horizontal,Qt::DisplayRole);
-            ui->tbvWells->setColumnHidden(j,true);
-        }else
-        {
-            ui->tbvWells->setColumnHidden(j,false);
-        }
-    }
+//    for(int j=0;j<model->record().count();j++){
+//        //        qDebug()<<"Field["<<j<<"].caption="<<model->headerData(j,Qt::Horizontal,Qt::DisplayRole)<<",visible="<<model->headerData(j,Qt::Horizontal,VISIBLE_ROLE).toBool();
+//        if(!(model->headerData(j,Qt::Horizontal,VISIBLE_ROLE).toBool())){
+//            //            qDebug()<<"set visible to false "<<model->headerData(j,Qt::Horizontal,Qt::DisplayRole);
+//            ui->tbvWells->setColumnHidden(j,true);
+//        }else
+//        {
+//            ui->tbvWells->setColumnHidden(j,false);
+//        }
+//    }
     this->resize(this->size()+QSize(1,1));
 }
 
@@ -451,27 +455,11 @@ void QWMMain::on_actionNew_triggered()
         SX(tableModel,ui->tbvWells->model());
         QSqlRecord record=model->record();
         WELL->initRecord(record);
-//        int ind=record.indexOf("IDWell");
-//        int ind2=record.indexOf("WellName");
-//        QUuid uuid=QUuid::createUuid();
-//        QString idWell=UUIDToString(uuid);
-//        record.setValue("IDWell",idWell);
-//        record.setValue(record.indexOf("WellName"),idWell);
         bool success=model->insertRecord(0,record);
         if(!success)
             QMessageBox::information(this,"插入井数据错误",model->lastError().text());
 
         QString idWell=record.value(CFG(IDWell)).toString();
-        //        bool success= model->insertRow(0);
-        //        QString idWell=model->data(model->index(0,ind)).toString();
-        //        QModelIndex index=model->index(0,ind);
-
-        //        model->setData(model->index(0,ind),idWell);
-        //        model->setData(model->index(0,ind2),idWell);
-        //qDebug()<<" insert success:"<<success<<",id:"<<idWell;
-        //        for(int i=0;i<record.count();i++){
-        //            qDebug()<<"["<<record.fieldName(i)<<"]="<<record.value(i);
-        //        }
         success=model->submitAll();
         if(!success)
             QMessageBox::information(this,"保存井数据错误",model->lastError().text());

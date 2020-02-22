@@ -11,7 +11,8 @@ class QWMSortFilterProxyModel : public QSortFilterProxyModel
 
 public:
     explicit QWMSortFilterProxyModel(QObject *parent = nullptr);
-
+    Q_INVOKABLE virtual QModelIndex mapToSource(const QModelIndex &proxyIndex) const ;
+    Q_INVOKABLE virtual QModelIndex mapFromSource(const QModelIndex &sourceIndex) const ;
     bool insertRecord(int row, const QSqlRecord &record);
     QSqlRecord record() const;
     QSqlRecord record(int ) const;
@@ -20,6 +21,8 @@ public:
     bool submitAll() ;
     bool submit() override;
     void revert() override;
+    int  visibleFieldsCount();
+    bool isFieldVisible(const QString & field);
     QSqlError  lastError() ;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 signals:

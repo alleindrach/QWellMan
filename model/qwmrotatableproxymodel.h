@@ -33,7 +33,8 @@ public:
     bool submitAll() ;
     bool submit() override;
     void revert() override;
-
+    int  visibleFieldsCount();
+    bool isFieldVisible(const QString & field);
 
     Mode mode();
     void setMode(Mode m);

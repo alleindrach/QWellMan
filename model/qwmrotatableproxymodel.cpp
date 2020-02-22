@@ -21,7 +21,7 @@ QWMRotatableProxyModel::QWMRotatableProxyModel(Mode mode,QObject *parent) : QSor
 bool QWMRotatableProxyModel::insertRecord(int row, const QSqlRecord &record)
 {
 
-    S(model);
+    P(model);
     bool success=model->insertRecord(row,record);
     if(!success && model->lastError().isValid()){
         qDebug()<<"QWMSortFilterProxyModel::insertRecord error:"<< model->lastError().text();
@@ -203,8 +203,20 @@ bool QWMRotatableProxyModel::submit()
 
 void QWMRotatableProxyModel::revert()
 {
-    S(model);
+    P(model);
     return model->revert();
+}
+
+int QWMRotatableProxyModel::visibleFieldsCount()
+{
+    P(model);
+    return model->visibleFieldsCount();
+}
+
+bool QWMRotatableProxyModel::isFieldVisible(const QString &field)
+{
+    P(model);
+    return model->isFieldVisible(field);
 }
 
 QWMRotatableProxyModel::Mode QWMRotatableProxyModel::mode()

@@ -17,15 +17,21 @@ public:
     bool readonly();
     void setReadonly(bool v);
     void initFields(const QString &tableName);
-    void setVisibleFields(const QHash<int,QString> lst);
-    QHash<int,QString>  & visibleFields();
+    void setVisibleFields(const QStringList lst);
+    void mergeVisibleFields( QStringList lst);
+    int  fieldPosByOrder(const QString &field);
+    int  visibleFieldsCount();
+    const QString& fieldInPosByOrder(int);
+    bool isFieldVisible(const QString & field);
 signals:
 
 public slots:
     void init_record_on_prime_insert(int row, QSqlRecord &record);
 private :
-    bool  _readonly;
-    QHash<int,QString> _visibleFieldsInOrder;
+    bool  _readonly{false};
+    QList<QString> _fieldsInOrder;
+    QHash<QString,int> _fieldsInOrderVice;
+    int _visibleFields{0};
 };
 
 #endif // QWMTABLEMODEL_H

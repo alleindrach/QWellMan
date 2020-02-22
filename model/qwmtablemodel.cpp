@@ -209,20 +209,70 @@ void QWMTableModel::setReadonly(bool v)
 void QWMTableModel::initFields(const QString &tableName)
 {
     QStringList visibleFieldsList=UDL->fieldsVisibleInOrder(APP->profile(),tableName);
-    _visibleFieldsInOrder.clear();
-    for(int i=0;i<visibleFieldsList.length();i++){
-        _visibleFieldsInOrder.insert(i,visibleFieldsList[i]);
+    setVisibleFields(visibleFieldsList);
+    QSqlRecord rec=record();
+    for(int i=0;i<rec.count();i++){
+        QString fieldName=rec.fieldName(i);
+        setHeaderData(i,Qt::Horizontal,fieldName,FIELD_ROLE);
     }
 }
 
-void QWMTableModel::setVisibleFields(const QHash<int, QString> lst)
+void QWMTableModel::setVisibleFields(const QStringList visibleFieldsList)
 {
-    _visibleFieldsInOrder=lst;
+    _fieldsInOrder.clear();
+    _fieldsInOrderVice.clear();
+    for(int i=0;i<visibleFieldsList.length();i++){
+        _fieldsInOrder.append(visibleFieldsList[i]);
+        _fieldsInOrderVice.insert(visibleFieldsList[i],i+1);
+    }
+    _visibleFields=visibleFieldsList.length();
+    QSqlRecord rec=this->record();
+    for(int i=0;i<rec.count();i++){
+        QString fn=rec.fieldName(i);
+        if(!_fieldsInOrderVice.contains(fn)){
+            _fieldsInOrderVice.insert(fn,_fieldsInOrder.length());
+            _fieldsInOrder.append(fn);
+        }
+    }
 }
 
-QHash<int, QString> &QWMTableModel::visibleFields()
+void QWMTableModel::mergeVisibleFields( QStringList lst)
 {
-    return _visibleFieldsInOrder;
+    for(int i=0;i<_visibleFields;i++){
+        lst<<_fieldsInOrder[i];
+    }
+    lst.removeDuplicates();
+    lst.sort(Qt::CaseInsensitive);
+    setVisibleFields(lst);
+}
+
+int QWMTableModel::fieldPosByOrder(const QString &field)
+{
+    if(_fieldsInOrderVice.contains(field))
+        return _fieldsInOrderVice[field];
+    else
+        return -1;
+}
+
+int QWMTableModel::visibleFieldsCount()
+{
+    return _visibleFields;
+}
+
+const QString &QWMTableModel::fieldInPosByOrder(int pos)
+{
+    if(pos<_fieldsInOrder.size()&&pos>=0)
+        return _fieldsInOrder[pos];
+    else
+        return QString();
+}
+
+bool QWMTableModel::isFieldVisible(const QString &field)
+{
+   if( _fieldsInOrderVice[field]<_visibleFields)
+       return true;
+   else
+       return false;
 }
 
 void QWMTableModel::init_record_on_prime_insert(int row, QSqlRecord &record)
