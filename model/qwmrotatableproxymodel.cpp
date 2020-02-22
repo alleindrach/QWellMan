@@ -49,13 +49,13 @@ QSqlRecord QWMRotatableProxyModel::record(QModelIndex pos) const
 
 QVariant QWMRotatableProxyModel::data(const QModelIndex &item, int role) const
 {
-    if(_mode==H){
+//    if(_mode==H){
         return QExSortFilterProxyModel::data(item,role);
-    }else
-    {
-        QModelIndex sourceIndex=mapToSource(item);
-        return QExSortFilterProxyModel::data(sourceIndex,role);
-    }
+//    }else
+//    {
+//        QModelIndex sourceIndex=mapToSource(item);
+//        return QExSortFilterProxyModel::data(sourceIndex,role);
+//    }
 }
 QModelIndex QWMRotatableProxyModel::mapToSource(const QModelIndex &proxyIndex) const
 {
@@ -113,12 +113,12 @@ QItemSelection QWMRotatableProxyModel::mapSelectionFromSource(const QItemSelecti
 QModelIndex QWMRotatableProxyModel::index(int row, int column, const QModelIndex &parent) const
 {
 
-    if(_mode==H){
+//    if(_mode==H){
         return QExSortFilterProxyModel::index(row,column,parent);
-    }else
-    {
-        return QExSortFilterProxyModel::index(column,row,parent);
-    }
+//    }else
+//    {
+//        return QExSortFilterProxyModel::index(column,row,parent);
+//    }
 
 }
 

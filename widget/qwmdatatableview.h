@@ -10,6 +10,8 @@ public:
     QWMDataTableView(QWidget *parent = nullptr);
     void setModel(QAbstractItemModel *model) override;
     void bindDelegate();
+    QRect visualRect(const QModelIndex &index) const override;
+     QModelIndex indexAt(const QPoint &p) const override;
 private:
 //    QWellDoc * m_doc;
 };
