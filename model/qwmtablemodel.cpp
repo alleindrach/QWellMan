@@ -26,7 +26,7 @@ QVariant QWMTableModel::headerData(int section, Qt::Orientation orientation, int
                 QString cap=fieldInfo->CaptionLong();
 
                 QString unitType=fieldInfo->KeyUnit();
-                if(!unitType.isEmpty()){
+                if(!unitType.isNull() && !unitType.isEmpty()){
                     MDLUnitType * baseUnitInfo=MDL->baseUnitKey(unitType);
                     MDLUnitTypeSet* userUnitInfo=MDL->userUnitKey(APP->unit(),unitType);
                     if(userUnitInfo!=nullptr){
@@ -57,8 +57,9 @@ QVariant QWMTableModel::headerData(int section, Qt::Orientation orientation, int
     return QSqlRelationalTableModel::headerData(section,orientation,role);
 }
 void QWMTableModel::setTable(const QString &tableName){
+
+    QSqlRelationalTableModel::setTable(tableName);
     this->initFields(tableName);
-    return QSqlRelationalTableModel::setTable(tableName);
 }
 QVariant QWMTableModel::data(const QModelIndex &index, int role) const
 {
@@ -227,7 +228,8 @@ void QWMTableModel::setVisibleFields(const QStringList visibleFieldsList)
     }
     _visibleFields=visibleFieldsList.length();
     QSqlRecord rec=this->record();
-    for(int i=0;i<rec.count();i++){
+    int recn=rec.count();
+    for(int i=0;i<recn;i++){
         QString fn=rec.fieldName(i);
         if(!_fieldsInOrderVice.contains(fn)){
             _fieldsInOrderVice.insert(fn,_fieldsInOrder.length());
@@ -259,8 +261,10 @@ int QWMTableModel::visibleFieldsCount()
     return _visibleFields;
 }
 
-const QString &QWMTableModel::fieldInPosByOrder(int pos)
+const QString QWMTableModel::fieldInPosByOrder(int pos)
 {
+    QSqlRecord rec=this->record();
+    int recn=rec.count();
     if(pos<_fieldsInOrder.size()&&pos>=0)
         return _fieldsInOrder[pos];
     else

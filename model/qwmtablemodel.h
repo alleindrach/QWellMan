@@ -21,7 +21,7 @@ public:
     void mergeVisibleFields( QStringList lst);
     int  fieldPosByOrder(const QString &field);
     int  visibleFieldsCount();
-    const QString& fieldInPosByOrder(int);
+    const QString fieldInPosByOrder(int);
     bool isFieldVisible(const QString & field);
 signals:
 

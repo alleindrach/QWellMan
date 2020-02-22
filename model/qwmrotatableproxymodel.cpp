@@ -13,7 +13,7 @@
 #include "QSqlIndex"
 #include "qwmsortfilterproxymodel.h"
 
-QWMRotatableProxyModel::QWMRotatableProxyModel(Mode mode,QObject *parent) : QSortFilterProxyModel(parent),_mode(mode)
+QWMRotatableProxyModel::QWMRotatableProxyModel(Mode mode,QObject *parent) : QExSortFilterProxyModel(parent),_mode(mode)
 {
 
 }
@@ -44,6 +44,17 @@ QSqlRecord QWMRotatableProxyModel::record(QModelIndex pos) const
         QModelIndex index=this->index(0,pos.column());
         QModelIndex srcIndex=mapToSource(index);
         return model->record(srcIndex.row());
+    }
+}
+
+QVariant QWMRotatableProxyModel::data(const QModelIndex &item, int role) const
+{
+    if(_mode==H){
+        return QExSortFilterProxyModel::data(item,role);
+    }else
+    {
+        QModelIndex sourceIndex=mapToSource(item);
+        return QExSortFilterProxyModel::data(sourceIndex,role);
     }
 }
 QModelIndex QWMRotatableProxyModel::mapToSource(const QModelIndex &proxyIndex) const
@@ -101,18 +112,14 @@ QItemSelection QWMRotatableProxyModel::mapSelectionFromSource(const QItemSelecti
 
 QModelIndex QWMRotatableProxyModel::index(int row, int column, const QModelIndex &parent) const
 {
-    //    P(model);
-    //    QModelIndex source_parent = mapToSource(parent);
-    //    if(_mode==H){
-    //        QModelIndex source_index = model->index( row,
-    //                                                 column,source_parent);
-    //        return source_index;
-    //    }else{
-    //        QModelIndex source_index = model->index( column,
-    //                                                 row,source_parent);
-    //        return source_index;
-    //    }
-    return QSortFilterProxyModel::index(row,column,parent);
+
+    if(_mode==H){
+        return QExSortFilterProxyModel::index(row,column,parent);
+    }else
+    {
+        return QExSortFilterProxyModel::index(column,row,parent);
+    }
+
 }
 
 QModelIndex QWMRotatableProxyModel::parent(const QModelIndex &child) const
@@ -198,7 +205,7 @@ bool QWMRotatableProxyModel::submitAll()
 
 bool QWMRotatableProxyModel::submit()
 {
-    return QSortFilterProxyModel::submit();
+    return QExSortFilterProxyModel::submit();
 }
 
 void QWMRotatableProxyModel::revert()

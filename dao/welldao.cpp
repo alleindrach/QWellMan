@@ -25,13 +25,13 @@ WellDao::WellDao(QSqlDatabase &db,QObject *parent) : QObject(parent),_db(db)
     DECL_SQL(delete_well_from_catlog,"delete from %1 where %2=? COLLATE NOCASE");
     DECL_SQL(select_record,"select  w.* from %1  w  where  not exists(select * from %2 d where w.%3=d.%4 COLLATE NOCASE  and w.%3=d.IDRec COLLATE NOCASE) and w.%3=:id COLLATE NOCASE");
     DECL_SQL(insert_record,"insert into %1 (%2) values( %3)")
-    DECL_SQL(select_well_cnt_in_cat,"select  count(1) as cnt from %1  w  \
-where  not exists(select * from %2 d where w.%3=d.%4 COLLATE NOCASE and w.%3=d.IDRec  COLLATE NOCASE) \
-and w.%3=:idwell");
+            DECL_SQL(select_well_cnt_in_cat,"select  count(1) as cnt from %1  w  \
+                     where  not exists(select * from %2 d where w.%3=d.%4 COLLATE NOCASE and w.%3=d.IDRec  COLLATE NOCASE) \
+                     and w.%3=:idwell");
 
-     DECL_SQL(select_is_deleted,"select  count(1) as cnt from %1  w  \
-        where   w.%2=:idwell  COLLATE NOCASE and w.%3=:idrec COLLATE NOCASE  \
-        ");
+            DECL_SQL(select_is_deleted,"select  count(1) as cnt from %1  w  \
+                     where   w.%2=:idwell  COLLATE NOCASE and w.%3=:idrec COLLATE NOCASE  \
+            ");
 }
 
 WellDao::~WellDao()
@@ -49,13 +49,13 @@ WellDao *WellDao::instance()
 //model是QWMTableModel
 bool WellDao::processWells(QWMTableModel * model)
 {
-
     QList<MDLFieldVisible*> visibleFieldsList=MDL->tableMainHeadersVisible();
-
     model->setVisibleFields(APP->wellDisplayList());
-
     return true;
-
+}
+bool WellDao::processTable(QWMTableModel *model)
+{
+    return true;
 }
 QWMRotatableProxyModel *WellDao::table(QString tablename)
 {
@@ -82,23 +82,30 @@ QWMRotatableProxyModel *WellDao::table(QString tablename)
 
 }
 
-bool WellDao::processTable(QWMTableModel *model)
-{
-    return true;
-}
+
 QWMRotatableProxyModel *WellDao::tableForEdit(QString tablename, QString parentID)
 {
     QWMRotatableProxyModel * model=table(tablename);
     PX(proxyModel,model);
+    SX(sourceModel,model);
     //如果有parentid，则根据IDRecParent字段进行过滤
-    QSqlRecord record=APP->udl().record(tablename);
-    if(record.indexOf(CFG(ParentID))>=0)
-    {
-        proxyModel->setFilterKeyColumn(record.indexOf(CFG(ParentID)));
-        proxyModel->setFilterFixedString(parentID);
-        proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    }
+    QSqlRecord record=sourceModel->record();
+    int recn=record.count();
 
+    if(!parentID.isNull() && !parentID.isEmpty()){
+        if(record.indexOf(CFG(ParentID))>=0)
+        {
+            proxyModel->setFilterKeyColumn(record.indexOf(CFG(ParentID)));
+            proxyModel->setFilterFixedString(parentID);
+            proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+        }else{
+            proxyModel->setFilterFixedString(parentID);
+            proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+            proxyModel->setFilterKeyColumn(record.indexOf(CFG(IDWell)));
+        }
+    }
+    processTable(sourceModel);
+    return model;
 }
 
 QSqlRecord WellDao::well(QString idWell)
@@ -109,7 +116,7 @@ QSqlRecord WellDao::well(QString idWell)
               .arg(CFG(SysRecDelTable)) //%2 wvSysDelRec
               .arg(CFG(IDMainFieldName)) //%3 IDWell
               .arg(CFG(IDMainFieldName))) //%4 IDWell
-              ;
+            ;
     q.bindValue(":id",idWell);
     q.exec();
     PRINT_ERROR(q);
@@ -123,11 +130,11 @@ bool WellDao::isRecentWell(QString idwell){
 
     QSqlQuery q(APP->well());
     q.prepare(SQL(select_well_cnt_in_cat)
-               .arg(CFG(SysRecentTable)) //%1 wvWellHeader
+              .arg(CFG(SysRecentTable)) //%1 wvWellHeader
               .arg(CFG(SysRecDelTable)) //%2 wvSysDelRec
               .arg(CFG(IDMainFieldName)) //%3 IDWell
               .arg(CFG(IDMainFieldName))) //%4 IDWell
-              ;
+            ;
     q.bindValue(":idwell",idwell);
     q.exec();
     PRINT_ERROR(q);
@@ -143,7 +150,7 @@ bool WellDao::isFavoriteWell(QString idwell)
               .arg(CFG(SysRecDelTable)) //%2 wvSysDelRec
               .arg(CFG(IDMainFieldName)) //%3 IDWell
               .arg(CFG(IDMainFieldName))) //%4 IDWell
-              ;
+            ;
     q.bindValue(":idwell",idwell);
     q.exec();
     PRINT_ERROR(q);
@@ -159,7 +166,7 @@ bool WellDao::isDeletedWell(QString idwell)
               .arg(CFG(SysRecDelTable)) //%1 wvSysDelRec
               .arg(CFG(IDMainFieldName)) //%2 IDWell
               .arg(CFG(ID))) //%4 IDWell
-              ;
+            ;
     q.bindValue(":idwell",idwell);
     q.bindValue(":idrec",idwell);
     q.exec();
@@ -220,7 +227,7 @@ int WellDao::deleteItem(QString idWell, QString idRec)
               .arg(CFG(SysRecDelTable)) //%2 wvSysDelRec
               .arg(fields.join(",")) //%1 wvWellHeader
               .arg(values.join(","))) //%4 IDWell
-              ;
+            ;
     q.exec();
     PRINT_ERROR(q);
     return q.numRowsAffected();
@@ -241,13 +248,13 @@ QString WellDao::recordDes(QString table, QSqlRecord record)
             ++count;
             QString var=pat.cap(1);
             if(!cachedValue[var].isNull()){
-//                rdResult.replace("<"+var+">",cachedValue[var]);
+                //                rdResult.replace("<"+var+">",cachedValue[var]);
             }else{
                 if(!var.contains(".unit")){
                     QVariant value=record.value(record.indexOf(var));
                     cachedValue.insert(var,value);
                     cachedTransferedValue.insert(var,value);
-//                    rdResult.replace("<"+var+">",value);
+                    //                    rdResult.replace("<"+var+">",value);
                 }else{
                     QString refVarName=var.replace(".unit","");
                     MDLUnitType *unitType=MDL->baseUnitOfField(table,refVarName);
@@ -270,7 +277,7 @@ QString WellDao::recordDes(QString table, QSqlRecord record)
                     }
                 }
             }
-//            qDebug()<<"pos:"<<pos<<",c:"<<count<<","<<pat.cap(1).toUtf8().data();
+            //            qDebug()<<"pos:"<<pos<<",c:"<<count<<","<<pat.cap(1).toUtf8().data();
             pos += pat.matchedLength();
         }
         foreach(QString key,cachedTransferedValue.keys()){

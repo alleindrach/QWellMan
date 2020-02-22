@@ -111,8 +111,11 @@
    </attribute>
    <addaction name="actionSaveExit"/>
    <addaction name="separator"/>
+   <addaction name="actionNew"/>
+   <addaction name="actionDelete"/>
    <addaction name="actionCalc"/>
    <addaction name="separator"/>
+   <addaction name="actionRotate"/>
    <addaction name="actionUndo"/>
    <addaction name="actionRedo"/>
   </widget>
@@ -171,6 +174,45 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionNew">
+   <property name="icon">
+    <iconset resource="../resource/resource.qrc">
+     <normaloff>:/images/icons/InsertSectionBefore.png</normaloff>:/images/icons/InsertSectionBefore.png</iconset>
+   </property>
+   <property name="text">
+    <string>New</string>
+   </property>
+   <property name="toolTip">
+    <string>New Record</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="icon">
+    <iconset resource="../resource/resource.qrc">
+     <normaloff>:/images/icons/delete.png</normaloff>:/images/icons/delete.png</iconset>
+   </property>
+   <property name="text">
+    <string>Delete</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete Record</string>
+   </property>
+  </action>
+  <action name="actionRotate">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../resource/resource.qrc">
+     <normaloff>:/images/icons/rotate.png</normaloff>:/images/icons/rotate.png</iconset>
+   </property>
+   <property name="text">
+    <string>Rotate</string>
+   </property>
+   <property name="toolTip">
+    <string>Rotate </string>
    </property>
   </action>
  </widget>

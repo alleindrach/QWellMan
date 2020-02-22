@@ -26,6 +26,7 @@ SOURCES += \
     dto/mdlunit.cpp \
     dto/record.cpp \
     main.cpp \
+    model/qt/qexsortfilterproxymodel.cpp \
     model/qwmrotatableproxymodel.cpp \
     model/qwmsortfilterproxymodel.cpp \
     model/qwmtablemodel.cpp \
@@ -51,6 +52,7 @@ HEADERS += \
     dto/mdltablechildren.h \
     dto/mdlunit.h \
     dto/record.h \
+    model/qt/qexsortfilterproxymodel.h \
     model/qwmrotatableproxymodel.h \
     model/qwmsortfilterproxymodel.h \
     model/qwmtablemodel.h \
@@ -83,6 +85,8 @@ TRANSLATIONS +=  \
 DISTFILES += \
     resource/i18n/QWellMan_zh_CN.ts
 
-INCLUDEPATH += $$PWD/dao $$PWD/widget $$PWD/ui $$PWD/undo $$PWD/aux $$PWD/model $$PWD/dto
+INCLUDEPATH += $$PWD/dao $$PWD/widget $$PWD/ui $$PWD/undo $$PWD/aux $$PWD/model $$PWD/dto  $$PWD/model/qt
 
+INCLUDEPATH += /Users/Allein/Qt/5.14.0/lib/QtCore.framework/Versions/5/Headers/5.14.0
+INCLUDEPATH += /Users/Allein/Qt/5.14.0/lib/QtCore.framework/Versions/5/Headers/5.14.0/QtCore
 DEFINES += QT_MESSAGELOGCONTEXT

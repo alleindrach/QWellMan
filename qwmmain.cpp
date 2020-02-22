@@ -42,7 +42,7 @@ QWMMain::QWMMain(QWidget *parent)
     QFont font=ui->tbvWells->font();
     font.setPixelSize(10);
     ui->tbvWells->setFont(font);
-    ui->tbvWells->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    ui->tbvWells->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->tbvWells->setSelectionBehavior(QAbstractItemView::SelectRows);
 
 
@@ -315,6 +315,7 @@ void QWMMain::showWellGrid(QWMRotatableProxyModel * model)
         for(int i=0;i<model->rowCount();i++){
             ui->tbvWells->setRowHidden(i,false);
         }
+//        ui->tbvWells->setSelectionBehavior(QAbstractItemView::SelectRows);
     }else{
         for(int i=0;i<model->rowCount();i++){
             if(i<model->visibleFieldsCount()){
@@ -327,6 +328,7 @@ void QWMMain::showWellGrid(QWMRotatableProxyModel * model)
         for(int j=0;j<model->columnCount();j++){
             ui->tbvWells->setColumnHidden(j,false);
         }
+//        ui->tbvWells->setSelectionBehavior(QAbstractItemView::SelectColumns);
     }
     this->resize(this->size()+QSize(1,1));
 }
@@ -413,17 +415,7 @@ void QWMMain::on_well_view_header_fields_change()
     model->beginResetModel();
     sourceModel->setVisibleFields(APP->wellDisplayList());
     model->endResetModel();
-
-//    for(int j=0;j<model->record().count();j++){
-//        //        qDebug()<<"Field["<<j<<"].caption="<<model->headerData(j,Qt::Horizontal,Qt::DisplayRole)<<",visible="<<model->headerData(j,Qt::Horizontal,VISIBLE_ROLE).toBool();
-//        if(!(model->headerData(j,Qt::Horizontal,VISIBLE_ROLE).toBool())){
-//            //            qDebug()<<"set visible to false "<<model->headerData(j,Qt::Horizontal,Qt::DisplayRole);
-//            ui->tbvWells->setColumnHidden(j,true);
-//        }else
-//        {
-//            ui->tbvWells->setColumnHidden(j,false);
-//        }
-//    }
+    showWellGrid(model);
     this->resize(this->size()+QSize(1,1));
 }
 
@@ -437,7 +429,6 @@ void QWMMain::on_actionEdit_triggered()
         int fieldIndex=rec.indexOf(CFG(IDMainFieldName));
         QString idwell=rec.value(fieldIndex).toString();
         editWell(idwell);
-
     }
 }
 

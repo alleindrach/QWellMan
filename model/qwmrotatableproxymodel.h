@@ -1,10 +1,10 @@
 #ifndef QWMROTATEPROXYMODEL_H
 #define QWMROTATEPROXYMODEL_H
-#include <QSortFilterProxyModel>
+#include "qexsortfilterproxymodel.h"
 #include <QSqlRecord>
 #include <QSqlError>
 #include <QItemSelection>
-class QWMRotatableProxyModel : public QSortFilterProxyModel
+class QWMRotatableProxyModel : public QExSortFilterProxyModel
 {
     Q_OBJECT
 
@@ -16,6 +16,7 @@ public:
     bool insertRecord(int row, const QSqlRecord &record);
     QSqlRecord record() const;
     QSqlRecord record(QModelIndex) const;
+    QVariant data(const QModelIndex &item, int role = Qt::DisplayRole) const override;
     Q_INVOKABLE virtual QModelIndex mapToSource(const QModelIndex &proxyIndex) const ;
     Q_INVOKABLE virtual QModelIndex mapFromSource(const QModelIndex &sourceIndex) const ;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
@@ -50,6 +51,7 @@ private :
     Mode _mode{H};
     bool _showGroup{false};
     friend class QWMMain;
+    friend class QWMDataEditor;
 };
 
 #endif // QWMROTATEPROXYMODEL_H

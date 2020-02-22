@@ -2,10 +2,10 @@
 #define QWMSORTFILTERPROXYMODEL_H
 
 #include <QObject>
-#include <QSortFilterProxyModel>
+#include "qexsortfilterproxymodel.h"
 #include <QSqlRecord>
 #include <QSqlError>
-class QWMSortFilterProxyModel : public QSortFilterProxyModel
+class QWMSortFilterProxyModel : public QExSortFilterProxyModel
 {
     Q_OBJECT
 

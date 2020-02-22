@@ -15,7 +15,10 @@
 #include "welldao.h"
 #include "QLabel"
 #include "mdltable.h"
-#include  "qwmdatatableview.h"
+#include "qwmdatatableview.h"
+#include <QMessageBox>
+#include "qwmrotatableproxymodel.h"
+#include "qwmsortfilterproxymodel.h"
 QWMDataEditor::QWMDataEditor(QString idWell,QString name,QWidget *parent) :
     QMainWindow(parent),_idWell(idWell),_wellName(name),
     ui(new Ui::QWMDataEditor)
@@ -54,20 +57,12 @@ QWMDataEditor::QWMDataEditor(QString idWell,QString name,QWidget *parent) :
     this->showProfile(APP->profile());
     this->showReferenceDatum(APP->referenceDatumName( APP->datumPreference()));
     this->showUnitSetting(APP->unit());
-    //    QToolBar * toolBar =new QToolBar(this);
-    //    toolBar->setObjectName(QString::fromUtf8("toolBar"));
-    //    toolBar->setIconSize(QSize(16, 16));
-    //    toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 
-    //    ui->verticalLayout->insertWidget(0,m_dataToolbar);
-    //    m_dataToolbar->setIconSize(size);
-    //    m_dataToolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    //    m_dataToolbar->addAction(ui->actAddItem);
-    //    m_dataToolbar->addAction(ui->actInsertItem);
-    //    m_dataToolbar->addAction(ui->actDelItem);
-    //    m_dataToolbar->addAction(ui->actRotate);
-    //    m_dataGrid=tableviewData;
-    connect(ui->trvTables,&QTreeView::clicked,this,&QWMDataEditor::on_trv_data_table_node_clicked);
+    _tbvData->setStyleSheet(_TableStyle);
+    _tbvData->verticalHeader()->setDefaultSectionSize(12);
+    _tbvData->setFont(font);
+
+    connect(ui->trvTables,&QTreeView::clicked,this,&QWMDataEditor::on_trv_table_node_clicked);
 }
 
 QWMDataEditor::~QWMDataEditor()
@@ -109,7 +104,7 @@ void QWMDataEditor::loadDataTree()
             tableItem->setFlags(Qt::ItemIsEnabled );
             tableItem->setData(QWMApplication::TABLE,CAT_ROLE); //设置节点第1列的Qt::UserRole的Data
             tableItem->setData(key,TABLE_NAME_ROLE);
-//            tableItem->setData(text,TEXT_ROLE);
+            //            tableItem->setData(text,TEXT_ROLE);
             tableItem->setData("",RECORD_DES_ROLE);
             tableItem->setData("",PK_VALUE_ROLE);
             tableItem->setToolTip(QString("[%1] %2").arg(table->KeyTbl()).arg(table->Help()));
@@ -125,7 +120,7 @@ void QWMDataEditor::loadDataTree()
 
 void QWMDataEditor::loadChildTable(QStandardItem * parent)
 {
-    QString strTblKey=parent->data(DATA_ROLE).toString();
+    QString strTblKey=parent->data(TABLE_NAME_ROLE).toString();
     QStandardItemModel * model=parent->model();
     QList<MDLTable *> childTables=UDL->childTables(strTblKey,APP->profile());
     foreach(MDLTable * table,childTables){
@@ -139,7 +134,7 @@ void QWMDataEditor::loadChildTable(QStandardItem * parent)
         tableItem->setFlags(Qt::ItemIsEnabled );
         tableItem->setData(QWMApplication::TABLE,CAT_ROLE); //设置节点第1列的Qt::UserRole的Data
         tableItem->setData(strChildTblKey,TABLE_NAME_ROLE); //设置节点第1列的Qt::UserRole的Data
-//        tableItem->setData(strChildTblName,TEXT_ROLE); //设置节点第1列的Qt::UserRole的Data
+        //        tableItem->setData(strChildTblName,TEXT_ROLE); //设置节点第1列的Qt::UserRole的Data
         tableItem->setData("",RECORD_DES_ROLE);
         tableItem->setData("",PK_VALUE_ROLE);
         tableItem->setToolTip(QString("[%1] %2").arg(table->KeyTbl()).arg(table->Help()));
@@ -168,6 +163,39 @@ void QWMDataEditor::showReferenceDatum(QString datum)
     this->_lblReferenceDatum->setText(datum);
 }
 
+void QWMDataEditor::showDataGrid(QWMRotatableProxyModel *model)
+{
+
+    PX(pmodel,model);
+
+    if(model->mode()==QWMRotatableProxyModel::H){
+        for(int j=0;j<model->columnCount();j++){
+            if(j<model->visibleFieldsCount()){
+                _tbvData->setColumnHidden(j,false);
+            }else
+            {
+                _tbvData->setColumnHidden(j,true);
+            }
+        }
+        for(int i=0;i<model->rowCount();i++){
+            _tbvData->setRowHidden(i,false);
+        }
+    }else{
+        for(int i=0;i<model->rowCount();i++){
+            if(i<model->visibleFieldsCount()){
+               _tbvData->setRowHidden(i,false);
+            }else
+            {
+                _tbvData->setRowHidden(i,true);
+            }
+        }
+        for(int j=0;j<model->columnCount();j++){
+            _tbvData->setColumnHidden(j,false);
+        }
+    }
+    this->resize(this->size()+QSize(1,1));
+}
+
 void QWMDataEditor::closeEvent(QCloseEvent *event)
 {
 
@@ -182,17 +210,51 @@ void QWMDataEditor::on_actionSaveExit_triggered()
     this->close();
 }
 
-void QWMDataEditor::on_trv_data_table_node_clicked(const QModelIndex &index)
+void QWMDataEditor::on_trv_table_node_clicked(const QModelIndex &index)
 {
     //1 如果当前的表和well是1：1的，且无记录，则必须生成一个新纪录
     //2 如果当前表有记录，且当前节点无选中历史，则 选中第一条记录 ，将当前记录的key保存 到treeview node的key_field中 。当前几点的RecordDes显示
     //3 如果当前表有父表，则必须父表的节点有选中记录，否则报警，如果当前的父表有选中记录，则将父表的id设置为当前表的parentid进行过滤 。
-    QString tableName=index.data(TABLE_NAME_ROLE).toString();
-    QString parentTableName=MDL->parentTable(tableName);
-    MDLTable * tableInfo=MDL->tableInfo(tableName);
+    if(index.data(CAT_ROLE)==QWMApplication::TABLE){
+        QString tableName=index.data(TABLE_NAME_ROLE).toString();
+        QString parentTableName=MDL->parentTable(tableName);
 
-    if(!parentTableName.isNull()  && !parentTableName.isEmpty()){
-
+        MDLTable * tableInfo=MDL->tableInfo(tableName);
+        QString parentID;
+        if(!parentTableName.isNull()  && !parentTableName.isEmpty()){
+            if(index.parent().isValid() && index.parent().data(CAT_ROLE)==QWMApplication::TABLE)//如果有父节点
+            {
+                QString pv=index.parent().data(PK_VALUE_ROLE).toString();
+                QString ptn=index.parent().data().toString();
+                if(pv.isEmpty()){
+                    QMessageBox::information(this,"错误",tr("未选中[%1]表的记录！").arg(ptn));
+                    return;
+                }else{
+                    parentID=ptn;
+                }
+            }else{//如果无父节点，则认为 其父为wvWellheader
+                parentID=_idWell;
+            }
+        }
+        else{
+            parentID=_idWell;
+        }
+        QWMRotatableProxyModel * model=WELL->tableForEdit(tableName,parentID);
+        SX(sourceModel,model);
+        sourceModel->select();
+        this->_tbvData->setModel(model);
+        showDataGrid(model);
     }
+}
 
+void QWMDataEditor::on_actionRotate_triggered(bool checked)
+{
+    QWMRotatableProxyModel * model=static_cast<QWMRotatableProxyModel*>( _tbvData->model());
+    model->beginResetModel();
+    if(checked)
+        model->setMode(QWMRotatableProxyModel::V);
+    else
+        model->setMode(QWMRotatableProxyModel::H);
+    model->endResetModel();
+    showDataGrid(model);
 }
