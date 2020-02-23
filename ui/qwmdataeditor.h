@@ -87,12 +87,6 @@ private:
             width: 17px; \
             height: 17px; \
 } \
-            QTableView::indicator:enabled:unchecked { \
-            image: url(:/images/icons/uncheck.png); \
-}\
-            QTableView::indicator:enabled:checked { \
-            image: url(:/images/icons/checked.png);\
-}\
             ";
 };
 

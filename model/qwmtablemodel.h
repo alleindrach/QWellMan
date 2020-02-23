@@ -21,8 +21,12 @@ public:
     void mergeVisibleFields( QStringList lst);
     int  fieldPosByOrder(const QString &field);
     int  visibleFieldsCount();
+    int  fieldsCount();
     const QString fieldInPosByOrder(int);
     bool isFieldVisible(const QString & field);
+    int fieldIndexEx(const QString &fieldName) ;
+    QString   fieldNameEx(const int  index) const;
+    QModelIndex createIndex(int row,int col) ;
 signals:
 
 public slots:
@@ -31,6 +35,8 @@ private :
     bool  _readonly{false};
     QList<QString> _fieldsInOrder;
     QHash<QString,int> _fieldsInOrderVice;
+    QList<QString> _fieldsCalcInOrder;
+    QHash<QString,int> _fieldsCalcMap;
     int _visibleFields{0};
 };
 

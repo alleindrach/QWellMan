@@ -22,6 +22,8 @@ QRect QWMDataTableView::visualRect(const QModelIndex &index) const{
 
 QModelIndex QWMDataTableView::indexAt(const QPoint &pos) const
 {
-
     return QTableView::indexAt(pos);
+}
+bool QWMDataTableView::edit(const QModelIndex &index, EditTrigger trigger, QEvent *event){
+    return QTableView::edit(index,trigger,event);
 }

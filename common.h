@@ -38,7 +38,7 @@
 #define SQL(name) (_sql[#name])
 #define PRINT_ERROR(q) \
 if(q.lastError().isValid()) qDebug()<<" Query["<<q.lastQuery()<<"] Error["<<q.lastError().text()<<"],bind["<< q.boundValues()<<"]"<<endl<<flush;\
-    else qDebug()<<" Query["<<q.lastQuery()<<"]"<<",bind["<< q.boundValues()<<"]"<<endl<<flush;
+    //else qDebug()<<" Query["<<q.lastQuery()<<"]"<<",bind["<< q.boundValues()<<"]"<<endl<<flush;
 
 #define CFG(x) APP->config()[#x]
 #define MDL (MDLDao::instance())

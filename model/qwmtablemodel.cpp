@@ -16,15 +16,25 @@ QWMTableModel::QWMTableModel(QObject *parent,QSqlDatabase db) : QSqlRelationalTa
 
 QVariant QWMTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
+    QSqlRecord record=this->record();
+    if(section==100){
+        qDebug()<<"error";
+    }
     if( role == Qt::DisplayRole){
         if( orientation==Qt::Orientation::Horizontal)
         {
-            QString fieldName=this->record().fieldName(section);
-            QString tableName=this->tableName();
-            MDLField *  fieldInfo=MDL->fieldInfo(tableName,fieldName);
+            QString table=this->tableName();
+            QString field=this->fieldNameEx(section);
+            MDLField *  fieldInfo=MDL->fieldInfo(table,field);
+
             if(fieldInfo!=nullptr){
                 QString cap=fieldInfo->CaptionLong();
+                if(fieldInfo->Calculated())
+                {
 
+                }else{
+
+                }
                 QString unitType=fieldInfo->KeyUnit();
                 if(!unitType.isNull() && !unitType.isEmpty()){
                     MDLUnitType * baseUnitInfo=MDL->baseUnitKey(unitType);
@@ -39,22 +49,13 @@ QVariant QWMTableModel::headerData(int section, Qt::Orientation orientation, int
             }
             return QSqlRelationalTableModel::headerData(section,orientation,role);
         }
-        //        else
-        //        {
-        //            return QString::number(section+1, 3);
-        //        }
-
-        //    }else if(role=FIELD_ROLE && orientation==Qt::Horizontal){
-        //         QString fieldName=this->record().fieldName(section);
-        //         return fieldName;
     }
-//    if(orientation==Qt::Horizontal && role==VISIBLE_ROLE){
-//        QVariant   v=QSqlRelationalTableModel::headerData(section,orientation,role);
-//        qDebug()<<"V["<<section<<"]="<<v.toString();
-//    }else if(orientation==Qt::Horizontal && role==Qt::SizeHintRole){
-//        qDebug()<<"y";
-//    }
-    return QSqlRelationalTableModel::headerData(section,orientation,role);
+    if(orientation==Qt::Orientation::Horizontal && section>=record.count()){
+        //计算列的题头
+        return QVariant();
+    }else{
+        return QSqlRelationalTableModel::headerData(section,orientation,role);
+    }
 }
 void QWMTableModel::setTable(const QString &tableName){
 
@@ -64,6 +65,9 @@ void QWMTableModel::setTable(const QString &tableName){
 QVariant QWMTableModel::data(const QModelIndex &index, int role) const
 {
 
+    if(index.column()==100){
+        qDebug()<<"error";
+    }
 
     if (!index.isValid())
         return QVariant();
@@ -71,65 +75,94 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
     if (index.row() >= this->rowCount() || index.row() < 0)
         return QVariant("-");
 
-    QVariant value= QSqlRelationalTableModel::data(index,role);
+
     QSqlQuery q=this->query();
 
     QSqlRecord record=q.record();
 
-    QString fieldName=this->record().fieldName(index.column());
-    QString tableName=this->tableName();
-    //    if(fieldName=="WellName" && index.row()==0 && role==Qt::DisplayRole){
-    //        qDebug()<<"["<<fieldName<<"]="<<value<<",["<<index.row()<<","<<index.column()<<"]";
-    //    }
-    if(role== PK_ROLE){
-        QString idField=MDL->idField(this->tableName());
-        int col=record.indexOf(idField);
-        value=QSqlTableModel::data(this->index(index.row(),col));
-        return value;
-    }
-    MDLField *  fieldInfo=MDL->fieldInfo(tableName,fieldName);
-    if(fieldInfo!=nullptr){
-        if(role== Qt::DisplayRole || role==Qt::EditRole){
-            //单位转换
-
-            QString unitType=fieldInfo->KeyUnit();
-            if(!unitType.isEmpty()){
-                MDLUnitType * baseUnitInfo=MDL->baseUnitKey(unitType);
-                if(baseUnitInfo!=nullptr)
-                {
-                    QString baseUnit=baseUnitInfo->BaseUnits();
-                    QString baseUnitFormat=baseUnitInfo->BaseFormat();
-                    MDLUnitTypeSet * userUnitInfo=MDL->userUnitKey(APP->unit(),unitType);
-                    if(userUnitInfo!=nullptr){
-                        QString userUnit=userUnitInfo->UserUnits();
-                        QString userUnitFormat=userUnitInfo->UserFormat();
-                        value=MDL->unitBase2User(baseUnit,userUnit,value);
-                    }
-                }
-            }
-            return value;
-        }
-
-        if(role == Qt::BackgroundColorRole ){
+    if(index.column()>=record.count())
+    {
+         //计算列
+        QString table=this->tableName();
+        QString field=_fieldsCalcInOrder[index.column()-record.count()];
+        MDLField *  fieldInfo=MDL->fieldInfo(table,field);
+        if(role==Qt::EditRole||role==Qt::DisplayRole){
+            return QVariant();
+        }else if(role == Qt::BackgroundColorRole ){
             if(fieldInfo->Calculated()){
                 return QColor(253, 91, 100);
             }
-        }
-        if(role==Qt::TextColorRole){
+        }else if(role==Qt::TextColorRole){
             if(fieldInfo->Calculated()){
                 return QColor(0,0, 0);
             }
         }
-        if (role == Qt::CheckStateRole)
-        {
-            if(fieldInfo->PhysicalType()==11)//booelan
+    }else{
+        QVariant value= QSqlRelationalTableModel::data(index,role);
+        QString fieldName=this->record().fieldName(index.column());
+        QString tableName=this->tableName();
+        //    if(fieldName=="WellName" && index.row()==0 && role==Qt::DisplayRole){
+        //        qDebug()<<"["<<fieldName<<"]="<<value<<",["<<index.row()<<","<<index.column()<<"]";
+        //    }
+        if(role== PK_ROLE){
+            QString idField=MDL->idField(this->tableName());
+            int col=record.indexOf(idField);
+            value=QSqlTableModel::data(this->index(index.row(),col));
+            return value;
+        }
+        MDLField *  fieldInfo=MDL->fieldInfo(tableName,fieldName);
+        if(fieldInfo!=nullptr){
+            if(role== Qt::DisplayRole || role==Qt::EditRole){
+                //单位转换
+
+                if(fieldInfo->PhysicalType()==11)//booelan
+                {
+                    bool b=value.toBool();
+                    return QVariant();
+                }else{
+                    QString unitType=fieldInfo->KeyUnit();
+                    if(!unitType.isEmpty()){
+                        MDLUnitType * baseUnitInfo=MDL->baseUnitKey(unitType);
+                        if(baseUnitInfo!=nullptr)
+                        {
+                            QString baseUnit=baseUnitInfo->BaseUnits();
+                            QString baseUnitFormat=baseUnitInfo->BaseFormat();
+                            MDLUnitTypeSet * userUnitInfo=MDL->userUnitKey(APP->unit(),unitType);
+                            if(userUnitInfo!=nullptr){
+                                QString userUnit=userUnitInfo->UserUnits();
+                                QString userUnitFormat=userUnitInfo->UserFormat();
+                                value=MDL->unitBase2User(baseUnit,userUnit,value);
+                            }
+                        }
+                    }
+                }
+                return value;
+            }
+
+            if(role == Qt::BackgroundColorRole ){
+                if(fieldInfo->Calculated()){
+                    return QColor(253, 91, 100);
+                }
+            }
+            if(role==Qt::TextColorRole){
+                if(fieldInfo->Calculated()){
+                    return QColor(0,0, 0);
+                }
+            }
+            if (role == Qt::CheckStateRole)
             {
-                bool b=value.toBool();
-                return  b ? Qt::Checked : Qt::Unchecked;
+                if(fieldInfo->PhysicalType()==11)//booelan
+                {
+                    bool b=value.toBool();
+                    QString  v=value.toString();
+                    qDebug()<<"V:"<<v<<",B:"<<b;
+                    return  b ? Qt::Checked : Qt::Unchecked;
+                }
             }
         }
+        return value;
     }
-    return value;
+    return QVariant();
 
 }
 
@@ -144,57 +177,80 @@ bool QWMTableModel::setData(const QModelIndex &index, const QVariant &value, int
 
     QSqlRecord record=q.record();
 
+    if(index.column()>=record.count()){
+        //计算列
+        return true;
+    }else{
+        QString fieldName=this->record().fieldName(index.column());
+        QString tableName=this->tableName();
+        MDLField *  fieldInfo=MDL->fieldInfo(tableName,fieldName);
 
-    QString fieldName=this->record().fieldName(index.column());
-    QString tableName=this->tableName();
-    MDLField *  fieldInfo=MDL->fieldInfo(tableName,fieldName);
+        QVariant v=value;
+        if(role==Qt::CheckStateRole && fieldInfo!=nullptr && fieldInfo->PhysicalType()==11)//booelan
+        {
+            v=QVariant::fromValue(Qt::Checked==value);
+        }
+        else if(fieldInfo!=nullptr && Utility::isNumber(v)){
 
-    QVariant v=value;
-    if(fieldInfo!=nullptr && Utility::isNumber(v)){
-        QString unitType=fieldInfo->KeyUnit();
-        if(!unitType.isEmpty()){
-            MDLUnitType * baseUnitInfo=MDL->baseUnitKey(unitType);
-            if(baseUnitInfo!=nullptr)
-            {
-                QString baseUnit=baseUnitInfo->BaseUnits();
-                QString baseUnitFormat=baseUnitInfo->BaseFormat();
-                MDLUnitTypeSet* userUnitInfo=MDL->userUnitKey(APP->unit(),unitType);
-                if(userUnitInfo!=nullptr){
-                    QString userUnit=userUnitInfo->UserUnits();
-                    QString userUnitFormat=userUnitInfo->UserFormat();
-                    v=MDL->unitUser2Base(baseUnit,userUnit,v);
+            QString unitType=fieldInfo->KeyUnit();
+            if(!unitType.isEmpty()){
+                MDLUnitType * baseUnitInfo=MDL->baseUnitKey(unitType);
+                if(baseUnitInfo!=nullptr)
+                {
+                    QString baseUnit=baseUnitInfo->BaseUnits();
+                    QString baseUnitFormat=baseUnitInfo->BaseFormat();
+                    MDLUnitTypeSet* userUnitInfo=MDL->userUnitKey(APP->unit(),unitType);
+                    if(userUnitInfo!=nullptr){
+                        QString userUnit=userUnitInfo->UserUnits();
+                        QString userUnitFormat=userUnitInfo->UserFormat();
+                        v=MDL->unitUser2Base(baseUnit,userUnit,v);
+                    }
                 }
             }
         }
-    }
-    bool success= QSqlRelationalTableModel::setData(index, v,  role);
-    return success;
 
+
+        bool success= QSqlRelationalTableModel::setData(index, v,  role);
+        return success;
+
+    }
 }
 
 
 Qt::ItemFlags QWMTableModel::flags( const QModelIndex &index ) const
 {
+    if(index.column()==100){
+        qDebug()<<"error";
+    }
+    qDebug()<<"FLAGFLD:"<<index.column();
     if(!index.isValid())
         return 0;
+    Qt::ItemFlags flags=Qt::ItemIsEnabled|Qt::ItemIsSelectable;
     if(_readonly)
-        return Qt::ItemIsEnabled|Qt::ItemIsSelectable;
-
+        return flags;
 
     QSqlRecord record=this->record();
-    QVariant v=QSqlRelationalTableModel::data(index);
-    QString fieldName=this->record().fieldName(index.column());
-    QString tableName=this->tableName();
-    MDLField *  fieldInfo=MDL->fieldInfo(tableName,fieldName);
-    if(fieldInfo!=nullptr){
-        if(fieldInfo->PhysicalType()==11)//booelan
-        {
-            return  Qt::ItemIsEditable|Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;
-        }else{
-            return Qt::ItemIsEditable|Qt::ItemIsEnabled|Qt::ItemIsEditable|Qt::ItemIsSelectable;
+    if(index.column()>=record.count()){
+        //计算列
+        QString  fieldName=_fieldsCalcInOrder[index.column()-record.count()];
+        qDebug()<<"CAL FLD:"<<index.column()<<","<<fieldName;
+        return  flags;
+    }else{
+        QVariant v=QSqlRelationalTableModel::data(index);
+        QString fieldName=this->record().fieldName(index.column());
+        QString tableName=this->tableName();
+        MDLField *  fieldInfo=MDL->fieldInfo(tableName,fieldName);
+        if(fieldInfo!=nullptr){
+            if(fieldInfo->PhysicalType()==11)//booelan
+            {
+                qDebug()<<"BOOL FLD:"<<index.column()<<","<<fieldName;
+                return flags|Qt::ItemIsUserCheckable;
+            }else{
+                return flags|Qt::ItemIsEditable;
+            }
         }
+        return Qt::ItemIsEditable|flags;
     }
-    return Qt::ItemIsEditable|Qt::ItemIsEnabled|Qt::ItemIsSelectable;
 }
 
 bool QWMTableModel::readonly()
@@ -261,6 +317,11 @@ int QWMTableModel::visibleFieldsCount()
     return _visibleFields;
 }
 
+int QWMTableModel::fieldsCount()
+{
+    return _fieldsInOrder.length();
+}
+
 const QString QWMTableModel::fieldInPosByOrder(int pos)
 {
     QSqlRecord rec=this->record();
@@ -273,10 +334,48 @@ const QString QWMTableModel::fieldInPosByOrder(int pos)
 
 bool QWMTableModel::isFieldVisible(const QString &field)
 {
-   if( _fieldsInOrderVice[field]<_visibleFields)
-       return true;
-   else
-       return false;
+    if( _fieldsInOrderVice[field]<_visibleFields)
+        return true;
+    else
+        return false;
+}
+
+int QWMTableModel::fieldIndexEx(const QString &fieldName)
+{
+    int result=fieldIndex(fieldName);
+    if(result<0){
+        if(!_fieldsCalcMap.contains(fieldName)){
+            MDLField * fieldInfo=MDL->fieldInfo(this->tableName(),fieldName);
+            if(fieldInfo!=nullptr&& fieldInfo->Calculated()==true){
+                _fieldsCalcMap.insert(fieldName,this->record().count()+_fieldsCalcMap.size());
+                _fieldsCalcInOrder.append(fieldName);
+            }
+        }
+        result=_fieldsCalcMap[fieldName];
+    }
+    return result;
+}
+
+QString QWMTableModel::fieldNameEx(const int index) const
+{
+
+    QString result;
+    QSqlRecord  record=this->record();
+    int fieldCount=record.count();
+    if(index<fieldCount)
+    {
+        result=this->record().fieldName(index);
+
+    }else{
+        result=_fieldsCalcInOrder[index-fieldCount];
+    }
+    return result;
+}
+
+QModelIndex QWMTableModel::createIndex(int row, int col)
+{
+    return QSqlRelationalTableModel::createIndex(row,col);
+
 }
 
 void QWMTableModel::init_record_on_prime_insert(int row, QSqlRecord &record)
