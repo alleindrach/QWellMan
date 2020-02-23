@@ -327,15 +327,24 @@ QAbstractItemModel*  WellDao::wells(int type)
     CI(key,rotateProxy);
 }
 void WellDao::initRecord(QSqlRecord & record,QString idWell,QString parentID){
+    //初始化记录
+    // record:空白记录
+//    idWell：为null时，说明此记录是在well还没有创建时进行的初始化，需要新建一个uuid，如果有值，且记录无idrec字段，说明和well是1：1的，需要赋值给idWell。
+//    parentID:父表的id
     int idIndex=record.indexOf(CFG(ID));
     QUuid id=QUuid::createUuid();
     QString strID=UUIDToString(id);
-    if(idIndex>=0){// 如果有idwell和 idrec，则idrec是初始化值，idwell需要引用 赋值
+    if(idIndex>=0){// 如果有idrec，则idrec是初始化值，idwell需要引用 赋值
         record.setValue(idIndex,strID);
         INITFLD(record,CFG(IDWell),idWell);
     }else{ //如果 只有 idwell，则idwell需要初始化
-        INITFLD(record,CFG(IDWell),strID);
-        INITFLD(record,"WellName",strID);
+        if(idWell.isNull()){ //wvWellHeader
+            INITFLD(record,CFG(IDWell),strID);
+            INITFLD(record,"WellName",strID);
+        }else
+        {
+            INITFLD(record,CFG(IDWell),idWell);
+        }
     }
     QDateTime now=QDateTime::currentDateTimeUtc();
     INITFLD(record,CFG(SysCD),now);

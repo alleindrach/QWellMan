@@ -183,7 +183,7 @@ void QWMDataEditor::showDataGrid(QWMRotatableProxyModel *model)
     }else{
         for(int i=0;i<model->rowCount();i++){
             if(i<model->visibleFieldsCount()){
-               _tbvData->setRowHidden(i,false);
+                _tbvData->setRowHidden(i,false);
             }else
             {
                 _tbvData->setRowHidden(i,true);
@@ -210,15 +210,10 @@ void QWMDataEditor::on_actionSaveExit_triggered()
     this->close();
 }
 
-void QWMDataEditor::on_trv_table_node_clicked(const QModelIndex &index)
-{
-    //1 如果当前的表和well是1：1的，且无记录，则必须生成一个新纪录
-    //2 如果当前表有记录，且当前节点无选中历史，则 选中第一条记录 ，将当前记录的key保存 到treeview node的key_field中 。当前几点的RecordDes显示
-    //3 如果当前表有父表，则必须父表的节点有选中记录，否则报警，如果当前的父表有选中记录，则将父表的id设置为当前表的parentid进行过滤 。
+QString QWMDataEditor::nodeParentID(const QModelIndex &index,QString &lastError){
     if(index.data(CAT_ROLE)==QWMApplication::TABLE){
         QString tableName=index.data(TABLE_NAME_ROLE).toString();
         QString parentTableName=MDL->parentTable(tableName);
-
         MDLTable * tableInfo=MDL->tableInfo(tableName);
         QString parentID;
         if(!parentTableName.isNull()  && !parentTableName.isEmpty()){
@@ -227,8 +222,8 @@ void QWMDataEditor::on_trv_table_node_clicked(const QModelIndex &index)
                 QString pv=index.parent().data(PK_VALUE_ROLE).toString();
                 QString ptn=index.parent().data().toString();
                 if(pv.isEmpty()){
-                    QMessageBox::information(this,"错误",tr("未选中[%1]表的记录！").arg(ptn));
-                    return;
+                    lastError=tr("未选中[%1]表的记录！").arg(ptn);
+                    return QString();
                 }else{
                     parentID=ptn;
                 }
@@ -239,10 +234,90 @@ void QWMDataEditor::on_trv_table_node_clicked(const QModelIndex &index)
         else{
             parentID=_idWell;
         }
+        return parentID;
+    }
+    return QString();
+}
+
+MDLTable *QWMDataEditor::nodeTableInfo(const QModelIndex &index)
+{
+    if(index.data(CAT_ROLE)==QWMApplication::TABLE){
+        QString tableName=index.data(TABLE_NAME_ROLE).toString();
+        QString parentTableName=MDL->parentTable(tableName);
+        MDLTable * tableInfo=MDL->tableInfo(tableName);
+        return tableInfo;
+    }
+    return nullptr;
+}
+void QWMDataEditor::on_current_record_changed(const QModelIndex &current, const QModelIndex &previous){
+    QWMRotatableProxyModel * model=static_cast<QWMRotatableProxyModel*>(_tbvData->model());
+    SX(sourceModel,model);
+    if((model->mode()==QWMRotatableProxyModel::H && current.row()!=previous.row()  && current.row()>=0 && model->rowCount()>0) ||
+            (model->mode()==QWMRotatableProxyModel::V && current.column()!=previous.column() && current.column()>=0 && model->columnCount()>0)
+            ){
+
+        QSqlRecord record=model->record(current);
+        PK_VALUE(pk,record);
+        QString tableName=sourceModel->tableName();
+        MDLTable * tableInfo=MDL->tableInfo(tableName);
+        QString des=WELL->recordDes(tableName,record);
+        QString dispText=QString("%1  [%2]").arg(tableInfo->CaptionLongP()).arg(des);
+        ui->trvTables->model()->setData(ui->trvTables->currentIndex(),dispText,Qt::DisplayRole);
+        ui->trvTables->model()->setData(ui->trvTables->currentIndex(),pk,PK_VALUE_ROLE);
+    }
+
+}
+void QWMDataEditor::on_trv_table_node_clicked(const QModelIndex &index)
+{
+    //1 如果当前的表和well是1：1的，且无记录，则必须生成一个新纪录
+    //2 如果当前表有记录，且当前节点无选中历史，则 选中第一条记录 ，将当前记录的key保存 到treeview node的key_field中 。当前几点的RecordDes显示
+    //3 如果当前表有父表，则必须父表的节点有选中记录，否则报警，如果当前的父表有选中记录，则将父表的id设置为当前表的parentid进行过滤 。
+    if(index.data(CAT_ROLE)==QWMApplication::TABLE){
+        QString lastError;
+        QString parentID=nodeParentID(index,lastError);
+        if(parentID.isNull()&& !lastError.isEmpty()){
+            QMessageBox::information(this,tr("错误"),lastError);
+            return ;
+        }
+        QString tableName=index.data(TABLE_NAME_ROLE).toString();
         QWMRotatableProxyModel * model=WELL->tableForEdit(tableName,parentID);
         SX(sourceModel,model);
         sourceModel->select();
         this->_tbvData->setModel(model);
+        disconnect(_tbvData->selectionModel(),&QItemSelectionModel::currentRowChanged,nullptr,nullptr);
+        connect(_tbvData->selectionModel(),&QItemSelectionModel::currentRowChanged,this, &QWMDataEditor::on_current_record_changed);
+        disconnect(_tbvData->selectionModel(),&QItemSelectionModel::currentColumnChanged,nullptr,nullptr);
+        connect(_tbvData->selectionModel(),&QItemSelectionModel::currentColumnChanged,this, &QWMDataEditor::on_current_record_changed);
+
+        if(sourceModel->rowCount()>0){
+            QItemSelectionModel * selectModel=_tbvData->selectionModel();
+            QItemSelection prevSelect=selectModel->selection();
+            if(prevSelect.isEmpty()){
+                selectModel->select(model->index(0,0),QItemSelectionModel::SelectCurrent);
+                if(model->mode()==QWMRotatableProxyModel::H)
+                    emit selectModel->currentRowChanged(model->index(0,0), QModelIndex());
+                else
+                    emit selectModel->currentColumnChanged(model->index(0,0), QModelIndex());
+            }
+        }
+        MDLTable * tableInfo=nodeTableInfo(index);
+        if(tableInfo->OneToOne()){//1:1的情况，默认选择首行
+            if( (model->mode()==QWMRotatableProxyModel::H && model->rowCount()==0)||(model->mode()==QWMRotatableProxyModel::V && model->columnCount()==0)) {
+                //新建一条1：1的记录
+                QSqlRecord record=model->record();
+                WELL->initRecord(record,_idWell,parentID);
+                model->insertRecord(0,record);
+            }
+            ui->actionNew->setEnabled(false);
+            ui->actionDelete->setEnabled(false);
+        }else
+        {
+            ui->actionNew->setEnabled(true);
+            ui->actionDelete->setEnabled(false);
+        }
+
+        //        void currentRowChanged(const QModelIndex &current, const QModelIndex &previous);
+        //        void currentColumnChanged(const QModelIndex &current, const QModelIndex &previous);
         showDataGrid(model);
     }
 }

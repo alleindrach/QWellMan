@@ -8,6 +8,7 @@
 #include <QLabel>
 #include "qwmdatatableview.h"
 #include "qwmrotatableproxymodel.h"
+#include "mdltable.h"
 namespace Ui {
 class QWMDataEditor;
 }
@@ -31,6 +32,8 @@ public:
     void showDataGrid(QWMRotatableProxyModel *  model);
 protected:
     virtual void closeEvent(QCloseEvent *event);
+    QString nodeParentID(const QModelIndex &index,QString & lastError);
+    MDLTable * nodeTableInfo(const QModelIndex & index);
 private slots:
     void on_actionSaveExit_triggered();
 
@@ -38,6 +41,7 @@ private slots:
 
     void on_actionRotate_triggered(bool checked);
 
+    void on_current_record_changed(const QModelIndex &current, const QModelIndex &previous);
 private:
     Ui::QWMDataEditor *ui;
     QString _idWell;
@@ -87,6 +91,12 @@ private:
             width: 17px; \
             height: 17px; \
 } \
+            QTableView::indicator:enabled:unchecked { \
+            image: url(:/images/icons/uncheck.png); \
+}\
+            QTableView::indicator:enabled:checked { \
+            image: url(:/images/icons/checked.png);\
+}\
             ";
 };
 
