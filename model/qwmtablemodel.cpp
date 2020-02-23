@@ -80,6 +80,7 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
 
     QSqlRecord record=q.record();
 
+
     if(index.column()>=record.count())
     {
          //计算列
@@ -98,7 +99,7 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
             }
         }
     }else{
-        QVariant value= QSqlRelationalTableModel::data(index,role);
+        //其他列
         QString fieldName=this->record().fieldName(index.column());
         QString tableName=this->tableName();
         //    if(fieldName=="WellName" && index.row()==0 && role==Qt::DisplayRole){
@@ -107,14 +108,14 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
         if(role== PK_ROLE){
             QString idField=MDL->idField(this->tableName());
             int col=record.indexOf(idField);
-            value=QSqlTableModel::data(this->index(index.row(),col));
+            QVariant value=QSqlTableModel::data(this->index(index.row(),col));
             return value;
         }
         MDLField *  fieldInfo=MDL->fieldInfo(tableName,fieldName);
-        if(fieldInfo!=nullptr){
-            if(role== Qt::DisplayRole || role==Qt::EditRole){
+        if(role==Qt::EditRole || role==Qt::DisplayRole){
+            QVariant value= QSqlRelationalTableModel::data(index,role);
+            if(fieldInfo!=nullptr){
                 //单位转换
-
                 if(fieldInfo->PhysicalType()==11)//booelan
                 {
                     bool b=value.toBool();
@@ -138,21 +139,13 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
                 }
                 return value;
             }
-
-            if(role == Qt::BackgroundColorRole ){
-                if(fieldInfo->Calculated()){
-                    return QColor(253, 91, 100);
-                }
-            }
-            if(role==Qt::TextColorRole){
-                if(fieldInfo->Calculated()){
-                    return QColor(0,0, 0);
-                }
-            }
+            return value;
+        }else{
             if (role == Qt::CheckStateRole)
             {
                 if(fieldInfo->PhysicalType()==11)//booelan
                 {
+                    QVariant value= QSqlRelationalTableModel::data(index,Qt::DisplayRole);
                     bool b=value.toBool();
                     QString  v=value.toString();
                     qDebug()<<"V:"<<v<<",B:"<<b;
@@ -160,7 +153,7 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
                 }
             }
         }
-        return value;
+        return QSqlRelationalTableModel::data(index,role);
     }
     return QVariant();
 
@@ -189,6 +182,7 @@ bool QWMTableModel::setData(const QModelIndex &index, const QVariant &value, int
         if(role==Qt::CheckStateRole && fieldInfo!=nullptr && fieldInfo->PhysicalType()==11)//booelan
         {
             v=QVariant::fromValue(Qt::Checked==value);
+            role=Qt::EditRole;//转换为EditRole，否则无效
         }
         else if(fieldInfo!=nullptr && Utility::isNumber(v)){
 
@@ -225,7 +219,7 @@ Qt::ItemFlags QWMTableModel::flags( const QModelIndex &index ) const
     qDebug()<<"FLAGFLD:"<<index.column();
     if(!index.isValid())
         return 0;
-    Qt::ItemFlags flags=Qt::ItemIsEnabled|Qt::ItemIsSelectable;
+    Qt::ItemFlags flags=Qt::ItemIsEnabled|Qt::ItemIsSelectable|Qt::ItemIsEditable;
     if(_readonly)
         return flags;
 
