@@ -36,13 +36,12 @@ public:
     void revert() override;
     int  visibleFieldsCount();
     bool isFieldVisible(const QString & field);
-
+    virtual void setSourceModel(QAbstractItemModel *sourceModel);
     Mode mode();
     void setMode(Mode m);
     QSqlError  lastError() ;
 signals:
-
-
+    void  modeChange(Mode m);
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
     //    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
@@ -52,6 +51,10 @@ private :
     bool _showGroup{false};
     friend class QWMMain;
     friend class QWMDataEditor;
+    QHash<QString ,QStringList> _group2FieldMap;
+    QHash<QString,QString> _fileld2GroupMap;
+private slots:
+
 };
 
 #endif // QWMROTATEPROXYMODEL_H

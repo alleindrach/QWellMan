@@ -16,6 +16,9 @@ QWMDataTableView::QWMDataTableView(QWidget *parent):QTableView(parent)
 void QWMDataTableView::setModel(QAbstractItemModel *model)
 {
     QTableView::setModel(model);
+    QWMRotatableProxyModel * rotateModel=(QWMRotatableProxyModel*)model;
+    disconnect(rotateModel,&QWMRotatableProxyModel::modeChange,0,0);
+    connect(rotateModel,&QWMRotatableProxyModel::modeChange,this,&QWMDataTableView::on_mode_change);
 }
 
 void QWMDataTableView::bindDelegate()
@@ -77,4 +80,38 @@ void QWMDataTableView::commitData(QWidget *editor)
 void QWMDataTableView::on_header_clicked(int section)
 {
     qDebug()<<"on_header_clicked["<<section<<"]";
+}
+
+void QWMDataTableView::on_mode_change(QWMRotatableProxyModel::Mode)
+{
+    QWMRotatableProxyModel * model=(QWMRotatableProxyModel*)this->model();
+    PX(pmodel,this->model());
+
+    if(model->mode()==QWMRotatableProxyModel::H){
+        for(int j=0;j<model->columnCount();j++){
+            if(j<model->visibleFieldsCount()){
+                setColumnHidden(j,false);
+            }else
+            {
+                setColumnHidden(j,true);
+            }
+        }
+        for(int i=0;i<model->rowCount();i++){
+            setRowHidden(i,false);
+        }
+    }else{
+        for(int i=0;i<model->rowCount();i++){
+            if(i<model->visibleFieldsCount()){
+                setRowHidden(i,false);
+            }else
+            {
+                setRowHidden(i,true);
+            }
+        }
+        for(int j=0;j<model->columnCount();j++){
+            setColumnHidden(j,false);
+        }
+    }
+    bindDelegate();
+    this->resize(this->size()+QSize(1,1));
 }

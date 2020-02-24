@@ -2,7 +2,7 @@
 #define QWMDATATABLEVIEW_H
 #include <QTableView>
 #include <QObject>
-
+#include "qwmrotatableproxymodel.h"
 class QWMDataTableView : public QTableView
 {
     Q_OBJECT
@@ -19,6 +19,7 @@ protected slots:
     virtual void closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint)  override;
     virtual void commitData(QWidget *editor)   override;
     void on_header_clicked(int section);
+    void on_mode_change(QWMRotatableProxyModel::Mode);
 };
 
 #endif // QWMDATATABLEVIEW_H

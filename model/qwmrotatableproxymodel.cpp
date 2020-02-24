@@ -229,6 +229,12 @@ bool QWMRotatableProxyModel::isFieldVisible(const QString &field)
     return model->isFieldVisible(field);
 }
 
+void QWMRotatableProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
+{
+
+    return QExSortFilterProxyModel::setSourceModel(sourceModel);
+}
+
 QWMRotatableProxyModel::Mode QWMRotatableProxyModel::mode()
 {
     return _mode;
@@ -237,7 +243,9 @@ QWMRotatableProxyModel::Mode QWMRotatableProxyModel::mode()
 void QWMRotatableProxyModel::setMode(QWMRotatableProxyModel::Mode m)
 {
     _mode=m;
-
+    beginResetModel();
+    endResetModel();
+    emit modeChange(m);
 }
 
 QSqlError QWMRotatableProxyModel::lastError()

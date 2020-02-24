@@ -347,11 +347,11 @@ void QWMDataEditor::on_trv_table_node_clicked(const QModelIndex &index)
 void QWMDataEditor::on_actionRotate_triggered(bool checked)
 {
     QWMRotatableProxyModel * model=static_cast<QWMRotatableProxyModel*>( _tbvData->model());
-    model->beginResetModel();
+//    model->beginResetModel();
     if(checked)
         model->setMode(QWMRotatableProxyModel::V);
     else
         model->setMode(QWMRotatableProxyModel::H);
-    model->endResetModel();
-    showDataGrid(model);
+//    model->endResetModel();
+//    showDataGrid(model);
 }
