@@ -8,6 +8,7 @@
 #include "QSqlError"
 #include "QDebug"
 #include "QUuid"
+#include "QDateTime"
 #include "utility.h"
 QWMTableModel::QWMTableModel(QObject *parent,QSqlDatabase db) : QSqlRelationalTableModel(parent,db)
 {
@@ -116,11 +117,15 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
             QVariant value= QSqlRelationalTableModel::data(index,role);
             if(fieldInfo!=nullptr){
                 //单位转换
-                if(fieldInfo->PhysicalType()==11)//booelan
+                if(fieldInfo->PhysicalType()==MDLDao::Boolean)//booelan
                 {
                     bool b=value.toBool();
                     return QVariant();
-                }else{
+                }else if(fieldInfo->PhysicalType()==MDLDao::DateTime){
+//                    QDateTime  dateValue=value.toDateTime();
+                    return value;
+                }
+                else{
                     QString unitType=fieldInfo->KeyUnit();
                     if(!unitType.isEmpty()){
                         MDLUnitType * baseUnitInfo=MDL->baseUnitKey(unitType);
@@ -143,7 +148,7 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
         }else{
             if (role == Qt::CheckStateRole)
             {
-                if(fieldInfo->PhysicalType()==11)//booelan
+                if(fieldInfo->PhysicalType()==MDLDao::Boolean)//booelan
                 {
                     QVariant value= QSqlRelationalTableModel::data(index,Qt::DisplayRole);
                     bool b=value.toBool();
@@ -179,7 +184,7 @@ bool QWMTableModel::setData(const QModelIndex &index, const QVariant &value, int
         MDLField *  fieldInfo=MDL->fieldInfo(tableName,fieldName);
 
         QVariant v=value;
-        if(role==Qt::CheckStateRole && fieldInfo!=nullptr && fieldInfo->PhysicalType()==11)//booelan
+        if(role==Qt::CheckStateRole && fieldInfo!=nullptr && fieldInfo->PhysicalType()==MDLDao::Boolean)//booelan
         {
             v=QVariant::fromValue(Qt::Checked==value);
             role=Qt::EditRole;//转换为EditRole，否则无效
@@ -235,7 +240,7 @@ Qt::ItemFlags QWMTableModel::flags( const QModelIndex &index ) const
         QString tableName=this->tableName();
         MDLField *  fieldInfo=MDL->fieldInfo(tableName,fieldName);
         if(fieldInfo!=nullptr){
-            if(fieldInfo->PhysicalType()==11)//booelan
+            if(fieldInfo->PhysicalType()==MDLDao::Boolean)//booelan
             {
                 qDebug()<<"BOOL FLD:"<<index.column()<<","<<fieldName;
                 return flags|Qt::ItemIsUserCheckable;

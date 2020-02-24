@@ -17,7 +17,7 @@ public:
 
     QAbstractItemModel * wells(int type);
     bool  processWells(QWMTableModel *);
-    QWMRotatableProxyModel * tableForEdit(QString tablename,QString parentID);
+    QWMRotatableProxyModel * tableForEdit(const QString & tablename,const QString & IDWell,const  QString & parentID);
     QWMRotatableProxyModel * table(QString tablename);
     bool processTable(QWMTableModel *);
     QSqlRecord well(QString idWell);
@@ -38,6 +38,38 @@ private:
     QHash<QString,QString> _sql;
     static WellDao* _instance;
     QHash<QString ,QVariant> _cache;
+    //lookup=8的参数
+    //首先查找表特定的字段，比如wvWellBore.IDRecParent，如果没有，再查找无表前缀的字段，，如果形式为TblKeyxxx:a/b形式，则表明是根据本表字段TblKeyXXXX来判断是哪个表，并将表明写入此字段。具体从哪几个表取，是a/b...
+    QHash<QString,QString> _RefTable={{"IDRecString","TblKeyString:wvCas/wvJobDrillString"},
+                                      {"IDRecJobPull","wvJob"},
+                                      {"IDRecJobRun","wvJob"},
+                                      {"IDRecWellBore","wvWellbore"},
+                                      {"IDRecJob","wvJob"},
+                                      {"IDRecBit","wvJobDrillBit"},
+                                      {"IDRecJobContact","wvJobContact"},
+                                      {"IDRecPhaseCustom","wvJobProgramPhase"},
+                                      {"IDRecJobRentalItem","wvJobRentalItem"},
+                                      {"IDRecZone","wvZone"},
+                                      {"IDRecJobContactContractor","wvJobContact"},
+                                      {"IDRecTub","wvTub"},
+                                      {"IDRecFailedItem","TblKeyFailedItem:wvcascomp/wvtubcomp"},//这个比较特殊，表名根据TblKeyFailedItem来判断，存在于wvProblem
+                                      {"IDRecProblem","wvProblem"},
+                                      {"IDRecTubComp","wvTubComp"},
+                                      {"IDRecFluid","wvStimTreatFluid"},
+                                      {"wvTask.IDRecParent","TblKeyParent:wvTask"},
+                                      {"IDRecTestItem","TblKeyTestItem:wvwellheadcomp/wvwellhead"},
+                                      {"IDRecCas","wvCas"},
+                                      {"IDRecFrm","wvWellboreFormation"},
+                                      {"IDRecRod","wvRod"},
+                                      {"wvWellBore.IDRecParent","wvWellBore"},
+                                      {"IDRecGauge","wvWellTestPresTravGauge"},
+                                      {"IDRecGaugeUsed","wvWellTestTransGauge"},
+                                      {"IDRecDirSrvyActual","wvWellboreDirSurvey"},
+                                      {"IDRecDirSrvyProp","wvWellboreDirSurvey"},
+                                      {"IDRecTubular","TblKeyTubular:?"},
+                                      {"wvZoneLink.IDRecItem","TblKeyItem:?"},
+
+                                     };
 public slots:
 };
 

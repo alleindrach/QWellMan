@@ -151,6 +151,12 @@ QVariant QWMSortFilterProxyModel::headerData(int section, Qt::Orientation orient
 {
     S(model);
     if(orientation==Qt::Horizontal){
+        if(role==FIELD_ROLE){
+            QModelIndex index=this->index(0,section);
+            QModelIndex sourceIndex=this->mapToSource(index);
+            QString fieldName=model->fieldNameEx(sourceIndex.column());
+            return fieldName;
+        }
         return QExSortFilterProxyModel::headerData(section,orientation,role);
     }else
     {

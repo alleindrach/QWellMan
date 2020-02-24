@@ -35,9 +35,10 @@ SOURCES += \
     ui/qwmdataeditor.cpp \
     undo/qfieldeditcommand.cpp \
     widget/comboboxdelegate.cpp \
-    widget/datedelegate.cpp \
     widget/qdlgwellfieldsselector.cpp \
     widget/qwmdatatableview.cpp \
+    widget/qwmdatedelegate.cpp \
+    widget/qwmdatetimeeditor.cpp \
     widget/spinboxdelegate.cpp
 
 HEADERS += \
@@ -61,15 +62,17 @@ HEADERS += \
     ui/qwmdataeditor.h \
     undo/qfieldeditcommand.h \
     widget/comboboxdelegate.h \
-    widget/datedelegate.h \
     widget/qdlgwellfieldsselector.h \
     widget/qwmdatatableview.h \
+    widget/qwmdatedelegate.h \
+    widget/qwmdatetimeeditor.h \
     widget/spinboxdelegate.h
 
 FORMS += \
     qwmmain.ui \
     ui/qwmdataeditor.ui \
-    widget/qdlgwellfieldsselector.ui
+    widget/qdlgwellfieldsselector.ui \
+    widget/qwmdatetimeeditor.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

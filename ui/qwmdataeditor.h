@@ -34,6 +34,7 @@ protected:
     virtual void closeEvent(QCloseEvent *event);
     QString nodeParentID(const QModelIndex &index,QString & lastError);
     MDLTable * nodeTableInfo(const QModelIndex & index);
+    void clearChildSelection(const QModelIndex & index);
 private slots:
     void on_actionSaveExit_triggered();
 

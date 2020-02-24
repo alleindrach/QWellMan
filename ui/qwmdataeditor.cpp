@@ -104,9 +104,9 @@ void QWMDataEditor::loadDataTree()
             tableItem->setFlags(Qt::ItemIsEnabled );
             tableItem->setData(QWMApplication::TABLE,CAT_ROLE); //设置节点第1列的Qt::UserRole的Data
             tableItem->setData(key,TABLE_NAME_ROLE);
-            //            tableItem->setData(text,TEXT_ROLE);
-            tableItem->setData("",RECORD_DES_ROLE);
-            tableItem->setData("",PK_VALUE_ROLE);
+            tableItem->setData(text,TEXT_ROLE);
+            tableItem->setData(QString(),RECORD_DES_ROLE);
+            tableItem->setData(QString(),PK_VALUE_ROLE);
             tableItem->setToolTip(QString("[%1] %2").arg(table->KeyTbl()).arg(table->Help()));
             item->appendRow(tableItem);
 
@@ -134,9 +134,9 @@ void QWMDataEditor::loadChildTable(QStandardItem * parent)
         tableItem->setFlags(Qt::ItemIsEnabled );
         tableItem->setData(QWMApplication::TABLE,CAT_ROLE); //设置节点第1列的Qt::UserRole的Data
         tableItem->setData(strChildTblKey,TABLE_NAME_ROLE); //设置节点第1列的Qt::UserRole的Data
-        //        tableItem->setData(strChildTblName,TEXT_ROLE); //设置节点第1列的Qt::UserRole的Data
-        tableItem->setData("",RECORD_DES_ROLE);
-        tableItem->setData("",PK_VALUE_ROLE);
+        tableItem->setData(strChildTblName,TEXT_ROLE); //设置节点第1列的Qt::UserRole的Data
+        tableItem->setData(QString(),RECORD_DES_ROLE);
+        tableItem->setData(QString(),PK_VALUE_ROLE);
         tableItem->setToolTip(QString("[%1] %2").arg(table->KeyTbl()).arg(table->Help()));
         parent->appendRow(tableItem);
         loadChildTable(tableItem);
@@ -193,6 +193,7 @@ void QWMDataEditor::showDataGrid(QWMRotatableProxyModel *model)
             _tbvData->setColumnHidden(j,false);
         }
     }
+    _tbvData->bindDelegate();
     this->resize(this->size()+QSize(1,1));
 }
 
@@ -211,32 +212,32 @@ void QWMDataEditor::on_actionSaveExit_triggered()
 }
 
 QString QWMDataEditor::nodeParentID(const QModelIndex &index,QString &lastError){
+    QString parentID=QString();
     if(index.data(CAT_ROLE)==QWMApplication::TABLE){
         QString tableName=index.data(TABLE_NAME_ROLE).toString();
         QString parentTableName=MDL->parentTable(tableName);
         MDLTable * tableInfo=MDL->tableInfo(tableName);
-        QString parentID;
         if(!parentTableName.isNull()  && !parentTableName.isEmpty()){
             if(index.parent().isValid() && index.parent().data(CAT_ROLE)==QWMApplication::TABLE)//如果有父节点
             {
                 QString pv=index.parent().data(PK_VALUE_ROLE).toString();
                 QString ptn=index.parent().data().toString();
-                if(pv.isEmpty()){
+                if(pv.isNull()){
                     lastError=tr("未选中[%1]表的记录！").arg(ptn);
                     return QString();
                 }else{
                     parentID=ptn;
                 }
             }else{//如果无父节点，则认为 其父为wvWellheader
-                parentID=_idWell;
+//                parentID=_idWell;
             }
         }
         else{
-            parentID=_idWell;
+//            parentID=_idWell;
         }
         return parentID;
     }
-    return QString();
+    return parentID;
 }
 
 MDLTable *QWMDataEditor::nodeTableInfo(const QModelIndex &index)
@@ -248,6 +249,24 @@ MDLTable *QWMDataEditor::nodeTableInfo(const QModelIndex &index)
         return tableInfo;
     }
     return nullptr;
+}
+
+void QWMDataEditor::clearChildSelection(const QModelIndex &index)
+{
+    QItemSelectionModel*  selection= ui->trvTables->selectionModel();
+    QAbstractItemModel * model=ui->trvTables->model();
+
+
+    for(int i=0;i<model->rowCount(index);i++){
+        QModelIndex childIndex=index.child(i,0);
+        QString tableName=model->data(childIndex,TABLE_NAME_ROLE).toString();
+        QString textDisplay=model->data(childIndex,TEXT_ROLE).toString();
+//        MDLTable * tableInfo=MDL->tableInfo(tableName);
+        model->setData(childIndex,textDisplay,Qt::DisplayRole);
+        model->setData(childIndex,QString(),PK_VALUE_ROLE);
+        model->setData(childIndex,QString(),RECORD_DES_ROLE);
+        clearChildSelection(index.child(i,0));
+    }
 }
 void QWMDataEditor::on_current_record_changed(const QModelIndex &current, const QModelIndex &previous){
     QWMRotatableProxyModel * model=static_cast<QWMRotatableProxyModel*>(_tbvData->model());
@@ -264,6 +283,7 @@ void QWMDataEditor::on_current_record_changed(const QModelIndex &current, const 
         QString dispText=QString("%1  [%2]").arg(tableInfo->CaptionLongP()).arg(des);
         ui->trvTables->model()->setData(ui->trvTables->currentIndex(),dispText,Qt::DisplayRole);
         ui->trvTables->model()->setData(ui->trvTables->currentIndex(),pk,PK_VALUE_ROLE);
+        clearChildSelection(ui->trvTables->currentIndex());
     }
 
 }
@@ -272,6 +292,7 @@ void QWMDataEditor::on_trv_table_node_clicked(const QModelIndex &index)
     //1 如果当前的表和well是1：1的，且无记录，则必须生成一个新纪录
     //2 如果当前表有记录，且当前节点无选中历史，则 选中第一条记录 ，将当前记录的key保存 到treeview node的key_field中 。当前几点的RecordDes显示
     //3 如果当前表有父表，则必须父表的节点有选中记录，否则报警，如果当前的父表有选中记录，则将父表的id设置为当前表的parentid进行过滤 。
+    //4 选中当前节点对应的表的其中一条记录后，子节点的所有选中记录清空
     if(index.data(CAT_ROLE)==QWMApplication::TABLE){
         QString lastError;
         QString parentID=nodeParentID(index,lastError);
@@ -279,8 +300,9 @@ void QWMDataEditor::on_trv_table_node_clicked(const QModelIndex &index)
             QMessageBox::information(this,tr("错误"),lastError);
             return ;
         }
+
         QString tableName=index.data(TABLE_NAME_ROLE).toString();
-        QWMRotatableProxyModel * model=WELL->tableForEdit(tableName,parentID);
+        QWMRotatableProxyModel * model=WELL->tableForEdit(tableName,_idWell,parentID);
         SX(sourceModel,model);
         sourceModel->select();
         this->_tbvData->setModel(model);

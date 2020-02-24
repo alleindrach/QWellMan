@@ -11,7 +11,7 @@ class MDLDao : public QObject
 {
     Q_OBJECT
 public:
-
+    enum PhysicalType{Integer=2,Long=3,Single=4,Double=5,Currency=6,DateTime=7,Boolean=11,Text=200,Memo=201,Bolob=205};
     explicit MDLDao(QSqlDatabase & db, QObject *parent = nullptr);
     ~MDLDao();
     static MDLDao * instance();

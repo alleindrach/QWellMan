@@ -81,9 +81,11 @@ QWMRotatableProxyModel *WellDao::table(QString tablename)
     CI(key,rotateProxy);
 
 }
+//获取table，并设置过滤，
+//如果是顶级节点，则只过滤IDWell
+//如果是子节点，则过滤IDRecParent
 
-
-QWMRotatableProxyModel *WellDao::tableForEdit(QString tablename, QString parentID)
+QWMRotatableProxyModel *WellDao::tableForEdit(const QString& tablename,const QString & IDWell,const  QString& parentID)
 {
     QWMRotatableProxyModel * model=table(tablename);
     PX(proxyModel,model);
@@ -91,8 +93,8 @@ QWMRotatableProxyModel *WellDao::tableForEdit(QString tablename, QString parentI
     //如果有parentid，则根据IDRecParent字段进行过滤
     QSqlRecord record=sourceModel->record();
     int recn=record.count();
-
     if(!parentID.isNull() && !parentID.isEmpty()){
+
         if(record.indexOf(CFG(ParentID))>=0)
         {
             proxyModel->setFilterKeyColumn(record.indexOf(CFG(ParentID)));
@@ -103,6 +105,11 @@ QWMRotatableProxyModel *WellDao::tableForEdit(QString tablename, QString parentI
             proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
             proxyModel->setFilterKeyColumn(record.indexOf(CFG(IDWell)));
         }
+    }else
+    {
+        proxyModel->setFilterFixedString(IDWell);
+        proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+        proxyModel->setFilterKeyColumn(record.indexOf(CFG(IDWell)));
     }
     processTable(sourceModel);
     return model;
@@ -337,6 +344,12 @@ void WellDao::initRecord(QSqlRecord & record,QString idWell,QString parentID){
     if(idIndex>=0){// 如果有idrec，则idrec是初始化值，idwell需要引用 赋值
         record.setValue(idIndex,strID);
         INITFLD(record,CFG(IDWell),idWell);
+        if(parentID.isNull()){
+            INITFLD(record,CFG(ParentID),strID);
+        }else
+        {
+            INITFLD(record,CFG(ParentID),parentID);
+        }
     }else{ //如果 只有 idwell，则idwell需要初始化
         if(idWell.isNull()){ //wvWellHeader
             INITFLD(record,CFG(IDWell),strID);
