@@ -7,6 +7,7 @@
 #include "mdlfield.h"
 #include "mdldao.h"
 #include "qwmdatedelegate.h"
+#include <QHeaderView>
 QWMDataTableView::QWMDataTableView(QWidget *parent):QTableView(parent)
 {
 
@@ -33,6 +34,7 @@ void QWMDataTableView::bindDelegate()
             }
 
         }
+        connect(this->horizontalHeader(),&QHeaderView::sectionDoubleClicked,this,&QWMDataTableView::on_header_clicked);
     }else{
         for(int i=0;i< model->rowCount();i++)
         {
@@ -45,6 +47,7 @@ void QWMDataTableView::bindDelegate()
             }
 
         }
+        connect(this->verticalHeader(),&QHeaderView::sectionDoubleClicked,this,&QWMDataTableView::on_header_clicked);
     }
 }
 
@@ -69,4 +72,9 @@ void QWMDataTableView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndEd
 void QWMDataTableView::commitData(QWidget *editor)
 {
     return QTableView::commitData(editor);
+}
+
+void QWMDataTableView::on_header_clicked(int section)
+{
+    qDebug()<<"on_header_clicked["<<section<<"]";
 }

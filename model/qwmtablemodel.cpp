@@ -18,9 +18,7 @@ QWMTableModel::QWMTableModel(QObject *parent,QSqlDatabase db) : QSqlRelationalTa
 QVariant QWMTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     QSqlRecord record=this->record();
-    if(section==100){
-        qDebug()<<"error";
-    }
+
     if( role == Qt::DisplayRole){
         if( orientation==Qt::Orientation::Horizontal)
         {
@@ -65,11 +63,6 @@ void QWMTableModel::setTable(const QString &tableName){
 }
 QVariant QWMTableModel::data(const QModelIndex &index, int role) const
 {
-
-    if(index.column()==100){
-        qDebug()<<"error";
-    }
-
     if (!index.isValid())
         return QVariant();
 
@@ -153,7 +146,7 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
                     QVariant value= QSqlRelationalTableModel::data(index,Qt::DisplayRole);
                     bool b=value.toBool();
                     QString  v=value.toString();
-                    qDebug()<<"V:"<<v<<",B:"<<b;
+//                    qDebug()<<"V:"<<v<<",B:"<<b;
                     return  b ? Qt::Checked : Qt::Unchecked;
                 }
             }
@@ -218,10 +211,6 @@ bool QWMTableModel::setData(const QModelIndex &index, const QVariant &value, int
 
 Qt::ItemFlags QWMTableModel::flags( const QModelIndex &index ) const
 {
-    if(index.column()==100){
-        qDebug()<<"error";
-    }
-    qDebug()<<"FLAGFLD:"<<index.column();
     if(!index.isValid())
         return 0;
     Qt::ItemFlags flags=Qt::ItemIsEnabled|Qt::ItemIsSelectable|Qt::ItemIsEditable;
@@ -232,7 +221,6 @@ Qt::ItemFlags QWMTableModel::flags( const QModelIndex &index ) const
     if(index.column()>=record.count()){
         //计算列
         QString  fieldName=_fieldsCalcInOrder[index.column()-record.count()];
-        qDebug()<<"CAL FLD:"<<index.column()<<","<<fieldName;
         return  flags;
     }else{
         QVariant v=QSqlRelationalTableModel::data(index);
@@ -242,7 +230,6 @@ Qt::ItemFlags QWMTableModel::flags( const QModelIndex &index ) const
         if(fieldInfo!=nullptr){
             if(fieldInfo->PhysicalType()==MDLDao::Boolean)//booelan
             {
-                qDebug()<<"BOOL FLD:"<<index.column()<<","<<fieldName;
                 return flags|Qt::ItemIsUserCheckable;
             }else{
                 return flags|Qt::ItemIsEditable;

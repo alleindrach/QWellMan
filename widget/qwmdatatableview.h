@@ -18,6 +18,7 @@ private:
 protected slots:
     virtual void closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint)  override;
     virtual void commitData(QWidget *editor)   override;
+    void on_header_clicked(int section);
 };
 
 #endif // QWMDATATABLEVIEW_H
