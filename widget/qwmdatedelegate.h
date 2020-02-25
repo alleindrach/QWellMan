@@ -23,5 +23,6 @@ signals:
     void reject();
 private:
     QWMDateTimeEditor * _editor;
+
 };
 #endif // DATEDELEGATE_H

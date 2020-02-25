@@ -12,6 +12,9 @@ class MDLDao : public QObject
     Q_OBJECT
 public:
     enum PhysicalType{Integer=2,Long=3,Single=4,Double=5,Currency=6,DateTime=7,Boolean=11,Text=200,Memo=201,Bolob=205};
+    Q_ENUM(PhysicalType)
+    enum LookupType{NONE=0,LibEdit=1,LibOnly=2,DBDistinctValues=3,Icon=4,Date=5,Time=6,DateAndTime=7,Foreign=8,List=11,TabList=12,MaskEdit=14};
+    Q_ENUM(LookupType)
     explicit MDLDao(QSqlDatabase & db, QObject *parent = nullptr);
     ~MDLDao();
     static MDLDao * instance();

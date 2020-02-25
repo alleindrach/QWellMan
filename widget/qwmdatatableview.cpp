@@ -32,8 +32,15 @@ void QWMDataTableView::bindDelegate()
             QString fieldName=model->fieldName(model->index(0,i));
             QString tableName=sourcemodel->tableName();
             fieldInfo=MDL->fieldInfo(tableName,fieldName);
-            if(fieldInfo!=nullptr &&  fieldInfo->PhysicalType()==MDLDao::DateTime){
-               this->setItemDelegateForColumn(i,new QWMDateDelegate(QWMDateDelegate::DATETIME,"yyyy-MM-dd HH:mm:ss",this));
+            if(fieldInfo!=nullptr &&  fieldInfo->PhysicalType()==MDLDao::DateTime )
+            {
+                if(fieldInfo->LookupTyp()==MDLDao::DateAndTime){
+                    this->setItemDelegateForColumn(i,new QWMDateDelegate(QWMDateDelegate::DATETIME,"yyyy-MM-dd HH:mm:ss",this));
+                }else if(fieldInfo->LookupTyp()==MDLDao::Date){
+                    this->setItemDelegateForColumn(i,new QWMDateDelegate(QWMDateDelegate::DATE,"yyyy-MM-dd",this));
+                }else if(fieldInfo->LookupTyp()==MDLDao::Date){
+                    this->setItemDelegateForColumn(i,new QWMDateDelegate(QWMDateDelegate::TIME,"HH:mm:ss",this));
+                }
             }
 
         }
@@ -45,8 +52,15 @@ void QWMDataTableView::bindDelegate()
             QString fieldName=model->fieldName(model->index(i,0));
             QString tableName=sourcemodel->tableName();
             fieldInfo=MDL->fieldInfo(tableName,fieldName);
-            if(fieldInfo!=nullptr &&  fieldInfo->PhysicalType()==MDLDao::DateTime){
-               this->setItemDelegateForRow(i,new QWMDateDelegate(QWMDateDelegate::DATETIME,"yyyy-MM-dd HH:mm:ss",this));
+            if(fieldInfo!=nullptr &&  fieldInfo->PhysicalType()==MDLDao::DateTime )
+            {
+                if(fieldInfo->LookupTyp()==MDLDao::DateAndTime){
+                    this->setItemDelegateForRow(i,new QWMDateDelegate(QWMDateDelegate::DATETIME,"yyyy-MM-dd HH:mm:ss",this));
+                }else if(fieldInfo->LookupTyp()==MDLDao::Date){
+                    this->setItemDelegateForRow(i,new QWMDateDelegate(QWMDateDelegate::DATE,"yyyy-MM-dd",this));
+                }else if(fieldInfo->LookupTyp()==MDLDao::Date){
+                    this->setItemDelegateForRow(i,new QWMDateDelegate(QWMDateDelegate::TIME,"HH:mm:ss",this));
+                }
             }
 
         }

@@ -119,8 +119,15 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
                     bool b=value.toBool();
                     return QVariant();
                 }else if(fieldInfo->PhysicalType()==MDLDao::DateTime){
-                    //                    QDateTime  dateValue=value.toDateTime();
-                    return value;
+                    if(fieldInfo->LookupTyp()==MDLDao::Date){
+                        QDate date=value.toDate();
+                        return date;
+                    }else if(fieldInfo->LookupTyp()==MDLDao::Time){
+                        QTime time=value.toTime();
+                        return time;
+                    }else{
+                        return value.toDateTime();
+                    }
                 }
                 else{
                     QString unitType=fieldInfo->KeyUnit();
