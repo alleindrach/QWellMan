@@ -8,6 +8,7 @@
 #include "mdldao.h"
 #include "qwmdatedelegate.h"
 #include <QHeaderView>
+#include "qwmliblookupdelegate.h"
 QWMDataTableView::QWMDataTableView(QWidget *parent):QTableView(parent)
 {
 
@@ -23,48 +24,43 @@ void QWMDataTableView::setModel(QAbstractItemModel *model)
 
 void QWMDataTableView::bindDelegate()
 {
+    typedef  void (QAbstractItemView::* DelegateSettor)(int, QAbstractItemDelegate *) ;
     QWMRotatableProxyModel * model=static_cast<QWMRotatableProxyModel*>(this->model());
     SX(sourcemodel,this->model());
+    DelegateSettor  func;
+    int counter=0;
     if(model->mode()==QWMRotatableProxyModel::H){
-        for(int i=0;i< model->columnCount();i++)
-        {
-            MDLField * fieldInfo;
-            QString fieldName=model->fieldName(model->index(0,i));
-            QString tableName=sourcemodel->tableName();
-            fieldInfo=MDL->fieldInfo(tableName,fieldName);
-            if(fieldInfo!=nullptr &&  fieldInfo->PhysicalType()==MDLDao::DateTime )
-            {
-                if(fieldInfo->LookupTyp()==MDLDao::DateAndTime){
-                    this->setItemDelegateForColumn(i,new QWMDateDelegate(QWMDateDelegate::DATETIME,"yyyy-MM-dd HH:mm:ss",this));
-                }else if(fieldInfo->LookupTyp()==MDLDao::Date){
-                    this->setItemDelegateForColumn(i,new QWMDateDelegate(QWMDateDelegate::DATE,"yyyy-MM-dd",this));
-                }else if(fieldInfo->LookupTyp()==MDLDao::Date){
-                    this->setItemDelegateForColumn(i,new QWMDateDelegate(QWMDateDelegate::TIME,"HH:mm:ss",this));
-                }
-            }
-
-        }
+        func =& QWMDataTableView::setItemDelegateForColumn;
+        counter=model->columnCount();
         connect(this->horizontalHeader(),&QHeaderView::sectionDoubleClicked,this,&QWMDataTableView::on_header_clicked);
     }else{
-        for(int i=0;i< model->rowCount();i++)
-        {
-            MDLField * fieldInfo;
-            QString fieldName=model->fieldName(model->index(i,0));
-            QString tableName=sourcemodel->tableName();
-            fieldInfo=MDL->fieldInfo(tableName,fieldName);
-            if(fieldInfo!=nullptr &&  fieldInfo->PhysicalType()==MDLDao::DateTime )
-            {
-                if(fieldInfo->LookupTyp()==MDLDao::DateAndTime){
-                    this->setItemDelegateForRow(i,new QWMDateDelegate(QWMDateDelegate::DATETIME,"yyyy-MM-dd HH:mm:ss",this));
-                }else if(fieldInfo->LookupTyp()==MDLDao::Date){
-                    this->setItemDelegateForRow(i,new QWMDateDelegate(QWMDateDelegate::DATE,"yyyy-MM-dd",this));
-                }else if(fieldInfo->LookupTyp()==MDLDao::Date){
-                    this->setItemDelegateForRow(i,new QWMDateDelegate(QWMDateDelegate::TIME,"HH:mm:ss",this));
-                }
-            }
-
-        }
+        func = & QWMDataTableView::setItemDelegateForRow;
+        counter=model->rowCount();
         connect(this->verticalHeader(),&QHeaderView::sectionDoubleClicked,this,&QWMDataTableView::on_header_clicked);
+    }
+    for(int i=0;i< counter;i++)
+    {
+        MDLField * fieldInfo;
+        QString fieldName=model->fieldName(
+                    model->mode()==QWMRotatableProxyModel::H?model->index(0,i): model->index(i,0)
+                    );
+        QString tableName=sourcemodel->tableName();
+        fieldInfo=MDL->fieldInfo(tableName,fieldName);
+        if(fieldInfo!=nullptr &&  fieldInfo->PhysicalType()==MDLDao::DateTime )
+        {
+            if(fieldInfo->LookupTyp()==MDLDao::DateAndTime){
+                (this->*func)(i,new QWMDateDelegate(QWMDateDelegate::DATETIME,"yyyy-MM-dd HH:mm:ss",this));
+            }else if(fieldInfo->LookupTyp()==MDLDao::Date){
+                (this->*func)(i,new QWMDateDelegate(QWMDateDelegate::DATE,"yyyy-MM-dd",this));
+            }else if(fieldInfo->LookupTyp()==MDLDao::Date){
+                (this->*func)(i,new QWMDateDelegate(QWMDateDelegate::TIME,"HH:mm:ss",this));
+            }
+        }else if(fieldInfo!=nullptr &&  fieldInfo->LookupTyp()==MDLDao::LibEdit){
+            (this->*func)(i,new QWMLibLookupDelegate(fieldInfo->LookupTableName(),fieldInfo->LookupFieldName(),fieldInfo->CaptionLong(),true,this));
+        }
+        else if(fieldInfo!=nullptr &&  fieldInfo->LookupTyp()==MDLDao::LibOnly){
+            (this->*func)(i,new QWMLibLookupDelegate(fieldInfo->LookupTableName(),fieldInfo->LookupFieldName(),fieldInfo->CaptionLong(),false,this));
+        }
     }
 }
 

@@ -1,0 +1,37 @@
+#ifndef QWMLIBSELECTOR_H
+#define QWMLIBSELECTOR_H
+
+#include <QWidget>
+#include <QAbstractButton>
+#include <QItemSelection>
+#include <QItemSelectionModel>
+namespace Ui {
+class QWMLibSelector;
+}
+
+class QWMLibSelector : public QWidget
+{
+    Q_OBJECT
+public:
+    explicit QWMLibSelector(QString lib,QString lookupFld,QString title,bool editable=false,QString v=QString(), QWidget *parent = nullptr);
+    void  setText(QString text);
+    QString text();
+    const QItemSelectionModel* selectionModel();
+private:
+     Ui::QWMLibSelector *ui;
+     QString _selectedValue;
+     bool _editable{false};
+     QString _title;
+     int _col;
+signals:
+    void  accepted(QWMLibSelector * );
+    void  rejected(QWMLibSelector * );
+private slots:
+    void on_btn_clicked(QAbstractButton *button);
+
+    void on_text_changed(const QString &);
+    void on_return_pressed();
+    void on_item_doubleclick(const QModelIndex &index);
+};
+
+#endif // QWMLIBSELECTOR_H

@@ -17,6 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     aux/utility.cpp \
+    dao/libdao.cpp \
     dao/mdldao.cpp \
     dao/udldao.cpp \
     dao/welldao.cpp \
@@ -34,16 +35,19 @@ SOURCES += \
     qwmmain.cpp \
     ui/qwmdataeditor.cpp \
     undo/qfieldeditcommand.cpp \
-    widget/comboboxdelegate.cpp \
+    widget/delegate/comboboxdelegate.cpp \
+    widget/delegate/qwmdatedelegate.cpp \
+    widget/delegate/qwmliblookupdelegate.cpp \
+    widget/delegate/spinboxdelegate.cpp \
+    widget/editor/qwmdatetimeeditor.cpp \
+    widget/editor/qwmlibselector.cpp \
     widget/qdlgwellfieldsselector.cpp \
     widget/qwmdatatableview.cpp \
-    widget/qwmdatedelegate.cpp \
-    widget/qwmdatetimeeditor.cpp \
-    widget/spinboxdelegate.cpp
 
 HEADERS += \
     aux/utility.h \
     common.h \
+    dao/libdao.h \
     dao/mdldao.h \
     dao/udldao.h \
     dao/welldao.h \
@@ -61,18 +65,21 @@ HEADERS += \
     qwmmain.h \
     ui/qwmdataeditor.h \
     undo/qfieldeditcommand.h \
-    widget/comboboxdelegate.h \
+    widget/delegate/comboboxdelegate.h \
+    widget/delegate/qwmdatedelegate.h \
+    widget/delegate/qwmliblookupdelegate.h \
+    widget/delegate/spinboxdelegate.h \
+    widget/editor/qwmdatetimeeditor.h \
+    widget/editor/qwmlibselector.h \
     widget/qdlgwellfieldsselector.h \
     widget/qwmdatatableview.h \
-    widget/qwmdatedelegate.h \
-    widget/qwmdatetimeeditor.h \
-    widget/spinboxdelegate.h
 
 FORMS += \
     qwmmain.ui \
     ui/qwmdataeditor.ui \
+    widget/editor/qwmdatetimeeditor.ui \
+    widget/editor/qwmlibselector.ui \
     widget/qdlgwellfieldsselector.ui \
-    widget/qwmdatetimeeditor.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -88,7 +95,7 @@ TRANSLATIONS +=  \
 DISTFILES += \
     resource/i18n/QWellMan_zh_CN.ts
 
-INCLUDEPATH += $$PWD/dao $$PWD/widget $$PWD/ui $$PWD/undo $$PWD/aux $$PWD/model $$PWD/dto  $$PWD/model/qt
+INCLUDEPATH += $$PWD/dao $$PWD/widget $$PWD/widget/delegate $$PWD/widget/editor $$PWD/ui $$PWD/undo $$PWD/aux $$PWD/model $$PWD/dto  $$PWD/model/qt
 
 INCLUDEPATH += /Users/Allein/Qt/5.14.0/lib/QtCore.framework/Versions/5/Headers/5.14.0
 INCLUDEPATH += /Users/Allein/Qt/5.14.0/lib/QtCore.framework/Versions/5/Headers/5.14.0/QtCore
