@@ -22,6 +22,7 @@ public:
     QStringList tablesHidden(QString profile);
     QStringList fieldsHidden(QString profile,QString tablename);
     QStringList fieldsVisibleInOrder(QString profile, QString table);
+    QStringList fieldsVisibleInOrderByGroup(QString profile,QString table,QString group);
 signals:
 private:
     QSqlDatabase  _db;

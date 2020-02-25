@@ -14,6 +14,7 @@
 #include "QMetaObject"
 #include "QMetaType"
 #include "qlogging.h"
+#include "mdldao.h"
 
 void outputMessage(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 UDLDao * UDLDao::_instance=nullptr;
@@ -35,7 +36,8 @@ UDLDao::UDLDao(QSqlDatabase &db,QObject *parent) : QObject(parent),_db(db)
             and p.KeySetFldHidden=hd.KeySet COLLATE NOCASE \
             and hd.KeyTbl=:table COLLATE  NOCASE");
 
-            DECL_SQL(select_table_visible_fields_in_order,"select * from pceListTblFld f where f.KeyTbl=:table  and not  exists ( \
+            DECL_SQL(select_table_visible_fields_in_order_by_group,"select * from pceListTblFld f where  f.GroupName=:group COLLATE NOCASE \
+ and f.KeyTbl=:table  and not  exists ( \
                      select hd.KeyFld from pceUDLProfile p ,pceUDLSetFldHiddenData hd \
                      where p.KeyProfile=:profile COLLATE NOCASE \
             and p.KeySetFldHidden=hd.KeySet COLLATE NOCASE \
@@ -165,16 +167,33 @@ QStringList UDLDao::fieldsVisibleInOrder(QString profile, QString table)
 {
     QString key=QString("fieldsVisibleInOrder.%1.%2").arg(profile).arg(table);
     CS(key,QStringList);
+    QStringList result;
 
+    QSqlQuery q(APP->udl());
+    QStringList groups=MDL->fieldGroup(table);
+    foreach(QString group,groups){
+        QStringList fields=fieldsVisibleInOrderByGroup(profile,table,group);
+        result<<fields;
+    }
+
+    CI(key,result);
+}
+
+QStringList UDLDao::fieldsVisibleInOrderByGroup(QString profile, QString table, QString group)
+{
+    QString key=QString("fieldsVisibleInOrderByGroup.%1.%2.%3").arg(profile).arg(table).arg(group);
+    CS(key,QStringList);
     QStringList result;
     QSqlQuery q(APP->udl());
-    q.prepare(SQL(select_table_visible_fields_in_order));
+    q.prepare(SQL(select_table_visible_fields_in_order_by_group));
     q.bindValue(":profile",profile);
     q.bindValue(":table",table);
+    q.bindValue(":group",group);
     q.exec();
     PRINT_ERROR(q);
     while(q.next()){
         result<<QS(q,KeyFld);
     }
     CI(key,result);
+
 }

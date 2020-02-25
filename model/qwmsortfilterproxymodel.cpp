@@ -216,7 +216,7 @@ void QWMSortFilterProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
     int c=0;
 
     foreach(QString group,groups){
-        QStringList fields=MDL->fieldOfGroup(model->tableName(),group);
+        QStringList fields=UDL->fieldsVisibleInOrderByGroup(APP->profile(),model->tableName(),group);
         _groupIndex.insert(c,group);
         _fieldGroup.insert(group,fields);
         c+=(fields.count()+1);
