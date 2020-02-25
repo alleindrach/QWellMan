@@ -6,43 +6,20 @@
 #include "common.h"
 #include "libdao.h"
 #include "QSqlQueryModel"
-QWMLibSelector::QWMLibSelector(QString lib,QString lookupFld,QString title,bool editale,QString v,QWidget *parent) : QWidget(parent),ui(new Ui::QWMLibSelector),_title(title),_selectedValue(v),_editable(editale)
+#include "qwmapplication.h"
+QWMLibSelector::QWMLibSelector(QString lib,QString lookupFld,QString title,bool editale,QString v,QWidget *parent) : QWidget(parent),ui(new Ui::QWMLibSelector),_lookupFld(lookupFld),_title(title),_selectedValue(v),_editable(editale)
 {
     ui->setupUi(this);
-    connect(ui->buttonBox,&QDialogButtonBox::clicked,this,&QWMLibSelector::on_btn_clicked);
-    connect(ui->lineEdit,&QLineEdit::textChanged,this,&QWMLibSelector::on_text_changed);
-    connect(ui->lineEdit,&QLineEdit::returnPressed,this,&QWMLibSelector::on_return_pressed);
-    connect(ui->tableView,&QTableView::doubleClicked,this,&QWMLibSelector::on_item_doubleclick);
     QSqlQueryModel*  model=LIB->libLookup(lib);
-    QSortFilterProxyModel * proxyModel=new QSortFilterProxyModel(this);
-    proxyModel->setSourceModel(model);
-    ui->tableView->setModel(proxyModel);
+    init(model);
+}
 
-    ui->tableView->verticalHeader()->setDefaultSectionSize(12);
-    for(int i=0;i<model->columnCount();i++){
-        if(LIBDao::hiddenFields.contains(model->record().fieldName(i))){
-            ui->tableView->setColumnHidden(i,true);
-        }else{
-            if(lookupFld.compare(model->record().fieldName(i),Qt::CaseInsensitive)==0){
-                ui->tableView->setColumnHidden(i,false);
-                proxyModel->setFilterKeyColumn(i);
-                proxyModel->setFilterRole(Qt::DisplayRole);
-                _col=i;
-                proxyModel->setHeaderData(i,Qt::Horizontal,_title,Qt::DisplayRole);
-                proxyModel->setHeaderData(i,Qt::Horizontal,_title,Qt::EditRole);
-            }
-            else{
-                proxyModel->setHeaderData(i,Qt::Horizontal,model->record().fieldName(i),Qt::DisplayRole);
-                proxyModel->setHeaderData(i,Qt::Horizontal,model->record().fieldName(i),Qt::EditRole);
-            }
-        }
-    }
+QWMLibSelector::QWMLibSelector(QString lib, QString lookupFld,QString title, QSqlQueryModel* model, bool editable, QString v, QWidget *parent):
+    QWidget(parent),ui(new Ui::QWMLibSelector),_lookupFld(lookupFld),_selectedValue(v),_editable(editable),_title(title)
+{
 
-    QModelIndexList indexs= proxyModel->match(proxyModel->index(0,_col),Qt::DisplayRole,v,1,Qt::MatchExactly);
-    if(indexs.length()==1){
-        ui->tableView->selectionModel()->select(indexs.first(),QItemSelectionModel::SelectCurrent);
-    }
-    ui->lineEdit->setFocus();
+    ui->setupUi(this);
+    init(model);
 }
 
 void QWMLibSelector::setText(QString text)
@@ -70,6 +47,46 @@ QString QWMLibSelector::text()
         _selectedValue=selectedAsCol.data().toString();
     }
     return _selectedValue;
+}
+
+void QWMLibSelector::init(QSqlQueryModel * model)
+{
+
+
+    connect(ui->buttonBox,&QDialogButtonBox::clicked,this,&QWMLibSelector::on_btn_clicked);
+    connect(ui->lineEdit,&QLineEdit::textChanged,this,&QWMLibSelector::on_text_changed);
+    connect(ui->lineEdit,&QLineEdit::returnPressed,this,&QWMLibSelector::on_return_pressed);
+    connect(ui->tableView,&QTableView::doubleClicked,this,&QWMLibSelector::on_item_doubleclick);
+
+    QSortFilterProxyModel * proxyModel=new QSortFilterProxyModel(this);
+    proxyModel->setSourceModel(model);
+    ui->tableView->setModel(proxyModel);
+
+    ui->tableView->verticalHeader()->setDefaultSectionSize(12);
+    for(int i=0;i<model->columnCount();i++){
+        if(LIBDao::hiddenFields.contains(model->record().fieldName(i))){
+            ui->tableView->setColumnHidden(i,true);
+        }else{
+            if(_lookupFld.compare(model->record().fieldName(i),Qt::CaseInsensitive)==0){
+                ui->tableView->setColumnHidden(i,false);
+                proxyModel->setFilterKeyColumn(i);
+                proxyModel->setFilterRole(Qt::DisplayRole);
+                _col=i;
+                proxyModel->setHeaderData(i,Qt::Horizontal,_title,Qt::DisplayRole);
+                proxyModel->setHeaderData(i,Qt::Horizontal,_title,Qt::EditRole);
+            }
+            else{
+                proxyModel->setHeaderData(i,Qt::Horizontal,model->record().fieldName(i),Qt::DisplayRole);
+                proxyModel->setHeaderData(i,Qt::Horizontal,model->record().fieldName(i),Qt::EditRole);
+            }
+        }
+    }
+
+    QModelIndexList indexs= proxyModel->match(proxyModel->index(0,_col),Qt::DisplayRole,_selectedValue,1,Qt::MatchExactly);
+    if(indexs.length()==1){
+        ui->tableView->selectionModel()->select(indexs.first(),QItemSelectionModel::SelectCurrent);
+    }
+    ui->lineEdit->setFocus();
 }
 
 const QItemSelectionModel* QWMLibSelector::selectionModel()

@@ -41,6 +41,7 @@ SOURCES += \
     widget/delegate/spinboxdelegate.cpp \
     widget/editor/qwmdatetimeeditor.cpp \
     widget/editor/qwmlibselector.cpp \
+    widget/editor/qwmlibtabselector.cpp \
     widget/qdlgwellfieldsselector.cpp \
     widget/qwmdatatableview.cpp \
 
@@ -71,6 +72,7 @@ HEADERS += \
     widget/delegate/spinboxdelegate.h \
     widget/editor/qwmdatetimeeditor.h \
     widget/editor/qwmlibselector.h \
+    widget/editor/qwmlibtabselector.h \
     widget/qdlgwellfieldsselector.h \
     widget/qwmdatatableview.h \
 
@@ -79,6 +81,7 @@ FORMS += \
     ui/qwmdataeditor.ui \
     widget/editor/qwmdatetimeeditor.ui \
     widget/editor/qwmlibselector.ui \
+    widget/editor/qwmlibtabselector.ui \
     widget/qdlgwellfieldsselector.ui \
 
 # Default rules for deployment.

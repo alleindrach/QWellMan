@@ -112,5 +112,13 @@ if(q.lastError().isValid()) qDebug()<<" Query["<<q.lastQuery()<<"] Error["<<q.la
     { \
         pk=record.value(CFG(IDWell)).toString(); \
     }
-
+#define TP(t,tp,tpx) \
+QObject * x=t;\
+     tp *  tpx=nullptr;\
+while(x->metaObject()->className()!=tp::staticMetaObject.className() && x->parent()!=nullptr){\
+    x=x->parent(); \
+}\
+if(x!=nullptr && x->metaObject()->className()==tp::staticMetaObject.className()){\
+   tpx=(tp*) x; \
+}
 #endif // COMMON_H

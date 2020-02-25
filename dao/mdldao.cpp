@@ -117,6 +117,7 @@ void MDLDao::readConfig(QHash<QString,QString>&  config){
     config.insert("SysCU","sysCreateUser");
     config.insert("SysMU","sysModUser");
     config.insert("SysLD","sysLockDate");
+    config.insert("LibTab","sysTab");
     return ;
 
 }

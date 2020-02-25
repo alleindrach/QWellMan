@@ -5,6 +5,7 @@
 #include <QAbstractButton>
 #include <QItemSelection>
 #include <QItemSelectionModel>
+#include <QSqlQueryModel>
 namespace Ui {
 class QWMLibSelector;
 }
@@ -14,14 +15,17 @@ class QWMLibSelector : public QWidget
     Q_OBJECT
 public:
     explicit QWMLibSelector(QString lib,QString lookupFld,QString title,bool editable=false,QString v=QString(), QWidget *parent = nullptr);
+    explicit QWMLibSelector(QString lib,QString lookupFld,QString title,QSqlQueryModel * model,bool editable=false,QString v=QString(), QWidget *parent = nullptr);
     void  setText(QString text);
     QString text();
+    void init(QSqlQueryModel * model);
     const QItemSelectionModel* selectionModel();
 private:
      Ui::QWMLibSelector *ui;
      QString _selectedValue;
      bool _editable{false};
      QString _title;
+     QString _lookupFld;
      int _col;
 signals:
     void  accepted(QWMLibSelector * );

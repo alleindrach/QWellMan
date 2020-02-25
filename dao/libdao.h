@@ -15,8 +15,11 @@ public:
     explicit LIBDao(QSqlDatabase &db,QObject *parent);
     ~LIBDao();
     static LIBDao * instance();
-    QStringList libLookup(QString table,QString displayFld);
+//    QStringList libLookup(QString table,QString displayFld);
+    QStringList libTabs(QString table);
+
     QSqlQueryModel * libLookup(QString table);
+    QSqlQueryModel * libLookup(QString table,QString tab);
     static QVector<QString> hiddenFields;
 signals:
 private:
