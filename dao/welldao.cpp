@@ -75,7 +75,7 @@ QWMRotatableProxyModel *WellDao::table(QString tablename)
 
     QWMSortFilterProxyModel * proxy=new QWMSortFilterProxyModel(model);
     proxy->setSourceModel(model);
-
+    proxy->setShowGroup(true);
     QWMRotatableProxyModel * rotateProxy=new QWMRotatableProxyModel(QWMRotatableProxyModel::H,proxy);
     rotateProxy->setSourceModel(proxy);
     CI(key,rotateProxy);

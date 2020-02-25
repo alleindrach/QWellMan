@@ -11,7 +11,8 @@
 #include "QSqlError"
 #include "QDebug"
 #include "QSqlIndex"
-#define S(model)\
+#include "qexsortfilterproxymodel.h"
+#define S1(model)\
     QWMTableModel * model=static_cast<QWMTableModel *>(this->sourceModel());
 QWMSortFilterProxyModel::QWMSortFilterProxyModel(QObject *parent) : QExSortFilterProxyModel(parent)
 {
@@ -22,16 +23,21 @@ QModelIndex QWMSortFilterProxyModel::mapToSource(const QModelIndex &proxyIndex) 
 {
     if(!proxyIndex.isValid())
         return QModelIndex();
-    S(model);
+    S1(model);
 
-    QString sourceColName= model->fieldInPosByOrder(proxyIndex.column());
+    //    QWMTableModel * model=static_cast<QWMTableModel *>(this->sourceModel());
+
+    int realCol=realColumn(proxyIndex.column());
+    if(realCol<0)
+        return QModelIndex();
+    QString sourceColName= model->fieldInPosByOrder(realCol);
     if(sourceColName.isNull()||sourceColName.isEmpty()){
         return QModelIndex();
     }
     //计算字段没有field对应，这里sourceColPos就可能等于-1
     int sourceColPos=model->fieldIndexEx(sourceColName);
 
-//    QModelIndex index=this->index(proxyIndex.row(),sourceColPos);
+    //    QModelIndex index=this->index(proxyIndex.row(),sourceColPos);
     QModelIndex proxyIndex2=this->index(proxyIndex.row(),0);
     QModelIndex sourceIndex2=QExSortFilterProxyModel::mapToSource(proxyIndex2);
 
@@ -40,7 +46,7 @@ QModelIndex QWMSortFilterProxyModel::mapToSource(const QModelIndex &proxyIndex) 
     //    if(sourceColPos>=model->record().count()){
     //        return model->index(proxyIndex.row(),sourceColPos);
     //    }else
-//    return QExSortFilterProxyModel::mapToSource(index);
+    //    return QExSortFilterProxyModel::mapToSource(index);
     //    return model->index(proxyIndex.row(),sourceColPos);
 }
 
@@ -48,13 +54,15 @@ QModelIndex QWMSortFilterProxyModel::mapFromSource(const QModelIndex &sourceInde
 {
     if(!sourceIndex.isValid())
         return QModelIndex();
-    S(model);
+    S1(model);
     QString sourceColName= model->fieldNameEx(sourceIndex.column());
     int visiblePos=model->fieldPosByOrder(sourceColName);
     if(visiblePos<0)
         return QModelIndex();
+
     QModelIndex index=model->index(sourceIndex.row(),visiblePos);
-    return  QExSortFilterProxyModel::mapFromSource(index);
+    QModelIndex mappedIndex=  QExSortFilterProxyModel::mapFromSource(index);
+    QModelIndex proxyIndex=createIndex(mappedIndex.row(),groupedColumn(mappedIndex.column()));
     //    return createIndex(sourceIndex.row(),visiblePos);
 }
 
@@ -72,18 +80,24 @@ Qt::ItemFlags QWMSortFilterProxyModel::flags(const QModelIndex &index) const
 {
 
 
-//    QModelIndex sourceIndex=mapToSource(index);
-    return QExSortFilterProxyModel::flags(index);
+    //    QModelIndex sourceIndex=mapToSource(index);
+    if(groupTitle(index.column()).isNull()){
+        int col=realColumn(index.column());
+        QModelIndex realIndex=createIndex(index.row(),col);
+        return QExSortFilterProxyModel::flags(index);
+    }else{
+        return 0;
+    }
 }
 
 QSqlRecord QWMSortFilterProxyModel::record() const
 {
-    S(model);
+    S1(model);
     return model->record();
 }
 QSqlRecord QWMSortFilterProxyModel::record(int row) const
 {
-    S(model);
+    S1(model);
     QModelIndex index=this->index(row,0);
     QModelIndex srcIndex=QExSortFilterProxyModel::mapToSource(index);
     return model->record(srcIndex.row());
@@ -124,20 +138,90 @@ bool QWMSortFilterProxyModel::submit()
 
 void QWMSortFilterProxyModel::revert()
 {
-    S(model);//QWMTableModel *model=static_cast<QWMTableModel *>(this->sourceModel());
+    S1(model);//QWMTableModel *model=static_cast<QWMTableModel *>(this->sourceModel());
     return model->revert();
 }
 
 int QWMSortFilterProxyModel::visibleFieldsCount()
 {
-    S(model);
+    S1(model);
     return model->visibleFieldsCount();
 }
 
 bool QWMSortFilterProxyModel::isFieldVisible(const QString &field)
 {
-    S(model);
+    S1(model);
     return model->isFieldVisible(field);
+}
+
+bool QWMSortFilterProxyModel::showGroup()
+{
+    return _showGroup;
+}
+
+void QWMSortFilterProxyModel::setShowGroup(bool v)
+{
+    _showGroup=v;
+}
+
+const int QWMSortFilterProxyModel::realColumn(const int col) const
+{
+
+    int realCol=col;
+    if(_showGroup){
+        if(_groupIndex.contains(col))
+            return -1;
+        QList<int> keys=_groupIndex.keys();
+        qSort(keys);
+        foreach(int key,keys){
+            if(key>col)
+                break;
+            else
+                realCol--;
+        }
+    }
+    return realCol;
+}
+
+const int QWMSortFilterProxyModel::groupedColumn(const int col) const
+{
+    int gCol=col;
+    if(_showGroup){
+
+        QList<int> keys=_groupIndex.keys();
+        qSort(keys);
+        foreach(int key,keys){
+            if(key>gCol)
+                break;
+            else
+                gCol++;
+        }
+    }
+    return gCol;
+}
+
+const QString QWMSortFilterProxyModel::groupTitle(const int col) const
+{
+    if(_showGroup){
+        if( _groupIndex.contains(col))
+            return _groupIndex[col];
+    }
+    return QString();
+}
+
+void QWMSortFilterProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
+{
+    QWMTableModel  * model=(QWMTableModel *) sourceModel;
+    QStringList groups=MDL->fieldGroup(model->tableName());
+    int c=0;
+
+    foreach(QString group,groups){
+        QStringList fields=MDL->fieldOfGroup(model->tableName(),group);
+        _groupIndex.insert(c,group);
+        _fieldGroup.insert(group,fields);
+        c+=(fields.count()+1);
+    }
+    QExSortFilterProxyModel::setSourceModel(sourceModel);
 }
 
 
@@ -149,15 +233,27 @@ QSqlError QWMSortFilterProxyModel::lastError()
 
 QVariant QWMSortFilterProxyModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    S(model);
+    S1(model);
     if(orientation==Qt::Horizontal){
-        if(role==FIELD_ROLE){
-            QModelIndex index=this->index(0,section);
-            QModelIndex sourceIndex=this->mapToSource(index);
-            QString fieldName=model->fieldNameEx(sourceIndex.column());
-            return fieldName;
+        if(this->groupTitle(section).isNull()){
+            if(role==FIELD_ROLE){
+                QModelIndex index=this->index(0,section);
+                QModelIndex sourceIndex=this->mapToSource(index);
+                QString fieldName=model->fieldNameEx(sourceIndex.column());
+                return fieldName;
+            }else
+                return QExSortFilterProxyModel::headerData(section,orientation,role);
+        }else{
+            //分组
+            if(role==Qt::DisplayRole){
+                return this->groupTitle(section);
+            }else if(role==Qt::BackgroundRole){
+                return QColor(200,200,200);
+            }else if(role==Qt::ForegroundRole){
+                 return QColor(200,0,0);
+            }
+            return QVariant();
         }
-        return QExSortFilterProxyModel::headerData(section,orientation,role);
     }else
     {
         if(role==Qt::DisplayRole)
@@ -170,6 +266,29 @@ QVariant QWMSortFilterProxyModel::headerData(int section, Qt::Orientation orient
         }
     }
 
+}
+
+QModelIndex QWMSortFilterProxyModel::index(int row, int column, const QModelIndex &parent) const
+{
+    return QExSortFilterProxyModel::index(row,column,parent);
+
+}
+
+QVariant QWMSortFilterProxyModel::data(const QModelIndex &index, int role) const
+{
+    if(!this->groupTitle(index.column()).isNull()){
+        //分组
+        if(role==Qt::DisplayRole){
+            return QVariant();
+        }else if(role==Qt::BackgroundRole){
+            return QColor(200,200,200);
+        }else if(role==Qt::ForegroundRole){
+             return QColor(200,0,0);
+        }
+        return QVariant();
+    }else{
+        return QExSortFilterProxyModel::data(index,role);
+    }
 }
 
 bool QWMSortFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const

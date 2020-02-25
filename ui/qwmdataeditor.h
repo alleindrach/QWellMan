@@ -72,9 +72,7 @@ private:
 }  \
             \
             QHeaderView::section { \
-            color:white;\
             font-size:10px ;\
-            background-color: rgb(50,50,50); \
             selection-background-color: darkblue; \
             padding-left: 4px; \
             border-right: 1px solid lightgray; \

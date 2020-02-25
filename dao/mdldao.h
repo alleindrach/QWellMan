@@ -39,6 +39,8 @@ public:
     MDLField * fieldInfo(QString table,QString field);
     QList<MDLTable*>  childTables(QString table,QStringList hidden,QString profile=QString());
     QString idField(QString table);
+    QStringList fieldGroup(QString table);
+    QStringList fieldOfGroup(QString table,QString field);
 signals:
 private:
     QSqlDatabase  _db;

@@ -41,6 +41,9 @@ MDLDao::MDLDao(QSqlDatabase &db,QObject *parent) : QObject(parent),_db(db)
             and c.KeyTblChild not in (%1) order by c.DisplayOrder ");
             DECL_SQL(select_table_field_count,"select count(1) as cnt from pceMDLTableField f where f.KeyTbl=:table COLLATE NOCASE and KeyFld=:field COLLATE NOCASE ");
             DECL_SQL(select_parent_table,"select KeyTbl  from pceMDLTableChildren c where c.KeyTblChild=:table COLLATE NOCASE ");
+    DECL_SQL(select_field_groups,"select KeyTbl,GroupName,DisplayOrder   from pceMDLTableFieldGrp g where g.KeyTbl=:table COLLATE NOCASE order by DisplayOrder ");
+
+    DECL_SQL(select_fields_of_group,"select  * from pceMDLTableField where KeyTbl=:table  COLLATE NOCASE and GroupName=:groupName  COLLATE NOCASE order by DisplayOrder ");
 
 }
 
@@ -451,4 +454,37 @@ QString MDLDao::idField(QString table)
     }else{
         return CFG(ID);
     }
+}
+
+QStringList MDLDao::fieldGroup(QString table)
+{
+    QString key=QString("fieldGroup.%1").arg(table);
+    CS(key,QStringList);
+    QStringList result;
+    QSqlQuery q(APP->mdl());
+    q.prepare(SQL(select_field_groups));
+    q.bindValue(":table",table);
+    q.exec();
+    PRINT_ERROR(q);
+    while(q.next()){
+        result<<q.value("GroupName").toString();
+    }
+    CI(key,result)
+}
+
+QStringList MDLDao::fieldOfGroup(QString table, QString group)
+{
+    QString key=QString("fieldOfGroup.%1.%2").arg(table).arg(group);
+    CS(key,QStringList);
+    QStringList result;
+    QSqlQuery q(APP->mdl());
+    q.prepare(SQL(select_fields_of_group));
+    q.bindValue(":table",table);
+    q.bindValue(":groupName",group);
+    q.exec();
+    PRINT_ERROR(q);
+    while(q.next()){
+        result<<q.value("KeyFld").toString();
+    }
+    CI(key,result)
 }

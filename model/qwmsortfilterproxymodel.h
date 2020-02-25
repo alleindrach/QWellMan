@@ -5,6 +5,8 @@
 #include "qexsortfilterproxymodel.h"
 #include <QSqlRecord>
 #include <QSqlError>
+#include <QList>
+#include <QStringList>
 class QWMSortFilterProxyModel : public QExSortFilterProxyModel
 {
     Q_OBJECT
@@ -23,8 +25,16 @@ public:
     void revert() override;
     int  visibleFieldsCount();
     bool isFieldVisible(const QString & field);
+    const QString  groupTitle(const int col) const;
+    bool showGroup();
+    void setShowGroup(bool );
+    const int realColumn(const int col) const ;
+    const int groupedColumn(const int col ) const;
+    virtual void setSourceModel(QAbstractItemModel *sourceModel) override;
     QSqlError  lastError() ;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 signals:
 
 
@@ -34,6 +44,9 @@ protected:
 
 private :
     std::function<bool (int , const QModelIndex &)>  _filterFunction{nullptr};
+    bool _showGroup{false};
+    QHash<QString,QStringList> _fieldGroup;
+    QHash<int,QString > _groupIndex;
 };
 
 #endif // QWMSORTFILTERPROXYMODEL_H

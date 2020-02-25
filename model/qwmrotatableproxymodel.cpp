@@ -88,9 +88,6 @@ QModelIndex QWMRotatableProxyModel::mapFromSource(const QModelIndex &sourceIndex
 Qt::ItemFlags QWMRotatableProxyModel::flags(const QModelIndex &index) const
 {
     P(model);
-    if(index.column()>56&& index.column()<=59){
-        qDebug()<<"error";
-    }
 //    QModelIndex sourceIndex=mapToSource(index);
     return QExSortFilterProxyModel::flags(index);
 }

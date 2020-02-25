@@ -221,7 +221,7 @@ Qt::ItemFlags QWMTableModel::flags( const QModelIndex &index ) const
     if(index.column()>=record.count()){
         //计算列
         QString  fieldName=_fieldsCalcInOrder[index.column()-record.count()];
-        return  flags;
+        return  Qt::ItemIsEnabled;
     }else{
         QVariant v=QSqlRelationalTableModel::data(index);
         QString fieldName=this->record().fieldName(index.column());
