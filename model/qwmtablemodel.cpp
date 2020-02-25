@@ -40,7 +40,11 @@ QVariant QWMTableModel::headerData(int section, Qt::Orientation orientation, int
                     MDLUnitTypeSet* userUnitInfo=MDL->userUnitKey(APP->unit(),unitType);
                     if(userUnitInfo!=nullptr){
                         QString userUnit=userUnitInfo->UserUnits();
-                        cap=cap+"-"+userUnit;
+                        cap=cap+"["+userUnit+"]";
+                    }else{
+                        if(baseUnitInfo->BaseUnits()!=nullptr){
+                            cap=cap+"["+baseUnitInfo->BaseUnits()+"]";
+                        }
                     }
 
                 }
@@ -77,7 +81,7 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
 
     if(index.column()>=record.count())
     {
-         //计算列
+        //计算列
         QString table=this->tableName();
         QString field=_fieldsCalcInOrder[index.column()-record.count()];
         MDLField *  fieldInfo=MDL->fieldInfo(table,field);
@@ -115,7 +119,7 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
                     bool b=value.toBool();
                     return QVariant();
                 }else if(fieldInfo->PhysicalType()==MDLDao::DateTime){
-//                    QDateTime  dateValue=value.toDateTime();
+                    //                    QDateTime  dateValue=value.toDateTime();
                     return value;
                 }
                 else{
@@ -146,7 +150,7 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
                     QVariant value= QSqlRelationalTableModel::data(index,Qt::DisplayRole);
                     bool b=value.toBool();
                     QString  v=value.toString();
-//                    qDebug()<<"V:"<<v<<",B:"<<b;
+                    //                    qDebug()<<"V:"<<v<<",B:"<<b;
                     return  b ? Qt::Checked : Qt::Unchecked;
                 }
             }
