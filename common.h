@@ -36,8 +36,13 @@
 #define FIELD_ROLE (Qt::UserRole+120)
 #define TABLE_NAME_ROLE (Qt::UserRole+130)
 #define PK_VALUE_ROLE (Qt::UserRole+150)
+#define BEGIN_SQL_DECLARATION(typ) \
+    QHash<QString,QString> typ::_sql={
 
-#define DECL_SQL(name,sql) _sql.insert(#name,sql);
+#define END_SQL_DECLARATION \
+};
+
+#define DECL_SQL(name,sql) {#name,sql},
 #define SQL(name) (_sql[#name])
 #define PRINT_ERROR(q) \
 if(q.lastError().isValid()) qDebug()<<" Query["<<q.lastQuery()<<"] Error["<<q.lastError().text()<<"],bind["<< q.boundValues()<<"]"<<endl<<flush;\

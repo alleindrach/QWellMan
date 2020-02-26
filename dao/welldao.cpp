@@ -15,24 +15,28 @@
 #include "QUuid"
 #include "QDateTime"
 #include <QSettings>
+
 WellDao * WellDao::_instance=nullptr;
+QHash<QString ,QVariant> WellDao::_cache={};
+
+BEGIN_SQL_DECLARATION(WellDao)
+DECL_SQL(select_wells,"select  w.* from %1  w  where  not exists(select * from %2 d where w.%3=d.%4 and w.%3=d.IDRec COLLATE NOCASE )  order by %5 ")
+DECL_SQL(select_table_of_group,"select t.* from pceMDLTableGrpLink l,pceMDLTable t where KeyGrp=:group COLLATE NOCASE and l.KeyTbl=t.KeyTbl COLLATE NOCASE order by l.DisplayOrder ")
+DECL_SQL(select_spec_wells,"select  w.* from %1  w  where  not exists(select * from %2 d where w.%3=d.%4 COLLATE NOCASE and w.%3=d.IDRec  COLLATE NOCASE) and  exists(select *  from %6 r where w.%3=r.%7 COLLATE NOCASE)  order by %5 COLLATE NOCASE")
+DECL_SQL(insert_well_to_catlog,"insert into %1 (%2) values(?)")
+DECL_SQL(delete_well_from_catlog,"delete from %1 where %2=? COLLATE NOCASE")
+DECL_SQL(select_record,"select  w.* from %1  w  where  not exists(select * from %2 d where w.%3=d.%4 COLLATE NOCASE  and w.%3=d.IDRec COLLATE NOCASE) and w.%3=:id COLLATE NOCASE")
+DECL_SQL(insert_record,"insert into %1 (%2) values( %3)")
+DECL_SQL(select_well_cnt_in_cat,"select  count(1) as cnt from %1  w  "
+                                "where  not exists(select * from %2 d where w.%3=d.%4 COLLATE NOCASE and w.%3=d.IDRec  COLLATE NOCASE) "
+                                "and w.%3=:idwell")
+DECL_SQL(select_is_deleted,"select  count(1) as cnt from %1  w  "
+                           "where   w.%2=:idwell  COLLATE NOCASE and w.%3=:idrec COLLATE NOCASE  "         )
+
+END_SQL_DECLARATION
 
 WellDao::WellDao(QSqlDatabase &db,QObject *parent) : QObject(parent),_db(db)
 {
-    DECL_SQL(select_wells,"select  w.* from %1  w  where  not exists(select * from %2 d where w.%3=d.%4 and w.%3=d.IDRec COLLATE NOCASE )  order by %5 ");
-    DECL_SQL(select_table_of_group,"select t.* from pceMDLTableGrpLink l,pceMDLTable t where KeyGrp=:group COLLATE NOCASE and l.KeyTbl=t.KeyTbl COLLATE NOCASE order by l.DisplayOrder ");
-    DECL_SQL(select_spec_wells,"select  w.* from %1  w  where  not exists(select * from %2 d where w.%3=d.%4 COLLATE NOCASE and w.%3=d.IDRec  COLLATE NOCASE) and  exists(select *  from %6 r where w.%3=r.%7 COLLATE NOCASE)  order by %5 COLLATE NOCASE");
-    DECL_SQL(insert_well_to_catlog,"insert into %1 (%2) values(?)");
-    DECL_SQL(delete_well_from_catlog,"delete from %1 where %2=? COLLATE NOCASE");
-    DECL_SQL(select_record,"select  w.* from %1  w  where  not exists(select * from %2 d where w.%3=d.%4 COLLATE NOCASE  and w.%3=d.IDRec COLLATE NOCASE) and w.%3=:id COLLATE NOCASE");
-    DECL_SQL(insert_record,"insert into %1 (%2) values( %3)")
-            DECL_SQL(select_well_cnt_in_cat,"select  count(1) as cnt from %1  w  \
-                     where  not exists(select * from %2 d where w.%3=d.%4 COLLATE NOCASE and w.%3=d.IDRec  COLLATE NOCASE) \
-                     and w.%3=:idwell");
-
-            DECL_SQL(select_is_deleted,"select  count(1) as cnt from %1  w  \
-                     where   w.%2=:idwell  COLLATE NOCASE and w.%3=:idrec COLLATE NOCASE  \
-            ");
 }
 
 WellDao::~WellDao()
@@ -340,8 +344,8 @@ QAbstractItemModel*  WellDao::wells(int type)
 void WellDao::initRecord(QSqlRecord & record,QString idWell,QString parentID){
     //初始化记录
     // record:空白记录
-//    idWell：为null时，说明此记录是在well还没有创建时进行的初始化，需要新建一个uuid，如果有值，且记录无idrec字段，说明和well是1：1的，需要赋值给idWell。
-//    parentID:父表的id
+    //    idWell：为null时，说明此记录是在well还没有创建时进行的初始化，需要新建一个uuid，如果有值，且记录无idrec字段，说明和well是1：1的，需要赋值给idWell。
+    //    parentID:父表的id
     int idIndex=record.indexOf(CFG(ID));
     QUuid id=QUuid::createUuid();
     QString strID=UUIDToString(id);

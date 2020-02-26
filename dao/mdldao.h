@@ -47,9 +47,9 @@ public:
 signals:
 private:
     QSqlDatabase  _db;
-    QHash<QString,QString> _sql;
+    static  QHash<QString,QString> _sql;
     static MDLDao* _instance;
-    QHash<QString ,QVariant> _cache;
+    static QHash<QString ,QVariant> _cache;
 public slots:
 };
 

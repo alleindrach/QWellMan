@@ -35,9 +35,9 @@ public:
 signals:
 private:
     QSqlDatabase  _db;
-    QHash<QString,QString> _sql;
+    static QHash<QString,QString> _sql;
     static WellDao* _instance;
-    QHash<QString ,QVariant> _cache;
+    static QHash<QString ,QVariant> _cache;
     //lookup=8的参数
     //首先查找表特定的字段，比如wvWellBore.IDRecParent，如果没有，再查找无表前缀的字段，，如果形式为TblKeyxxx:a/b形式，则表明是根据本表字段TblKeyXXXX来判断是哪个表，并将表明写入此字段。具体从哪几个表取，是a/b...
     QHash<QString,QString> _RefTable={{"IDRecString","TblKeyString:wvCas/wvJobDrillString"},

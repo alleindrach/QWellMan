@@ -5,11 +5,16 @@
 #include "QDebug"
 LIBDao * LIBDao::_instance=nullptr;
 QVector<QString> LIBDao::hiddenFields={"IDRec","sysOrderBy","sysModUser","sysHelp","sysModDate","sysTab"};
+QHash<QString ,QVariant> LIBDao::_cache={};
+
+BEGIN_SQL_DECLARATION(LIBDao)
+DECL_SQL(select_table,"select  *  from %1 order by  sysOrderBy")
+DECL_SQL(select_table_tabs,"select  distinct sysTab  from %1 order by  sysTab")
+DECL_SQL(select_table_by_tab,"select  *  from %1 where sysTab='%2' COLLATE NOCASE order by  sysOrderBy ")
+END_SQL_DECLARATION
+
 LIBDao::LIBDao(QSqlDatabase &db,QObject *parent) : QObject(parent),_db(db)
 {
-    DECL_SQL(select_table,"select  *  from %1 order by  sysOrderBy");
-    DECL_SQL(select_table_tabs,"select  distinct sysTab  from %1 order by  sysTab");
-    DECL_SQL(select_table_by_tab,"select  *  from %1 where sysTab='%2' COLLATE NOCASE order by  sysOrderBy ");
 }
 LIBDao::~LIBDao()
 {

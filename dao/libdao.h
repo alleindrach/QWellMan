@@ -24,10 +24,10 @@ public:
 signals:
 private:
     QSqlDatabase  _db;
-    QHash<QString,QString> _sql;
+    static QHash<QString,QString> _sql;
     static LIBDao* _instance;
 
-    QHash<QString ,QVariant> _cache;
+    static QHash<QString ,QVariant> _cache;
 };
 
 #endif // LIBDAO_H

@@ -26,9 +26,9 @@ public:
 signals:
 private:
     QSqlDatabase  _db;
-    QHash<QString,QString> _sql;
+    static QHash<QString,QString> _sql;
     static UDLDao* _instance;
-    QHash<QString ,QVariant> _cache;
+    static QHash<QString ,QVariant> _cache;
 public slots:
 };
 #endif // UDLDAO_H
