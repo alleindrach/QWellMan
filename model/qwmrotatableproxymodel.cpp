@@ -228,7 +228,9 @@ bool QWMRotatableProxyModel::isFieldVisible(const QString &field)
 void QWMRotatableProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
 {
 
-    return QExSortFilterProxyModel::setSourceModel(sourceModel);
+    QExSortFilterProxyModel::setSourceModel(sourceModel);
+    disconnect(sourceModel,&QAbstractItemModel::dataChanged,0,0);
+    connect(sourceModel,&QAbstractItemModel::dataChanged,this,&QWMRotatableProxyModel::on_source_model_data_changed);
 }
 
 QWMRotatableProxyModel::Mode QWMRotatableProxyModel::mode()
@@ -248,6 +250,13 @@ QSqlError QWMRotatableProxyModel::lastError()
 {
     S(model);
     return  model->lastError();
+}
+
+void QWMRotatableProxyModel::on_source_model_data_changed(QModelIndex  lefttop, QModelIndex rightbottom, QVector<int>roles)
+{
+    QModelIndex proxyLeftTop=mapFromSource(lefttop);
+    QModelIndex proxyRightBottom=mapFromSource(rightbottom);
+    emit dataChanged(proxyLeftTop,proxyRightBottom,roles);
 }
 
 bool QWMRotatableProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const

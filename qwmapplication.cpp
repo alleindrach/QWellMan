@@ -373,3 +373,13 @@ void QWMApplication::setWellDisplayList(QStringList list){
     QSettings settings;
     settings.setValue(WELL_DISPLAY_FIELDS_ENTRY,_wellDisplayFields);
 }
+
+QWMMain *QWMApplication::mainWindow()
+{
+    return _mainWnd;
+}
+
+void QWMApplication::setMainWindow(QWMMain *v)
+{
+    _mainWnd=v;
+}

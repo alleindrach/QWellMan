@@ -7,7 +7,8 @@
 #include <QStandardItem>
 #include <QLabel>
 #include <QSortFilterProxyModel>
-#include  "qwmrotatableproxymodel.h"
+#include "qwmrotatableproxymodel.h"
+#include "qwmdataeditor.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class QWMMain; }
 QT_END_NAMESPACE
@@ -15,7 +16,7 @@ QT_END_NAMESPACE
 class QWMMain : public QMainWindow
 {
     Q_OBJECT
-
+    Q_PROPERTY(QWMDataEditor* currentEditor READ currentEditor WRITE setCurrentEditor)
 public:
     QWMMain(QWidget *parent = nullptr);
     ~QWMMain();
@@ -28,7 +29,9 @@ public:
     void showProfile(QString profile);
     void showUnitSetting(QString unit);
     void showReferenceDatum(QString datum);
-
+    QWMDataEditor * currentEditor() const;
+protected:
+    void setCurrentEditor(QWMDataEditor *);
 private:
     void editWell(QString idWell);
     void showWellGrid(QWMRotatableProxyModel *  model);
@@ -63,6 +66,7 @@ private slots:
     void on_actionDelete_triggered();
 
     void on_actionRotate_triggered(bool checked);
+    friend class QWMDataEditor;
 
 private:
     Ui::QWMMain *ui;
@@ -72,7 +76,7 @@ private:
     QStandardItem * _qsiFavoriate;
     QStandardItem * _qsiQuery;
     QStandardItem * _qsiQuickQuery;
-
+    QWMDataEditor *  _currentEditor{nullptr};
     QLabel * _lblStatus ;
     QLabel * _lblProfile ;
     QLabel * _lblUnit;

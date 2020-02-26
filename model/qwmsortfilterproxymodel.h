@@ -35,8 +35,11 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-signals:
+    bool setData(const QModelIndex &item, const QVariant &value, int role = Qt::EditRole) override;
 
+signals:
+public  slots:
+    void  on_source_model_data_changed(QModelIndex,QModelIndex,QVector<int>);
 
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;

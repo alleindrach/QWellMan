@@ -34,7 +34,7 @@ SOURCES += \
     qwmapplication.cpp \
     qwmmain.cpp \
     ui/qwmdataeditor.cpp \
-    undo/qfieldeditcommand.cpp \
+    undo/qwmfieldeditcommand.cpp \
     widget/delegate/comboboxdelegate.cpp \
     widget/delegate/qwmdatedelegate.cpp \
     widget/delegate/qwmliblookupdelegate.cpp \
@@ -65,7 +65,7 @@ HEADERS += \
     qwmapplication.h \
     qwmmain.h \
     ui/qwmdataeditor.h \
-    undo/qfieldeditcommand.h \
+    undo/qwmfieldeditcommand.h \
     widget/delegate/comboboxdelegate.h \
     widget/delegate/qwmdatedelegate.h \
     widget/delegate/qwmliblookupdelegate.h \

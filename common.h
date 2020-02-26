@@ -6,6 +6,8 @@
     db.close(); \
     }
 #define APP ((QWMApplication *) (QCoreApplication::instance()))
+#define DOC (((QWMMain *)(((QWMApplication *) (QCoreApplication::instance()))->mainWindow()))->currentEditor())
+
 #define MDLDB_PATH_SETTING_ENTRY "mdl_path"
 #define LIBDB_PATH_SETTING_ENTRY "lib_path"
 #define UDLDB_PATH_SETTING_ENTRY "udl_path"

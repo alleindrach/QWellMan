@@ -64,6 +64,7 @@ QWMRotatableProxyModel *WellDao::table(QString tablename)
 
 
     QSqlTableModel *  model=new QWMTableModel(this,APP->well());
+    model->setEditStrategy(QSqlTableModel::OnManualSubmit);
     model->setTable(tablename);
     model->setSort(model->fieldIndex( MDL->tableOrderKey(tablename)),Qt::AscendingOrder);
 

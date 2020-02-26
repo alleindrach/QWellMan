@@ -77,6 +77,11 @@ bool QWMDataTableView::edit(const QModelIndex &index, EditTrigger trigger, QEven
     return QTableView::edit(index,trigger,event);
 }
 
+void QWMDataTableView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
+{
+    return QTableView::dataChanged(topLeft,bottomRight,roles);
+}
+
 void QWMDataTableView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint)
 {
     return QTableView::closeEditor(editor,hint);

@@ -20,8 +20,8 @@ class QWMDataEditor : public QMainWindow
 public:
     explicit QWMDataEditor(QString idWell,QString name,QWidget *parent = nullptr);
     ~QWMDataEditor();
-    void undo();
-    void redo(QUndoCommand * command);
+
+    void addUndoCommand(QUndoCommand * command);
     void loadDataTree();
     void loadChildTable(QStandardItem *);
 
@@ -35,6 +35,9 @@ protected:
     QString nodeParentID(const QModelIndex &index,QString & lastError);
     MDLTable * nodeTableInfo(const QModelIndex & index);
     void clearChildSelection(const QModelIndex & index);
+public Q_SLOTS:
+    void undo();
+    void redo();
 private slots:
     void on_actionSaveExit_triggered();
 

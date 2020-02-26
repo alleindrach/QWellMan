@@ -13,6 +13,8 @@ public:
     QRect visualRect(const QModelIndex &index) const override;
     QModelIndex indexAt(const QPoint &p) const override;
     virtual bool edit(const QModelIndex &index, EditTrigger trigger, QEvent *event);
+protected Q_SLOTS:
+    virtual void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>()) override;
 private:
     //    QWellDoc * m_doc;
 protected slots:

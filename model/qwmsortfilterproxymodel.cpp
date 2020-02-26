@@ -12,6 +12,7 @@
 #include "QDebug"
 #include "QSqlIndex"
 #include "qexsortfilterproxymodel.h"
+#include "qwmfieldeditcommand.h"
 #define S1(model)\
     QWMTableModel * model=static_cast<QWMTableModel *>(this->sourceModel());
 QWMSortFilterProxyModel::QWMSortFilterProxyModel(QObject *parent) : QExSortFilterProxyModel(parent)
@@ -26,21 +27,24 @@ QModelIndex QWMSortFilterProxyModel::mapToSource(const QModelIndex &proxyIndex) 
     S1(model);
 
     //    QWMTableModel * model=static_cast<QWMTableModel *>(this->sourceModel());
-
+//1     过滤 掉 分栏列
     int realCol=realColumn(proxyIndex.column());
     if(realCol<0)
         return QModelIndex();
+//2     对应的原始字段
     QString sourceColName= model->fieldInPosByOrder(realCol);
     if(sourceColName.isNull()||sourceColName.isEmpty()){
         return QModelIndex();
     }
-    //计算字段没有field对应，这里sourceColPos就可能等于-1
+// 3    对应的原始列号
+//    计算字段没有field对应，这里sourceColPos就可能等于-1
     int sourceColPos=model->fieldIndexEx(sourceColName);
 
     //    QModelIndex index=this->index(proxyIndex.row(),sourceColPos);
+// 4    取该行对应的原始行号
     QModelIndex proxyIndex2=this->index(proxyIndex.row(),0);
     QModelIndex sourceIndex2=QExSortFilterProxyModel::mapToSource(proxyIndex2);
-
+//5     拼凑成index
     QModelIndex index= model->createIndex(sourceIndex2.row(),sourceColPos);
     return index;
     //    if(sourceColPos>=model->record().count()){
@@ -55,14 +59,20 @@ QModelIndex QWMSortFilterProxyModel::mapFromSource(const QModelIndex &sourceInde
     if(!sourceIndex.isValid())
         return QModelIndex();
     S1(model);
+//    1   取原始列名
     QString sourceColName= model->fieldNameEx(sourceIndex.column());
+//    2 取显示的列号
     int visiblePos=model->fieldPosByOrder(sourceColName);
     if(visiblePos<0)
         return QModelIndex();
-
-    QModelIndex index=model->index(sourceIndex.row(),visiblePos);
+//    3   取加上分栏列 后的列号
+    int visiblePosGrouped=groupedColumn(visiblePos);
+    QModelIndex index=model->index(sourceIndex.row(),0);
+//    4 取过滤后 的 行号
     QModelIndex mappedIndex=  QExSortFilterProxyModel::mapFromSource(index);
-    QModelIndex proxyIndex=createIndex(mappedIndex.row(),groupedColumn(mappedIndex.column()));
+
+    QModelIndex proxyIndex=createIndex(mappedIndex.row(),visiblePosGrouped);
+    return proxyIndex;
     //    return createIndex(sourceIndex.row(),visiblePos);
 }
 
@@ -222,6 +232,9 @@ void QWMSortFilterProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
         c+=(fields.count()+1);
     }
     QExSortFilterProxyModel::setSourceModel(sourceModel);
+    disconnect(sourceModel,&QAbstractItemModel::dataChanged,0,0);
+    connect(sourceModel,&QAbstractItemModel::dataChanged,this,&QWMSortFilterProxyModel::on_source_model_data_changed);
+
 }
 
 
@@ -289,6 +302,31 @@ QVariant QWMSortFilterProxyModel::data(const QModelIndex &index, int role) const
     }else{
         return QExSortFilterProxyModel::data(index,role);
     }
+}
+
+bool QWMSortFilterProxyModel::setData(const QModelIndex &item, const QVariant &value, int role)
+{
+    S1(model);
+    QModelIndex sourceIndex=mapToSource(item);
+    Modifier m;
+    m.col=sourceIndex.column();
+    m.row=sourceIndex.row();
+    m.newValue=value;
+    m.oldValue=model->data(sourceIndex,Qt::EditRole);
+    QList<Modifier> list;
+    list.append(m);
+    QWMFieldEditCommand * newCommand=new QWMFieldEditCommand(model,list);
+    DOC->addUndoCommand(newCommand);
+    return true;
+
+}
+
+void QWMSortFilterProxyModel::on_source_model_data_changed(QModelIndex lefttop, QModelIndex rightbottom, QVector<int> roles)
+{
+    QModelIndex proxyLeftTop=mapFromSource(lefttop);
+    QModelIndex proxyRightBottom=mapFromSource(rightbottom);
+    emit dataChanged(proxyLeftTop,proxyRightBottom,roles);
+
 }
 
 bool QWMSortFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const

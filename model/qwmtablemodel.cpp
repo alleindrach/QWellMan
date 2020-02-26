@@ -111,7 +111,7 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
         }
         MDLField *  fieldInfo=MDL->fieldInfo(tableName,fieldName);
         if(role==Qt::EditRole || role==Qt::DisplayRole){
-            QVariant value= QSqlRelationalTableModel::data(index,role);
+            QVariant value= QSqlRelationalTableModel::data(index,Qt::EditRole);
             if(fieldInfo!=nullptr){
                 //单位转换
                 if(fieldInfo->PhysicalType()==MDLDao::Boolean)//booelan
@@ -182,7 +182,7 @@ bool QWMTableModel::setData(const QModelIndex &index, const QVariant &value, int
     if(index.column()>=record.count()){
         //计算列
         return true;
-    }else{
+    }else {
         QString fieldName=this->record().fieldName(index.column());
         QString tableName=this->tableName();
         MDLField *  fieldInfo=MDL->fieldInfo(tableName,fieldName);
@@ -267,7 +267,8 @@ void QWMTableModel::initFields(const QString &tableName)
     QSqlRecord rec=record();
     for(int i=0;i<rec.count();i++){
         QString fieldName=rec.fieldName(i);
-        setHeaderData(i,Qt::Horizontal,fieldName,FIELD_ROLE);
+        _fieldsOrigin.append(fieldName);
+//        setHeaderData(i,Qt::Horizontal,fieldName,FIELD_ROLE);
     }
 }
 
@@ -277,7 +278,7 @@ void QWMTableModel::setVisibleFields(const QStringList visibleFieldsList)
     _fieldsInOrderVice.clear();
     for(int i=0;i<visibleFieldsList.length();i++){
         _fieldsInOrder.append(visibleFieldsList[i]);
-        _fieldsInOrderVice.insert(visibleFieldsList[i],i+1);
+        _fieldsInOrderVice.insert(visibleFieldsList[i],i);
     }
     _visibleFields=visibleFieldsList.length();
     QSqlRecord rec=this->record();

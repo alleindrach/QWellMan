@@ -63,11 +63,28 @@ QWMDataEditor::QWMDataEditor(QString idWell,QString name,QWidget *parent) :
     _tbvData->setFont(font);
 
     connect(ui->trvTables,&QTreeView::clicked,this,&QWMDataEditor::on_trv_table_node_clicked);
+    connect(ui->actionRedo,&QAction::triggered,this,&QWMDataEditor::redo);
+    connect(ui->actionUndo,&QAction::triggered,this,&QWMDataEditor::undo);
 }
 
 QWMDataEditor::~QWMDataEditor()
 {
     delete ui;
+}
+
+void QWMDataEditor::undo()
+{
+    _undoStack.undo();
+}
+
+void QWMDataEditor::addUndoCommand(QUndoCommand *command)
+{
+    _undoStack.push(command);
+}
+
+void QWMDataEditor::redo()
+{
+    _undoStack.redo();
 }
 
 void QWMDataEditor::loadDataTree()
@@ -202,6 +219,7 @@ void QWMDataEditor::closeEvent(QCloseEvent *event)
 
     QWMMain * main= static_cast<QWMMain *>(this->parent());
     main->show();
+    main->setCurrentEditor(nullptr);
     event->accept();
 }
 

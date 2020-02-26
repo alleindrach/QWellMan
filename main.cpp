@@ -69,6 +69,7 @@ int main(int argc, char *argv[])
 {
     QWMApplication a(argc, argv);
     QWMMain w;
+    a.setMainWindow(&w);
 //    qInstallMessageHandler(outputMessage);
     qDebug("This is a debug message");
     qWarning("This is a warning message");

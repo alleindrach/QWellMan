@@ -1,12 +1,14 @@
 #ifndef QWMAPPLICATION_H
 #define QWMAPPLICATION_H
 
-#include  <QApplication>
+#include <QApplication>
 #include <QSqlDatabase>
 #include <QStandardItem>
+#include "qwmmain.h"
 class QWMApplication : public QApplication
 {
     Q_OBJECT
+    Q_PROPERTY(QWMMain* mainWindow READ mainWindow WRITE setMainWindow)
 public:
     QWMApplication(int &argc, char **argv);
     ~QWMApplication();
@@ -35,7 +37,8 @@ public:
     void setDatumPref(QString v);
     QStringList wellDisplayList();
     void setWellDisplayList(QStringList list);
-
+    QWMMain * mainWindow();
+    void setMainWindow(QWMMain * v);
     enum Catalog{ RECENT,ALL,FAVORITE,QUERY,QUICK_QUERY,GROUP,TABLE};
     Q_ENUM(Catalog)
 
@@ -64,6 +67,7 @@ private :
     QString _unit;
     QString _datumPreference;
     QStringList  _wellDisplayFields;
+    QWMMain * _mainWnd;
 
 };
 

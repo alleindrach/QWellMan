@@ -37,6 +37,7 @@ private :
     QHash<QString,int> _fieldsInOrderVice;
     QList<QString> _fieldsCalcInOrder;
     QHash<QString,int> _fieldsCalcMap;
+    QList<QString> _fieldsOrigin;
     int _visibleFields{0};
 };
 

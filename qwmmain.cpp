@@ -284,6 +284,16 @@ void QWMMain::showReferenceDatum(QString datum)
     this->_lblReferenceDatum->setText(datum);
 }
 
+QWMDataEditor *QWMMain::currentEditor() const
+{
+    return _currentEditor;
+}
+
+void QWMMain::setCurrentEditor(QWMDataEditor * v)
+{
+    this->_currentEditor=v;
+}
+
 void QWMMain::editWell(QString idWell)
 {
     QSqlRecord  rec= WELL->well(idWell);
@@ -293,6 +303,7 @@ void QWMMain::editWell(QString idWell)
     QString wellName=RS(rec,WellName);
 
     QWMDataEditor * editor=new QWMDataEditor(idwell,wellName,this);
+    this->_currentEditor=editor;
     editor->showMaximized();
     this->hide();
     WELL->addRecentWell(idwell);

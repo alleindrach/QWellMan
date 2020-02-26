@@ -40,6 +40,8 @@ public:
     Mode mode();
     void setMode(Mode m);
     QSqlError  lastError() ;
+public  slots:
+    void  on_source_model_data_changed(QModelIndex,QModelIndex,QVector<int>);
 signals:
     void  modeChange(Mode m);
 protected:
