@@ -9,6 +9,7 @@
 #include "qwmdatedelegate.h"
 #include <QHeaderView>
 #include "qwmliblookupdelegate.h"
+#include "qwmdistinctvaluedelegate.h"
 #include <QSettings>
 QWMDataTableView::QWMDataTableView(QWidget *parent):QTableView(parent)
 {
@@ -44,23 +45,28 @@ void QWMDataTableView::bindDelegate()
         MDLField * fieldInfo;
         QString fieldName=model->fieldName(
                     model->mode()==QWMRotatableProxyModel::H?model->index(0,i): model->index(i,0)
-                    );
+                                                             );
         QString tableName=sourcemodel->tableName();
         fieldInfo=MDL->fieldInfo(tableName,fieldName);
-        if(fieldInfo!=nullptr &&  fieldInfo->PhysicalType()==MDLDao::DateTime )
-        {
-            if(fieldInfo->LookupTyp()==MDLDao::DateAndTime){
-                (this->*func)(i,new QWMDateDelegate(QWMDateDelegate::DATETIME,"yyyy-MM-dd HH:mm:ss",this));
-            }else if(fieldInfo->LookupTyp()==MDLDao::Date){
-                (this->*func)(i,new QWMDateDelegate(QWMDateDelegate::DATE,"yyyy-MM-dd",this));
-            }else if(fieldInfo->LookupTyp()==MDLDao::Date){
-                (this->*func)(i,new QWMDateDelegate(QWMDateDelegate::TIME,"HH:mm:ss",this));
+        if(fieldInfo!=nullptr){
+            if( fieldInfo->PhysicalType()==MDLDao::DateTime )
+            {
+                if(fieldInfo->LookupTyp()==MDLDao::DateAndTime){
+                    (this->*func)(i,new QWMDateDelegate(QWMDateDelegate::DATETIME,"yyyy-MM-dd HH:mm:ss",this));
+                }else if(fieldInfo->LookupTyp()==MDLDao::Date){
+                    (this->*func)(i,new QWMDateDelegate(QWMDateDelegate::DATE,"yyyy-MM-dd",this));
+                }else if(fieldInfo->LookupTyp()==MDLDao::Date){
+                    (this->*func)(i,new QWMDateDelegate(QWMDateDelegate::TIME,"HH:mm:ss",this));
+                }
+            }else if( fieldInfo->LookupTyp()==MDLDao::LibEdit){
+                (this->*func)(i,new QWMLibLookupDelegate(fieldInfo->LookupTableName(),fieldInfo->LookupFieldName(),fieldInfo->CaptionLong(),true,this));
             }
-        }else if(fieldInfo!=nullptr &&  fieldInfo->LookupTyp()==MDLDao::LibEdit){
-            (this->*func)(i,new QWMLibLookupDelegate(fieldInfo->LookupTableName(),fieldInfo->LookupFieldName(),fieldInfo->CaptionLong(),true,this));
-        }
-        else if(fieldInfo!=nullptr &&  fieldInfo->LookupTyp()==MDLDao::LibOnly){
-            (this->*func)(i,new QWMLibLookupDelegate(fieldInfo->LookupTableName(),fieldInfo->LookupFieldName(),fieldInfo->CaptionLong(),false,this));
+            else if(fieldInfo->LookupTyp()==MDLDao::LibOnly){
+                (this->*func)(i,new QWMLibLookupDelegate(fieldInfo->LookupTableName(),fieldInfo->LookupFieldName(),fieldInfo->CaptionLong(),false,this));
+            }
+            else if(fieldInfo->LookupTyp()==MDLDao::DBDistinctValues){
+                (this->*func)(i,new QWMDistinctValueDelegate(fieldInfo->LookupTableName(),fieldInfo->LookupFieldName(),this));
+            }
         }
     }
 }

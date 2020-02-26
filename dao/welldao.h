@@ -17,7 +17,7 @@ public:
 
     QAbstractItemModel * wells(int type);
     bool  processWells(QWMTableModel *);
-    QWMRotatableProxyModel * tableForEdit(const QString & tablename,const QString & IDWell,const  QString & parentID);
+    QWMRotatableProxyModel * tableForEdit(const QString  tablename,const QString  IDWell,const  QString  parentID);
     QWMRotatableProxyModel * table(QString tablename);
     bool processTable(QWMTableModel *);
     QSqlRecord well(QString idWell);
@@ -31,7 +31,7 @@ public:
     bool isDeletedWell(QString  idwell);
     QString recordDes(QString table,QSqlRecord record);
     void initRecord(QSqlRecord &,QString IDWell=QString(),QString parentID=QString() );
-
+    QStringList distinctValue(QString table,QString field);
 signals:
 private:
     QSqlDatabase  _db;

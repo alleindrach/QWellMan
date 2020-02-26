@@ -48,10 +48,13 @@
 #include <QtCore/private/qabstractproxymodel_p.h>
 #include <QtCore/private/qobject_p.h>
 #include <algorithm>
-
+#include "qwmtablemodel.h"
 QT_BEGIN_NAMESPACE
 
-
+template<typename Base, typename T>
+inline bool instanceof(const T *ptr) {
+    return dynamic_cast<const Base*>(ptr) != nullptr;
+}
 struct QExSortFilterProxyModelDataChanged
 {
     QExSortFilterProxyModelDataChanged(const QModelIndex &tl, const QModelIndex &br)
@@ -2727,7 +2730,15 @@ bool QExSortFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex
     if (!source_index.isValid()) // the column may not exist
         return true;
     QString key = d->model->data(source_index, d->filter_role).toString();
-    return d->filter_data.hasMatch(key);
+    bool result= d->filter_data.hasMatch(key);
+    if(instanceof<QWMTableModel>(d->model)){
+        QWMTableModel * m=(QWMTableModel *)d->model;
+        if(m->tableName()=="wvJobReport"){
+            qDebug()<<"key:"<<key<<",reg:"<<d->filter_data.regExp().pattern()<<",result:"<<result;
+        }
+    }
+
+    return result;
 }
 
 /*!

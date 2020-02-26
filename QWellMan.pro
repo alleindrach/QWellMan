@@ -37,6 +37,7 @@ SOURCES += \
     undo/qwmfieldeditcommand.cpp \
     widget/delegate/comboboxdelegate.cpp \
     widget/delegate/qwmdatedelegate.cpp \
+    widget/delegate/qwmdistinctvaluedelegate.cpp \
     widget/delegate/qwmliblookupdelegate.cpp \
     widget/delegate/spinboxdelegate.cpp \
     widget/editor/qwmdatetimeeditor.cpp \
@@ -68,6 +69,7 @@ HEADERS += \
     undo/qwmfieldeditcommand.h \
     widget/delegate/comboboxdelegate.h \
     widget/delegate/qwmdatedelegate.h \
+    widget/delegate/qwmdistinctvaluedelegate.h \
     widget/delegate/qwmliblookupdelegate.h \
     widget/delegate/spinboxdelegate.h \
     widget/editor/qwmdatetimeeditor.h \

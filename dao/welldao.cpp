@@ -31,8 +31,9 @@ DECL_SQL(select_well_cnt_in_cat,"select  count(1) as cnt from %1  w  "
                                 "where  not exists(select * from %2 d where w.%3=d.%4 COLLATE NOCASE and w.%3=d.IDRec  COLLATE NOCASE) "
                                 "and w.%3=:idwell")
 DECL_SQL(select_is_deleted,"select  count(1) as cnt from %1  w  "
-                           "where   w.%2=:idwell  COLLATE NOCASE and w.%3=:idrec COLLATE NOCASE  "         )
-
+                           "where   w.%2=:idwell  COLLATE NOCASE and w.%3=:idrec COLLATE NOCASE")
+DECL_SQL(select_distinct_value,"select  distinct %2 as fv from %1  w  "
+                               "order by %2 ")
 END_SQL_DECLARATION
 
 WellDao::WellDao(QSqlDatabase &db,QObject *parent) : QObject(parent),_db(db)
@@ -72,7 +73,7 @@ QWMRotatableProxyModel *WellDao::table(QString tablename)
     model->setEditStrategy(QSqlTableModel::OnManualSubmit);
     model->setTable(tablename);
     model->setSort(model->fieldIndex( MDL->tableOrderKey(tablename)),Qt::AscendingOrder);
-
+    //    model->select();
     if(model->lastError().isValid())
     {
         QString e=model->lastError().text();
@@ -93,7 +94,7 @@ QWMRotatableProxyModel *WellDao::table(QString tablename)
 //如果是顶级节点，则只过滤IDWell
 //如果是子节点，则过滤IDRecParent
 
-QWMRotatableProxyModel *WellDao::tableForEdit(const QString& tablename,const QString & IDWell,const  QString& parentID)
+QWMRotatableProxyModel *WellDao::tableForEdit(const QString tablename,const QString  IDWell,const  QString parentID)
 {
     QWMRotatableProxyModel * model=table(tablename);
     PX(proxyModel,model);
@@ -101,22 +102,21 @@ QWMRotatableProxyModel *WellDao::tableForEdit(const QString& tablename,const QSt
     //如果有parentid，则根据IDRecParent字段进行过滤
     QSqlRecord record=sourceModel->record();
     int recn=record.count();
+    proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     if(!parentID.isNull() && !parentID.isEmpty()){
 
         if(record.indexOf(CFG(ParentID))>=0)
         {
             proxyModel->setFilterKeyColumn(record.indexOf(CFG(ParentID)));
             proxyModel->setFilterFixedString(parentID);
-            proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+
         }else{
             proxyModel->setFilterFixedString(parentID);
-            proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
             proxyModel->setFilterKeyColumn(record.indexOf(CFG(IDWell)));
         }
     }else
     {
         proxyModel->setFilterFixedString(IDWell);
-        proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
         proxyModel->setFilterKeyColumn(record.indexOf(CFG(IDWell)));
     }
     processTable(sourceModel);
@@ -373,4 +373,19 @@ void WellDao::initRecord(QSqlRecord & record,QString idWell,QString parentID){
     INITFLD(record,CFG(SysMD),now);
     INITFLD(record,CFG(SysMU),QString(""));
 
+}
+
+QStringList WellDao::distinctValue(QString table,QString field){
+    QString key=QString("distinctValue.%1.%2").arg(table).arg(field);
+    //    CS(key,QStringList);
+
+    QStringList result;
+    QSqlQuery q(SQL(select_distinct_value).arg(table).arg(field),APP->udl());
+    q.exec();
+    PRINT_ERROR(q);
+    while(q.next()){
+        result<<QS(q,fv);
+    }
+    return result;
+    //    CI(key,result);
 }

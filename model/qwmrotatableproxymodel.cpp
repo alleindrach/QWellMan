@@ -148,11 +148,17 @@ int QWMRotatableProxyModel::rowCount(const QModelIndex &parent) const
 int QWMRotatableProxyModel::columnCount(const QModelIndex &parent) const
 {
     P(model);
+    S(sourceModel);
     QModelIndex source_parent = mapToSource(parent);
     if(_mode==H){
         return model->columnCount(source_parent);
     }else
     {
+        if(sourceModel->tableName()=="wvJobReport"){
+//               qDebug()<<"error";
+            int i=0;
+
+        }
         int columnCount=model->rowCount(source_parent);
 //        qDebug()<<"column:"<<columnCount;
         return columnCount;

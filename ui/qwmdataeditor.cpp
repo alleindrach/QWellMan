@@ -284,7 +284,7 @@ QString QWMDataEditor::nodeParentID(const QModelIndex &index,QString &lastError)
                     lastError=tr("未选中[%1]表的记录！").arg(ptn);
                     return QString();
                 }else{
-                    parentID=ptn;
+                    parentID=pv;
                 }
             }else{//如果无父节点，则认为 其父为wvWellheader
                 //                parentID=_idWell;
@@ -344,7 +344,16 @@ void QWMDataEditor::editTable(const QModelIndex &index)
         QString tableName=index.data(TABLE_NAME_ROLE).toString();
         QWMRotatableProxyModel * model=WELL->tableForEdit(tableName,_idWell,parentID);
         SX(sourceModel,model);
+        PX(proxyModel,model);
         sourceModel->select();
+        while(sourceModel->canFetchMore())
+            sourceModel->fetchMore();
+        if(sourceModel->tableName()=="wvJobReport"){
+            //qDebug()<<"error"<<proxyModel->filterRegExp();
+            QModelIndex index =proxyModel->index(0,0,QModelIndex());
+        }
+
+
         this->_tbvData->setModel(model);
         disconnect(_tbvData->selectionModel(),&QItemSelectionModel::currentRowChanged,nullptr,nullptr);
         connect(_tbvData->selectionModel(),&QItemSelectionModel::currentRowChanged,this, &QWMDataEditor::on_current_record_changed);
