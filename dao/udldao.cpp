@@ -37,9 +37,17 @@ UDLDao::UDLDao(QSqlDatabase &db,QObject *parent) : QObject(parent),_db(db)
             and hd.KeyTbl=:table COLLATE  NOCASE");
 
             DECL_SQL(select_table_visible_fields_in_order_by_group,"select * from pceListTblFld f where  f.GroupName=:group COLLATE NOCASE \
- and f.KeyTbl=:table  and not  exists ( \
-                     select hd.KeyFld from pceUDLProfile p ,pceUDLSetFldHiddenData hd \
-                     where p.KeyProfile=:profile COLLATE NOCASE \
+                     and f.KeyTbl=:table  and not  exists ( \
+                select hd.KeyFld from pceUDLProfile p ,pceUDLSetFldHiddenData hd \
+                where p.KeyProfile=:profile COLLATE NOCASE \
+            and p.KeySetFldHidden=hd.KeySet COLLATE NOCASE \
+            and hd.KeyTbl=f.KeyTbl COLLATE  NOCASE \
+            and hd.KeyFld=f.KeyFLd COLLATE  NOCASE \
+            )  order by f.DisplayOrder")
+            DECL_SQL(select_table_visible_fields_in_order,"select * from pceListTblFld f where  \
+                     f.KeyTbl=:table  and not  exists ( \
+                select hd.KeyFld from pceUDLProfile p ,pceUDLSetFldHiddenData hd \
+                where p.KeyProfile=:profile COLLATE NOCASE \
             and p.KeySetFldHidden=hd.KeySet COLLATE NOCASE \
             and hd.KeyTbl=f.KeyTbl COLLATE  NOCASE \
             and hd.KeyFld=f.KeyFLd COLLATE  NOCASE \
@@ -171,9 +179,21 @@ QStringList UDLDao::fieldsVisibleInOrder(QString profile, QString table)
 
     QSqlQuery q(APP->udl());
     QStringList groups=MDL->fieldGroup(table);
-    foreach(QString group,groups){
-        QStringList fields=fieldsVisibleInOrderByGroup(profile,table,group);
-        result<<fields;
+    if(groups.size()>0){
+        foreach(QString group,groups){
+            QStringList fields=fieldsVisibleInOrderByGroup(profile,table,group);
+            result<<fields;
+        }
+    }else
+    {
+        q.prepare(SQL(select_table_visible_fields_in_order));
+        q.bindValue(":profile",profile);
+        q.bindValue(":table",table);
+        q.exec();
+        PRINT_ERROR(q);
+        while(q.next()){
+            result<<QS(q,KeyFld);
+        }
     }
 
     CI(key,result);
