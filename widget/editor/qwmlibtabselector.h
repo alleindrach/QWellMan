@@ -16,6 +16,7 @@ public:
     explicit QWMLibTabSelector(QString lib,QString lookupFld,QString title,bool editable=false,QString v=QString(), QWidget *parent = nullptr);
     void  setText(QString text);
     QWMLibSelector * currentWidget();
+    virtual void focusInEvent(QFocusEvent *event) override;
 private:
      Ui::QWMLibTabSelector *ui;
      QString _selectedValue;

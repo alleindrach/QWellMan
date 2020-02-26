@@ -10,6 +10,7 @@
 #include "qwmrotatableproxymodel.h"
 #include <QSortFilterProxyModel>
 #include <QSqlQueryModel>
+#include <QKeyEvent>
 #include "libdao.h"
 #include "qwmlibtabselector.h"
 QWMLibLookupDelegate::QWMLibLookupDelegate(QString lib, QString disp,QString title,bool editable, QObject *parent):QStyledItemDelegate(parent),_title(title),_disp(disp),_lib(lib),_editable(editable)
@@ -38,7 +39,20 @@ QWidget *QWMLibLookupDelegate::createEditor(QWidget *parent,
         return editor;
     }
 }
+bool QWMLibLookupDelegate::eventFilter(QObject *watched, QEvent *event) {
+//    qDebug()<<"Event:W="<<watched->metaObject()->className()<<"/"<<watched->objectName()<<",E="<<event->type();
+    if(watched->metaObject()->className()==QWMLibSelector::staticMetaObject.className()){
+        if(event->type()==QEvent::FocusIn){
 
+            qDebug()<<"FocusIN!";
+        }
+        if(event->type()==QEvent::KeyPress){
+            QKeyEvent *  keyEvent=(QKeyEvent*) event;
+            qDebug()<<"Key:"<<keyEvent->key();
+        }
+    }
+    return false;
+}
 
 void QWMLibLookupDelegate::setEditorData(QWidget *editor,
                                          const QModelIndex &index) const

@@ -50,6 +50,11 @@ QWMLibSelector *QWMLibTabSelector::currentWidget()
     return (QWMLibSelector*)ui->tabWidget->currentWidget();
 }
 
+void QWMLibTabSelector::focusInEvent(QFocusEvent *event)
+{
+    ui->tabWidget->currentWidget()->setFocus();
+}
+
 
 void QWMLibTabSelector::on_tab_accepted(QWMLibSelector *tab)
 {

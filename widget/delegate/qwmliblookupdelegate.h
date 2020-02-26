@@ -18,6 +18,7 @@ public:
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
     void handleNeighbourField(QWidget *editor,QAbstractItemModel *model,
                               const QModelIndex &index,QModelIndex aIndex) const ;
+    virtual bool eventFilter(QObject *watched, QEvent *event) override;
 public slots:
     void commitAndCloseEditor(QWMLibSelector * editor);
     void justCloseEditor(QWMLibSelector * editor);

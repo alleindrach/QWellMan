@@ -20,6 +20,9 @@ public:
     QString text();
     void init(QSqlQueryModel * model);
     const QItemSelectionModel* selectionModel();
+    virtual bool eventFilter(QObject *watched, QEvent *event) override;
+    virtual void showEvent(QShowEvent *event)  override;
+    virtual void focusInEvent(QFocusEvent *event) override;
 private:
      Ui::QWMLibSelector *ui;
      QString _selectedValue;
@@ -31,8 +34,8 @@ signals:
     void  accepted(QWMLibSelector * );
     void  rejected(QWMLibSelector * );
 private slots:
-    void on_btn_clicked(QAbstractButton *button);
-
+//    void on_btn_clicked(QAbstractButton *button);
+    void on_btn_clicked();
     void on_text_changed(const QString &);
     void on_return_pressed();
     void on_item_doubleclick(const QModelIndex &index);
