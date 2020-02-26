@@ -13,7 +13,7 @@
 #include "QSqlIndex"
 #include "qwmsortfilterproxymodel.h"
 
-QWMRotatableProxyModel::QWMRotatableProxyModel(Mode mode,QObject *parent) : QExSortFilterProxyModel(parent),_mode(mode)
+QWMRotatableProxyModel::QWMRotatableProxyModel(Mode mode,QObject *parent) : QExSortFilterProxyModel(parent),_mode(mode),_showGroup(mode==QWMRotatableProxyModel::V)
 {
 
 }
@@ -187,13 +187,15 @@ QString QWMRotatableProxyModel::tableName()
 
 bool QWMRotatableProxyModel::showGroup()
 {
-    return _showGroup;
+    P(model);
+    return model->showGroup() ;
 }
 
 void QWMRotatableProxyModel::setShowGroup(bool show)
 {
-    _showGroup=show;
-    return;
+    P(model);
+    model->setShowGroup(show);
+
 }
 
 bool QWMRotatableProxyModel::submitAll()
@@ -227,8 +229,9 @@ bool QWMRotatableProxyModel::isFieldVisible(const QString &field)
 
 void QWMRotatableProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
 {
-
     QExSortFilterProxyModel::setSourceModel(sourceModel);
+    P(model);
+    model->setShowGroup(_mode);
     disconnect(sourceModel,&QAbstractItemModel::dataChanged,0,0);
     connect(sourceModel,&QAbstractItemModel::dataChanged,this,&QWMRotatableProxyModel::on_source_model_data_changed);
 }
@@ -242,6 +245,8 @@ void QWMRotatableProxyModel::setMode(QWMRotatableProxyModel::Mode m)
 {
     _mode=m;
     beginResetModel();
+    P(model);
+    model->setShowGroup(m==QWMRotatableProxyModel::V);
     endResetModel();
     emit modeChange(m);
 }

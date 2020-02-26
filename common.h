@@ -17,6 +17,7 @@
 #define UDLDB_CONNECTION_NAME "udl"
 #define WELLDB_CONNECTION_NAME "well"
 #define UNIT_SETTING_ENTRY "unit_setting"
+#define EDITOR_TABLE_ENTRY_PREFIX "editor_table_setting.%1"
 #define UNIT_SETTING_DEFAULT "Metric"
 #define PROFILE_SETTING_ENTRY "profile"
 #define PROFILE_SETTING_DEFAULT "All Data"

@@ -323,6 +323,7 @@ void QWMApplication::loadPreference()
     _profile=settings.value(PROFILE_SETTING_ENTRY,PROFILE_SETTING_DEFAULT).toString();
     _datumPreference =settings.value(REFERENCE_DATUM_ENTRY,REFERENCE_DATUM_DEFAULT).toString();
     _wellDisplayFields=settings.value(WELL_DISPLAY_FIELDS_ENTRY,MDL->tableMainHeadersVisibleKeys()).toStringList();
+
 }
 
 QString QWMApplication::profile()

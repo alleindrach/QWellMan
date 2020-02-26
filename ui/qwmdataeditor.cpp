@@ -149,6 +149,14 @@ void QWMDataEditor::loadDataTree()
     }
     ui->trvTables->setModel(model);
     ui->trvTables->expandAll();
+    QItemSelectionModel * selectModel= ui->trvTables->selectionModel();
+    QString tablename=CFG(KeyTblMain);
+    QModelIndexList matchedList=model->match(model->index(0,0),TABLE_NAME_ROLE, CFG(KeyTblMain),1,Qt::MatchCaseSensitive|Qt::MatchRecursive);
+    if(!matchedList.isEmpty()){
+        selectModel->setCurrentIndex(matchedList.first(),QItemSelectionModel::SelectCurrent);
+        editTable(matchedList.first());
+    }
+
 }
 
 void QWMDataEditor::loadChildTable(QStandardItem * parent)
@@ -318,26 +326,8 @@ void QWMDataEditor::clearChildSelection(const QModelIndex &index)
         clearChildSelection(index.child(i,0));
     }
 }
-void QWMDataEditor::on_current_record_changed(const QModelIndex &current, const QModelIndex &previous){
-    QWMRotatableProxyModel * model=static_cast<QWMRotatableProxyModel*>(_tbvData->model());
-    SX(sourceModel,model);
-    if((model->mode()==QWMRotatableProxyModel::H && current.row()!=previous.row()  && current.row()>=0 && model->rowCount()>0) ||
-            (model->mode()==QWMRotatableProxyModel::V && current.column()!=previous.column() && current.column()>=0 && model->columnCount()>0)
-            ){
 
-        QSqlRecord record=model->record(current);
-        PK_VALUE(pk,record);
-        QString tableName=sourceModel->tableName();
-        MDLTable * tableInfo=MDL->tableInfo(tableName);
-        QString des=WELL->recordDes(tableName,record);
-        QString dispText=QString("%1  [%2]").arg(tableInfo->CaptionLongP()).arg(des);
-        ui->trvTables->model()->setData(ui->trvTables->currentIndex(),dispText,Qt::DisplayRole);
-        ui->trvTables->model()->setData(ui->trvTables->currentIndex(),pk,PK_VALUE_ROLE);
-        clearChildSelection(ui->trvTables->currentIndex());
-    }
-
-}
-void QWMDataEditor::on_trv_table_node_clicked(const QModelIndex &index)
+void QWMDataEditor::editTable(const QModelIndex &index)
 {
     //1 如果当前的表和well是1：1的，且无记录，则必须生成一个新纪录
     //2 如果当前表有记录，且当前节点无选中历史，则 选中第一条记录 ，将当前记录的key保存 到treeview node的key_field中 。当前几点的RecordDes显示
@@ -387,11 +377,40 @@ void QWMDataEditor::on_trv_table_node_clicked(const QModelIndex &index)
             ui->actionNew->setEnabled(true);
             ui->actionDelete->setEnabled(false);
         }
+        if(model->mode()==QWMRotatableProxyModel::H ){
+            ui->actionRotate->setChecked(false);
+        }else
+        {
+            ui->actionRotate->setChecked(true);
+        }
 
         //        void currentRowChanged(const QModelIndex &current, const QModelIndex &previous);
         //        void currentColumnChanged(const QModelIndex &current, const QModelIndex &previous);
         showDataGrid(model);
     }
+}
+void QWMDataEditor::on_current_record_changed(const QModelIndex &current, const QModelIndex &previous){
+    QWMRotatableProxyModel * model=static_cast<QWMRotatableProxyModel*>(_tbvData->model());
+    SX(sourceModel,model);
+    if((model->mode()==QWMRotatableProxyModel::H && current.row()!=previous.row()  && current.row()>=0 && model->rowCount()>0) ||
+            (model->mode()==QWMRotatableProxyModel::V && current.column()!=previous.column() && current.column()>=0 && model->columnCount()>0)
+            ){
+
+        QSqlRecord record=model->record(current);
+        PK_VALUE(pk,record);
+        QString tableName=sourceModel->tableName();
+        MDLTable * tableInfo=MDL->tableInfo(tableName);
+        QString des=WELL->recordDes(tableName,record);
+        QString dispText=QString("%1  [%2]").arg(tableInfo->CaptionLongP()).arg(des);
+        ui->trvTables->model()->setData(ui->trvTables->currentIndex(),dispText,Qt::DisplayRole);
+        ui->trvTables->model()->setData(ui->trvTables->currentIndex(),pk,PK_VALUE_ROLE);
+        clearChildSelection(ui->trvTables->currentIndex());
+    }
+
+}
+void QWMDataEditor::on_trv_table_node_clicked(const QModelIndex &index)
+{
+    editTable(index);
 }
 
 void QWMDataEditor::on_actionRotate_triggered(bool checked)
@@ -399,9 +418,14 @@ void QWMDataEditor::on_actionRotate_triggered(bool checked)
     QWMRotatableProxyModel * model=static_cast<QWMRotatableProxyModel*>( _tbvData->model());
     //    model->beginResetModel();
     if(checked)
+    {
         model->setMode(QWMRotatableProxyModel::V);
-    else
+
+    }
+    else{
         model->setMode(QWMRotatableProxyModel::H);
+
+    }
     //    model->endResetModel();
     //    showDataGrid(model);
 }

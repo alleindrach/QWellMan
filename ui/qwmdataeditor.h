@@ -35,6 +35,7 @@ protected:
     QString nodeParentID(const QModelIndex &index,QString & lastError);
     MDLTable * nodeTableInfo(const QModelIndex & index);
     void clearChildSelection(const QModelIndex & index);
+    void editTable(const QModelIndex & inddex);
 public Q_SLOTS:
     void undo();
     void redo();

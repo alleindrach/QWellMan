@@ -50,7 +50,7 @@ protected:
 
 private :
     Mode _mode{H};
-    bool _showGroup{false};
+    bool _showGroup;
     friend class QWMMain;
     friend class QWMDataEditor;
     QHash<QString ,QStringList> _group2FieldMap;

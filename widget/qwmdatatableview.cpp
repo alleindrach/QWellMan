@@ -9,6 +9,7 @@
 #include "qwmdatedelegate.h"
 #include <QHeaderView>
 #include "qwmliblookupdelegate.h"
+#include <QSettings>
 QWMDataTableView::QWMDataTableView(QWidget *parent):QTableView(parent)
 {
 
@@ -101,6 +102,8 @@ void QWMDataTableView::on_mode_change(QWMRotatableProxyModel::Mode)
 {
     QWMRotatableProxyModel * model=(QWMRotatableProxyModel*)this->model();
     PX(pmodel,this->model());
+    SX(smodel,this->model());
+
 
     if(model->mode()==QWMRotatableProxyModel::H){
         for(int j=0;j<model->columnCount();j++){
@@ -127,6 +130,8 @@ void QWMDataTableView::on_mode_change(QWMRotatableProxyModel::Mode)
             setColumnHidden(j,false);
         }
     }
+    QSettings settings;
+    settings.setValue(QString(EDITOR_TABLE_ENTRY_PREFIX).arg(smodel->tableName()),model->mode());
     bindDelegate();
     this->resize(this->size()+QSize(1,1));
 }

@@ -14,6 +14,7 @@
 #include "QSqlTableModel"
 #include "QUuid"
 #include "QDateTime"
+#include <QSettings>
 WellDao * WellDao::_instance=nullptr;
 
 WellDao::WellDao(QSqlDatabase &db,QObject *parent) : QObject(parent),_db(db)
@@ -77,7 +78,9 @@ QWMRotatableProxyModel *WellDao::table(QString tablename)
     QWMSortFilterProxyModel * proxy=new QWMSortFilterProxyModel(model);
     proxy->setSourceModel(model);
     proxy->setShowGroup(true);
-    QWMRotatableProxyModel * rotateProxy=new QWMRotatableProxyModel(QWMRotatableProxyModel::V,proxy);
+    QSettings settings;
+    int mode= settings.value(QString(EDITOR_TABLE_ENTRY_PREFIX).arg(tablename),QWMRotatableProxyModel::V).toInt();
+    QWMRotatableProxyModel * rotateProxy=new QWMRotatableProxyModel((QWMRotatableProxyModel::Mode)mode,proxy);
     rotateProxy->setSourceModel(proxy);
     CI(key,rotateProxy);
 
