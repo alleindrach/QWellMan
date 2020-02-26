@@ -15,6 +15,8 @@
 #include "qwmfieldeditcommand.h"
 #define S1(model)\
     QWMTableModel * model=static_cast<QWMTableModel *>(this->sourceModel());
+
+
 QWMSortFilterProxyModel::QWMSortFilterProxyModel(QObject *parent) : QExSortFilterProxyModel(parent)
 {
 
@@ -27,24 +29,24 @@ QModelIndex QWMSortFilterProxyModel::mapToSource(const QModelIndex &proxyIndex) 
     S1(model);
 
     //    QWMTableModel * model=static_cast<QWMTableModel *>(this->sourceModel());
-//1     过滤 掉 分栏列
+    //1     过滤 掉 分栏列
     int realCol=realColumn(proxyIndex.column());
     if(realCol<0)
         return QModelIndex();
-//2     对应的原始字段
+    //2     对应的原始字段
     QString sourceColName= model->fieldInPosByOrder(realCol);
     if(sourceColName.isNull()||sourceColName.isEmpty()){
         return QModelIndex();
     }
-// 3    对应的原始列号
-//    计算字段没有field对应，这里sourceColPos就可能等于-1
+    // 3    对应的原始列号
+    //    计算字段没有field对应，这里sourceColPos就可能等于-1
     int sourceColPos=model->fieldIndexEx(sourceColName);
 
     //    QModelIndex index=this->index(proxyIndex.row(),sourceColPos);
-// 4    取该行对应的原始行号
+    // 4    取该行对应的原始行号
     QModelIndex proxyIndex2=this->index(proxyIndex.row(),0);
     QModelIndex sourceIndex2=QExSortFilterProxyModel::mapToSource(proxyIndex2);
-//5     拼凑成index
+    //5     拼凑成index
     QModelIndex index= model->createIndex(sourceIndex2.row(),sourceColPos);
     return index;
     //    if(sourceColPos>=model->record().count()){
@@ -59,16 +61,16 @@ QModelIndex QWMSortFilterProxyModel::mapFromSource(const QModelIndex &sourceInde
     if(!sourceIndex.isValid())
         return QModelIndex();
     S1(model);
-//    1   取原始列名
+    //    1   取原始列名
     QString sourceColName= model->fieldNameEx(sourceIndex.column());
-//    2 取显示的列号
+    //    2 取显示的列号
     int visiblePos=model->fieldPosByOrder(sourceColName);
     if(visiblePos<0)
         return QModelIndex();
-//    3   取加上分栏列 后的列号
+    //    3   取加上分栏列 后的列号
     int visiblePosGrouped=groupedColumn(visiblePos);
     QModelIndex index=model->index(sourceIndex.row(),0);
-//    4 取过滤后 的 行号
+    //    4 取过滤后 的 行号
     QModelIndex mappedIndex=  QExSortFilterProxyModel::mapFromSource(index);
 
     QModelIndex proxyIndex=createIndex(mappedIndex.row(),visiblePosGrouped);
@@ -263,7 +265,7 @@ QVariant QWMSortFilterProxyModel::headerData(int section, Qt::Orientation orient
             }else if(role==Qt::BackgroundRole){
                 return QColor(200,200,200);
             }else if(role==Qt::ForegroundRole){
-                 return QColor(200,0,0);
+                return QColor(200,0,0);
             }
             return QVariant();
         }
@@ -296,7 +298,7 @@ QVariant QWMSortFilterProxyModel::data(const QModelIndex &index, int role) const
         }else if(role==Qt::BackgroundRole){
             return QColor(200,200,200);
         }else if(role==Qt::ForegroundRole){
-             return QColor(200,0,0);
+            return QColor(200,0,0);
         }
         return QVariant();
     }else{
@@ -315,8 +317,8 @@ bool QWMSortFilterProxyModel::setData(const QModelIndex &item, const QVariant &v
     m.oldValue=model->data(sourceIndex,Qt::EditRole);
     QList<Modifier> list;
     list.append(m);
-    QWMFieldEditCommand * newCommand=new QWMFieldEditCommand(model,list);
-    DOC->addUndoCommand(newCommand);
+    QWMFieldEditCommand * command=new QWMFieldEditCommand(model,list);
+    DOC->addUndoCommand(command);
     return true;
 
 }

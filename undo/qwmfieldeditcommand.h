@@ -17,6 +17,7 @@ public:
     explicit QWMFieldEditCommand(QWMTableModel * model,QList<Modifier> changelist, QUndoCommand *parent = nullptr);
     virtual void undo() override;
     virtual void redo() override;
+    QWMTableModel *  model();
 signals:
 
 public slots:

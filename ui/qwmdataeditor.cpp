@@ -18,7 +18,18 @@
 #include "qwmdatatableview.h"
 #include <QMessageBox>
 #include "qwmrotatableproxymodel.h"
+#include "qwmfieldeditcommand.h"
 #include "qwmsortfilterproxymodel.h"
+#include <QDebug>
+#define CHECK_UNDO_STATE \
+    ui->actionRedo->setEnabled(_undoStack.canRedo());\
+    ui->actionUndo->setEnabled(_undoStack.canUndo());\
+
+template<typename Base, typename T>
+inline bool instanceof(const T *ptr) {
+    return dynamic_cast<const Base*>(ptr) != nullptr;
+}
+
 QWMDataEditor::QWMDataEditor(QString idWell,QString name,QWidget *parent) :
     QMainWindow(parent),_idWell(idWell),_wellName(name),
     ui(new Ui::QWMDataEditor)
@@ -65,6 +76,7 @@ QWMDataEditor::QWMDataEditor(QString idWell,QString name,QWidget *parent) :
     connect(ui->trvTables,&QTreeView::clicked,this,&QWMDataEditor::on_trv_table_node_clicked);
     connect(ui->actionRedo,&QAction::triggered,this,&QWMDataEditor::redo);
     connect(ui->actionUndo,&QAction::triggered,this,&QWMDataEditor::undo);
+    CHECK_UNDO_STATE
 }
 
 QWMDataEditor::~QWMDataEditor()
@@ -75,16 +87,20 @@ QWMDataEditor::~QWMDataEditor()
 void QWMDataEditor::undo()
 {
     _undoStack.undo();
+    CHECK_UNDO_STATE;
 }
 
 void QWMDataEditor::addUndoCommand(QUndoCommand *command)
 {
+//    bool x=instanceof<QWMFieldEditCommand>(command);
     _undoStack.push(command);
+    CHECK_UNDO_STATE;
 }
 
 void QWMDataEditor::redo()
 {
     _undoStack.redo();
+    CHECK_UNDO_STATE
 }
 
 void QWMDataEditor::loadDataTree()
@@ -226,6 +242,22 @@ void QWMDataEditor::closeEvent(QCloseEvent *event)
 
 void QWMDataEditor::on_actionSaveExit_triggered()
 {
+//    QHash<QWMTableModel*,int> updatedModels;
+    for(int i=0;i<_undoStack.count();i++){
+        const QUndoCommand * cmd=_undoStack.command(i);
+
+        if(instanceof<QWMFieldEditCommand>(cmd)){
+            QWMFieldEditCommand* feCommand=(QWMFieldEditCommand*) cmd;
+            QWMTableModel * model=feCommand->model();
+            if(model->isDirty())
+            {
+                bool success=model->submitAll();
+                if(!success){
+                    qDebug()<<"Submit Statement:["+model->selectStatement()<<"],Error["<<model->lastError().text()<<"]";
+                }
+            }
+        }
+    }
     this->close();
 }
 
@@ -247,11 +279,11 @@ QString QWMDataEditor::nodeParentID(const QModelIndex &index,QString &lastError)
                     parentID=ptn;
                 }
             }else{//如果无父节点，则认为 其父为wvWellheader
-//                parentID=_idWell;
+                //                parentID=_idWell;
             }
         }
         else{
-//            parentID=_idWell;
+            //            parentID=_idWell;
         }
         return parentID;
     }
@@ -279,7 +311,7 @@ void QWMDataEditor::clearChildSelection(const QModelIndex &index)
         QModelIndex childIndex=index.child(i,0);
         QString tableName=model->data(childIndex,TABLE_NAME_ROLE).toString();
         QString textDisplay=model->data(childIndex,TEXT_ROLE).toString();
-//        MDLTable * tableInfo=MDL->tableInfo(tableName);
+        //        MDLTable * tableInfo=MDL->tableInfo(tableName);
         model->setData(childIndex,textDisplay,Qt::DisplayRole);
         model->setData(childIndex,QString(),PK_VALUE_ROLE);
         model->setData(childIndex,QString(),RECORD_DES_ROLE);
@@ -365,11 +397,11 @@ void QWMDataEditor::on_trv_table_node_clicked(const QModelIndex &index)
 void QWMDataEditor::on_actionRotate_triggered(bool checked)
 {
     QWMRotatableProxyModel * model=static_cast<QWMRotatableProxyModel*>( _tbvData->model());
-//    model->beginResetModel();
+    //    model->beginResetModel();
     if(checked)
         model->setMode(QWMRotatableProxyModel::V);
     else
         model->setMode(QWMRotatableProxyModel::H);
-//    model->endResetModel();
-//    showDataGrid(model);
+    //    model->endResetModel();
+    //    showDataGrid(model);
 }

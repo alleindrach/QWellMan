@@ -19,3 +19,8 @@ void QWMFieldEditCommand::redo()
         _model->setData(_model->index(modify.row,modify.col),modify.newValue);
     }
 }
+
+QWMTableModel *QWMFieldEditCommand::model()
+{
+    return _model;
+}

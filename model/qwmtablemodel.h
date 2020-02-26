@@ -39,6 +39,7 @@ private :
     QHash<QString,int> _fieldsCalcMap;
     QList<QString> _fieldsOrigin;
     int _visibleFields{0};
+    friend class QWMDataEditor;
 };
 
 #endif // QWMTABLEMODEL_H
