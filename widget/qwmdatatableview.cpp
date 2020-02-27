@@ -76,7 +76,7 @@ void QWMDataTableView::bindDelegate()
                 (this->*func)(i,new QWMLibLookupDelegate(fieldInfo->LookupTableName(),fieldInfo->LookupFieldName(),fieldInfo->CaptionLong(),false,this));
             }
             else if(fieldInfo->LookupTyp()==MDLDao::DBDistinctValues){
-                (this->*func)(i,new QWMDistinctValueDelegate(fieldInfo->LookupTableName(),fieldInfo->LookupFieldName(),this));
+                (this->*func)(i,new QWMDistinctValueDelegate(tableName,fieldName,this));
             }
         }
     }

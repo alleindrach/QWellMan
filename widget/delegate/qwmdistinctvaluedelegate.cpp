@@ -34,12 +34,8 @@ QWidget *QWMDistinctValueDelegate::createEditor(QWidget *parent, const QStyleOpt
 void QWMDistinctValueDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
     QComboBox *cb = static_cast<QComboBox*>(editor);
-    QString value = index.model()->data(index, Qt::DisplayRole).toString();
-    QVariant data = index.data(DATA_ROLE);
-
-    qDebug()<<"text="<<value<<",data="<<data;
-
-    int idx = cb->findData(data);
+    QString value = index.model()->data(index, Qt::EditRole).toString();
+    int idx = cb->findData(value);
     if (idx > -1 ) {
         cb->setCurrentIndex(idx);
     }
@@ -50,10 +46,9 @@ void QWMDistinctValueDelegate::setModelData(QWidget *editor, QAbstractItemModel 
 {
     QComboBox *cb = static_cast<QComboBox*>(editor);
     QString displayData = cb->currentText();
-    QVariant value = cb->currentIndex()>=0?cb->currentData():cb->currentText();
-    QVariant oldValue=index.data(DATA_ROLE);
-    if(oldValue!=value){
-        model->setData(index, value);
+    QString oldValue=index.data(Qt::EditRole).toString();
+    if(oldValue!=displayData){
+        model->setData(index, displayData);
     }
 }
 

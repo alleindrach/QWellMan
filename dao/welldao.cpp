@@ -32,8 +32,8 @@ DECL_SQL(select_well_cnt_in_cat,"select  count(1) as cnt from %1  w  "
                                 "and w.%3=:idwell")
 DECL_SQL(select_is_deleted,"select  count(1) as cnt from %1  w  "
                            "where   w.%2=:idwell  COLLATE NOCASE and w.%3=:idrec COLLATE NOCASE")
-DECL_SQL(select_distinct_value,"select  distinct %2 as fv from %1  w  "
-                               "order by %2 ")
+DECL_SQL(select_distinct_value,"select  distinct %2 as fv from %1  w  where fv is not null"
+                               " order by fv ")
 END_SQL_DECLARATION
 
 WellDao::WellDao(QSqlDatabase &db,QObject *parent) : QObject(parent),_db(db)
@@ -387,7 +387,7 @@ QStringList WellDao::distinctValue(QString table,QString field){
     //    CS(key,QStringList);
 
     QStringList result;
-    QSqlQuery q(SQL(select_distinct_value).arg(table).arg(field),APP->udl());
+    QSqlQuery q(SQL(select_distinct_value).arg(table).arg(field),APP->well());
     q.exec();
     PRINT_ERROR(q);
     while(q.next()){
