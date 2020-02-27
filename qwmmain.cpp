@@ -457,7 +457,7 @@ void QWMMain::on_actionNew_triggered()
         SX(tableModel,ui->tbvWells->model());
         QSqlRecord record=model->record();
         WELL->initRecord(record);
-        bool success=model->insertRecord(0,record);
+        bool success=model->insertRecordDirect(0,record);
         if(!success)
             QMessageBox::information(this,"插入井数据错误",model->lastError().text());
 

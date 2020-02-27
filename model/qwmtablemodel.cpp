@@ -150,15 +150,17 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
             }
             return value;
         }else{
-            if (role == Qt::CheckStateRole)
-            {
-                if(fieldInfo->PhysicalType()==MDLDao::Boolean)//booelan
+            if(fieldInfo!=nullptr){
+                if (role == Qt::CheckStateRole)
                 {
-                    QVariant value= QSqlRelationalTableModel::data(index,Qt::DisplayRole);
-                    bool b=value.toBool();
-                    QString  v=value.toString();
-                    //                    qDebug()<<"V:"<<v<<",B:"<<b;
-                    return  b ? Qt::Checked : Qt::Unchecked;
+                    if(fieldInfo->PhysicalType()==MDLDao::Boolean)//booelan
+                    {
+                        QVariant value= QSqlRelationalTableModel::data(index,Qt::DisplayRole);
+                        bool b=value.toBool();
+                        QString  v=value.toString();
+                        //                    qDebug()<<"V:"<<v<<",B:"<<b;
+                        return  b ? Qt::Checked : Qt::Unchecked;
+                    }
                 }
             }
         }
@@ -263,25 +265,33 @@ void QWMTableModel::setReadonly(bool v)
 void QWMTableModel::initFields(const QString &tableName)
 {
     QStringList visibleFieldsList=UDL->fieldsVisibleInOrder(APP->profile(),tableName);
-    setVisibleFields(visibleFieldsList);
     QSqlRecord rec=record();
+    //    if(visibleFieldsList.contains(CFG(ID)) && rec.indexOf(CFG(ID))>=0)
+    //        visibleFieldsList.append(CFG(ID));
+    setVisibleFields(visibleFieldsList);
+
     for(int i=0;i<rec.count();i++){
         QString fieldName=rec.fieldName(i);
         _fieldsOrigin.append(fieldName);
-//        setHeaderData(i,Qt::Horizontal,fieldName,FIELD_ROLE);
+        //        setHeaderData(i,Qt::Horizontal,fieldName,FIELD_ROLE);
     }
 }
 
-void QWMTableModel::setVisibleFields(const QStringList visibleFieldsList)
+void QWMTableModel::setVisibleFields( QStringList visibleFieldsList)
 {
     _fieldsInOrder.clear();
     _fieldsInOrderVice.clear();
+    QSqlRecord rec=this->record();
+    QString idFld=CFG(ID);
+    int idFldInd=rec.indexOf(CFG(ID));
+    if(!visibleFieldsList.contains(CFG(ID))&& rec.indexOf(CFG(ID))>=0)
+        visibleFieldsList.append(CFG(ID));
     for(int i=0;i<visibleFieldsList.length();i++){
         _fieldsInOrder.append(visibleFieldsList[i]);
         _fieldsInOrderVice.insert(visibleFieldsList[i],i);
     }
     _visibleFields=visibleFieldsList.length();
-    QSqlRecord rec=this->record();
+
     int recn=rec.count();
     for(int i=0;i<recn;i++){
         QString fn=rec.fieldName(i);

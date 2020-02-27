@@ -13,6 +13,8 @@
 #include "QSqlIndex"
 #include "qexsortfilterproxymodel.h"
 #include "qwmfieldeditcommand.h"
+#include "qwmrecordeditcommand.h"
+
 #define S1(model)\
     QWMTableModel * model=static_cast<QWMTableModel *>(this->sourceModel());
 
@@ -81,12 +83,38 @@ QModelIndex QWMSortFilterProxyModel::mapFromSource(const QModelIndex &sourceInde
 
 bool QWMSortFilterProxyModel::insertRecord(int row, const QSqlRecord &record)
 {
-    QWMTableModel * model=static_cast<QWMTableModel *>(this->sourceModel());
+    S1(model);
+    QModelIndex  index=this->index(row,0);
+    QModelIndex sourceIndex=mapToSource(index);
+    QWMRecordEditCommand * command=new QWMRecordEditCommand(model,record,QWMRecordEditCommand::insert);
+    DOC->addUndoCommand(command);
+
+    //    bool success=model->insertRecord(row,record);
+    //    if(!success && model->lastError().isValid()){
+    //        qDebug()<<"QWMSortFilterProxyModel::insertRecord error:"<< model->lastError().text();
+    //    }
+    return true;
+}
+
+bool QWMSortFilterProxyModel::insertRecordDirect(int row, const QSqlRecord &record)
+{
+    S1(model);
     bool success=model->insertRecord(row,record);
     if(!success && model->lastError().isValid()){
         qDebug()<<"QWMSortFilterProxyModel::insertRecord error:"<< model->lastError().text();
     }
     return success;
+}
+
+bool QWMSortFilterProxyModel::removeRecord(int row)
+{
+    S1(model);
+    QModelIndex  index=this->index(row,0);
+    QModelIndex sourceIndex=mapToSource(index);
+    QSqlRecord  record=model->record(sourceIndex.row());
+    QWMRecordEditCommand * command=new QWMRecordEditCommand(model,record,QWMRecordEditCommand::remove);
+    DOC->addUndoCommand(command);
+    return true;
 }
 Qt::ItemFlags QWMSortFilterProxyModel::flags(const QModelIndex &index) const
 {

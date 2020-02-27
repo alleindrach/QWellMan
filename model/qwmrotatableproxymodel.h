@@ -14,6 +14,8 @@ public:
     explicit QWMRotatableProxyModel(Mode mode=H,QObject *parent = nullptr);
 
     bool insertRecord(int row, const QSqlRecord &record);
+    bool insertRecordDirect(int row, const QSqlRecord &record);
+    bool removeRecord(QModelIndex index);
     QSqlRecord record() const;
     QSqlRecord record(QModelIndex) const;
     QVariant data(const QModelIndex &item, int role = Qt::DisplayRole) const override;

@@ -17,7 +17,7 @@ public:
     bool readonly();
     void setReadonly(bool v);
     void initFields(const QString &tableName);
-    void setVisibleFields(const QStringList lst);
+    void setVisibleFields( QStringList lst);
     void mergeVisibleFields( QStringList lst);
     int  fieldPosByOrder(const QString &field);
     int  visibleFieldsCount();

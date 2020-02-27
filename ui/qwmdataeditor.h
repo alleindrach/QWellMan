@@ -22,6 +22,7 @@ public:
     ~QWMDataEditor();
 
     void addUndoCommand(QUndoCommand * command);
+    QUndoStack& undoStack();
     void loadDataTree();
     void loadChildTable(QStandardItem *);
 
@@ -30,12 +31,15 @@ public:
     void showUnitSetting(QString unit);
     void showReferenceDatum(QString datum);
     void showDataGrid(QWMRotatableProxyModel *  model);
+
 protected:
     virtual void closeEvent(QCloseEvent *event);
     QString nodeParentID(const QModelIndex &index,QString & lastError);
     MDLTable * nodeTableInfo(const QModelIndex & index);
     void clearChildSelection(const QModelIndex & index);
     void editTable(const QModelIndex & inddex);
+    void addRecord(const QModelIndex & index);
+    void removeRecord(const QModelIndex &index);
 public Q_SLOTS:
     void undo();
     void redo();
@@ -47,6 +51,10 @@ private slots:
     void on_actionRotate_triggered(bool checked);
 
     void on_current_record_changed(const QModelIndex &current, const QModelIndex &previous);
+    void on_actionNew_triggered();
+
+    void on_actionDelete_triggered();
+    void init_record_on_prime_insert(int row, QSqlRecord &record);
 private:
     Ui::QWMDataEditor *ui;
     QString _idWell;
@@ -59,6 +67,7 @@ private:
     QLabel * _lblReferenceDatum ;
     QLabel * _lblMessage;
     QWMDataTableView * _tbvData;
+    QString _parentID;
     QString _TableStyle="/*tablewidget 样式*/ \
             QTableView { \
             font-size:10px ;\

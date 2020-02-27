@@ -35,6 +35,7 @@ SOURCES += \
     qwmmain.cpp \
     ui/qwmdataeditor.cpp \
     undo/qwmfieldeditcommand.cpp \
+    undo/qwmrecordeditcommand.cpp \
     widget/delegate/comboboxdelegate.cpp \
     widget/delegate/qwmdatedelegate.cpp \
     widget/delegate/qwmdistinctvaluedelegate.cpp \
@@ -45,6 +46,7 @@ SOURCES += \
     widget/editor/qwmlibtabselector.cpp \
     widget/qdlgwellfieldsselector.cpp \
     widget/qwmdatatableview.cpp \
+    widget/qwmheaderview.cpp
 
 HEADERS += \
     aux/utility.h \
@@ -67,6 +69,7 @@ HEADERS += \
     qwmmain.h \
     ui/qwmdataeditor.h \
     undo/qwmfieldeditcommand.h \
+    undo/qwmrecordeditcommand.h \
     widget/delegate/comboboxdelegate.h \
     widget/delegate/qwmdatedelegate.h \
     widget/delegate/qwmdistinctvaluedelegate.h \
@@ -77,6 +80,7 @@ HEADERS += \
     widget/editor/qwmlibtabselector.h \
     widget/qdlgwellfieldsselector.h \
     widget/qwmdatatableview.h \
+    widget/qwmheaderview.h
 
 FORMS += \
     qwmmain.ui \

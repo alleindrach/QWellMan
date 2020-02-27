@@ -28,6 +28,16 @@ bool QWMRotatableProxyModel::insertRecord(int row, const QSqlRecord &record)
     }
     return success;
 }
+bool QWMRotatableProxyModel::insertRecordDirect(int row, const QSqlRecord &record)
+{
+
+    P(model);
+    bool success=model->insertRecordDirect(row,record);
+    if(!success && model->lastError().isValid()){
+        qDebug()<<"QWMSortFilterProxyModel::insertRecord error:"<< model->lastError().text();
+    }
+    return success;
+}
 QSqlRecord QWMRotatableProxyModel::record() const
 {
     S(model);
@@ -273,4 +283,9 @@ void QWMRotatableProxyModel::on_source_model_data_changed(QModelIndex  lefttop, 
 bool QWMRotatableProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
     return true;
+}
+bool QWMRotatableProxyModel::removeRecord(QModelIndex index){
+    P(model);
+    QModelIndex  sourceIndex=mapToSource(index);
+    model->removeRecord(sourceIndex.row());
 }

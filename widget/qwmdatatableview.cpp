@@ -10,10 +10,15 @@
 #include <QHeaderView>
 #include "qwmliblookupdelegate.h"
 #include "qwmdistinctvaluedelegate.h"
+#include "qwmheaderview.h"
 #include <QSettings>
 QWMDataTableView::QWMDataTableView(QWidget *parent):QTableView(parent)
 {
-
+    QWMHeaderView * headerView= new QWMHeaderView(Qt::Vertical, this);
+    setVerticalHeader(headerView);
+    disconnect(headerView, SIGNAL(sectionCountChanged(int,int)),0,0);
+    connect(headerView, SIGNAL(sectionCountChanged(int,int)),
+                this, SLOT(rowCountChanged(int,int)));
 }
 
 void QWMDataTableView::setModel(QAbstractItemModel *model)
@@ -86,7 +91,45 @@ bool QWMDataTableView::edit(const QModelIndex &index, EditTrigger trigger, QEven
 
 void QWMDataTableView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
 {
+    qDebug()<<"dataChanged:["<<topLeft.row()<<","<<topLeft.column()<<"]-["<<bottomRight.row()<<","<<bottomRight.column()<<"],R["<<roles<<"]";
     return QTableView::dataChanged(topLeft,bottomRight,roles);
+}
+
+void QWMDataTableView::rowsInserted(const QModelIndex &parent, int start, int end)
+{
+    qDebug()<<"rowsInserted:"<<start<<","<<end;
+    return QTableView::rowsInserted(parent,start,end);
+}
+
+void QWMDataTableView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
+{
+    qDebug()<<"rowsAboutToBeRemoved:"<<start<<","<<end;
+    return QTableView::rowsAboutToBeRemoved(parent,start,end);
+}
+
+void QWMDataTableView::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+{
+    return QTableView::selectionChanged(selected,deselected);
+}
+
+void QWMDataTableView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+    return QTableView::currentChanged(current,previous);
+}
+
+void QWMDataTableView::updateEditorData()
+{
+    return QTableView::updateEditorData();
+}
+
+void QWMDataTableView::updateEditorGeometries()
+{
+    return QTableView::updateEditorGeometries();
+}
+
+void QWMDataTableView::updateGeometries()
+{
+    return QTableView::updateGeometries();
 }
 
 void QWMDataTableView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint)
@@ -140,4 +183,9 @@ void QWMDataTableView::on_mode_change(QWMRotatableProxyModel::Mode)
     settings.setValue(QString(EDITOR_TABLE_ENTRY_PREFIX).arg(smodel->tableName()),model->mode());
     bindDelegate();
     this->resize(this->size()+QSize(1,1));
+}
+
+void QWMDataTableView::rowCountChanged(int oldCount, int newCount)
+{
+    return QTableView::rowCountChanged(oldCount,newCount);
 }

@@ -16,6 +16,8 @@ public:
     Q_INVOKABLE virtual QModelIndex mapToSource(const QModelIndex &proxyIndex) const ;
     Q_INVOKABLE virtual QModelIndex mapFromSource(const QModelIndex &sourceIndex) const ;
     bool insertRecord(int row, const QSqlRecord &record);
+    bool insertRecordDirect(int row, const QSqlRecord &record);
+    bool removeRecord(int row);
     QSqlRecord record() const;
     QSqlRecord record(int ) const;
     Qt::ItemFlags flags(const QModelIndex &index) const override;

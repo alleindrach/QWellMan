@@ -19,6 +19,7 @@
 #include <QMessageBox>
 #include "qwmrotatableproxymodel.h"
 #include "qwmfieldeditcommand.h"
+#include "qwmrecordeditcommand.h"
 #include "qwmsortfilterproxymodel.h"
 #include <QDebug>
 #define CHECK_UNDO_STATE \
@@ -88,19 +89,22 @@ void QWMDataEditor::undo()
 {
     _undoStack.undo();
     CHECK_UNDO_STATE;
+
 }
 
 void QWMDataEditor::addUndoCommand(QUndoCommand *command)
 {
-//    bool x=instanceof<QWMFieldEditCommand>(command);
+    //    bool x=instanceof<QWMFieldEditCommand>(command);
     _undoStack.push(command);
     CHECK_UNDO_STATE;
+
 }
 
 void QWMDataEditor::redo()
 {
     _undoStack.redo();
-    CHECK_UNDO_STATE
+    CHECK_UNDO_STATE;
+
 }
 
 void QWMDataEditor::loadDataTree()
@@ -250,13 +254,23 @@ void QWMDataEditor::closeEvent(QCloseEvent *event)
 
 void QWMDataEditor::on_actionSaveExit_triggered()
 {
-//    QHash<QWMTableModel*,int> updatedModels;
+    //    QHash<QWMTableModel*,int> updatedModels;
     for(int i=0;i<_undoStack.count();i++){
         const QUndoCommand * cmd=_undoStack.command(i);
 
         if(instanceof<QWMFieldEditCommand>(cmd)){
             QWMFieldEditCommand* feCommand=(QWMFieldEditCommand*) cmd;
             QWMTableModel * model=feCommand->model();
+            if(model->isDirty())
+            {
+                bool success=model->submitAll();
+                if(!success){
+                    qDebug()<<"Submit Statement:["+model->selectStatement()<<"],Error["<<model->lastError().text()<<"]";
+                }
+            }
+        }else if(instanceof<QWMRecordEditCommand>(cmd)){
+            QWMRecordEditCommand* reCommand=(QWMRecordEditCommand*) cmd;
+            QWMTableModel * model=reCommand->model();
             if(model->isDirty())
             {
                 bool success=model->submitAll();
@@ -345,9 +359,9 @@ void QWMDataEditor::editTable(const QModelIndex &index)
         QWMRotatableProxyModel * model=WELL->tableForEdit(tableName,_idWell,parentID);
         SX(sourceModel,model);
         PX(proxyModel,model);
-        sourceModel->select();
-        while(sourceModel->canFetchMore())
-            sourceModel->fetchMore();
+//        sourceModel->select();
+//        while(sourceModel->canFetchMore())
+//            sourceModel->fetchMore();
         if(sourceModel->tableName()=="wvJobReport"){
             //qDebug()<<"error"<<proxyModel->filterRegExp();
             QModelIndex index =proxyModel->index(0,0,QModelIndex());
@@ -359,7 +373,9 @@ void QWMDataEditor::editTable(const QModelIndex &index)
         connect(_tbvData->selectionModel(),&QItemSelectionModel::currentRowChanged,this, &QWMDataEditor::on_current_record_changed);
         disconnect(_tbvData->selectionModel(),&QItemSelectionModel::currentColumnChanged,nullptr,nullptr);
         connect(_tbvData->selectionModel(),&QItemSelectionModel::currentColumnChanged,this, &QWMDataEditor::on_current_record_changed);
-
+        int sourceCount=sourceModel->rowCount();
+        int proxyCount=proxyModel->rowCount();
+        qDebug()<<"Table:"<<sourceModel->tableName()<<",Filter:"<<parentID<<",SourceCNT:"<<sourceCount<<",ProxyCNT:"<<proxyCount;
         if(sourceModel->rowCount()>0){
             QItemSelectionModel * selectModel=_tbvData->selectionModel();
             QItemSelection prevSelect=selectModel->selection();
@@ -396,7 +412,66 @@ void QWMDataEditor::editTable(const QModelIndex &index)
         //        void currentRowChanged(const QModelIndex &current, const QModelIndex &previous);
         //        void currentColumnChanged(const QModelIndex &current, const QModelIndex &previous);
         showDataGrid(model);
+        if(!sourceModel->isSignalConnected(QMetaMethod::fromSignal(&QWMTableModel::primeInsert))){
+            connect(sourceModel,&QWMTableModel::primeInsert,this,&QWMDataEditor::init_record_on_prime_insert);
+        }
+
     }
+}
+
+QUndoStack& QWMDataEditor::undoStack()
+{
+    return _undoStack;
+}
+
+void QWMDataEditor::addRecord(const QModelIndex &index)
+{
+    _parentID=QString();
+    if(index.data(CAT_ROLE)==QWMApplication::TABLE){
+        QString lastError;
+        QString parentID=nodeParentID(index,lastError);
+        _parentID=parentID;
+        if(parentID.isNull()&& !lastError.isEmpty()){
+            QMessageBox::information(this,tr("错误"),lastError);
+            return ;
+        }
+
+        QString tableName=index.data(TABLE_NAME_ROLE).toString();
+        QWMRotatableProxyModel * model=(QWMRotatableProxyModel*)_tbvData->model();
+        SX(sourceModel,model);
+        PX(proxyModel,model);
+
+        MDLTable * tableInfo=nodeTableInfo(index);
+        if(tableInfo->OneToOne()){//1:1的情况，默认选择首行
+            if(sourceModel->rowCount()>0){
+                return;
+            }
+        }
+        QSqlRecord record=model->record();
+        WELL->initRecord(record,_idWell,parentID);
+        bool success=model->insertRecord(-1,record);
+//        int count=sourceModel->rowCount();
+//        for(int i=0;i<count;i++){
+//            qDebug()<<i<<":"<<sourceModel->record(i).value(CFG(ID))<<",P:"<<sourceModel->record(i).value(CFG(ParentID));
+
+//        }
+//        int count2=model->columnCount();
+//        int count3=model->rowCount();
+//        model->setFilterFixedString(parentID);
+    }
+
+}
+
+void QWMDataEditor::removeRecord(const QModelIndex &index)
+{
+    if(index.data(CAT_ROLE)==QWMApplication::TABLE){
+        QWMRotatableProxyModel * model=(QWMRotatableProxyModel*)_tbvData->model();
+        SX(sourceModel,model);
+        PX(proxyModel,model);
+
+        model->removeRecord(index);
+    }
+
 }
 void QWMDataEditor::on_current_record_changed(const QModelIndex &current, const QModelIndex &previous){
     QWMRotatableProxyModel * model=static_cast<QWMRotatableProxyModel*>(_tbvData->model());
@@ -438,3 +513,51 @@ void QWMDataEditor::on_actionRotate_triggered(bool checked)
     //    model->endResetModel();
     //    showDataGrid(model);
 }
+
+void QWMDataEditor::on_actionNew_triggered()
+{
+    QItemSelectionModel * selectionModel= ui->trvTables->selectionModel();
+    if(selectionModel->currentIndex().isValid()){
+        QModelIndex index=selectionModel->currentIndex();
+        addRecord(index);
+    }
+}
+
+void QWMDataEditor::on_actionDelete_triggered()
+{
+    QItemSelectionModel * selectionModel=_tbvData->selectionModel();
+    if(!selectionModel->selectedIndexes().isEmpty()){
+        QModelIndex index=selectionModel->selectedIndexes().first();
+        removeRecord(index);
+    }
+}
+
+void QWMDataEditor::init_record_on_prime_insert(int row, QSqlRecord &record)
+{
+    if(record.indexOf(CFG(ParentID))>=0){
+        record.setValue(record.indexOf(CFG(ParentID)),_parentID);
+    }
+    if(record.indexOf(CFG(IDWell))>=0){
+        record.setValue(record.indexOf((CFG(IDWell))),_idWell);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

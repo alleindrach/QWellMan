@@ -59,13 +59,17 @@ bool WellDao::processWells(QWMTableModel * model)
     model->setVisibleFields(APP->wellDisplayList());
     return true;
 }
-bool WellDao::processTable(QWMTableModel *model)
+bool WellDao::processTable(QWMTableModel *sourceModel)
 {
+    sourceModel->select();
+
+    while(sourceModel->canFetchMore())
+        sourceModel->fetchMore();
     return true;
 }
 QWMRotatableProxyModel *WellDao::table(QString tablename)
 {
-    QString key=QString("tableForEdit.%1.%2").arg(tablename);
+    QString key=QString("table.%1").arg(tablename);
     CS(key,QWMRotatableProxyModel*);
 
 
@@ -96,6 +100,8 @@ QWMRotatableProxyModel *WellDao::table(QString tablename)
 
 QWMRotatableProxyModel *WellDao::tableForEdit(const QString tablename,const QString  IDWell,const  QString parentID)
 {
+    QString key=QString("tableForEdit.%1.%2.%3").arg(tablename).arg(IDWell).arg(parentID);
+    CS(key,QWMRotatableProxyModel*);
     QWMRotatableProxyModel * model=table(tablename);
     PX(proxyModel,model);
     SX(sourceModel,model);
@@ -120,7 +126,8 @@ QWMRotatableProxyModel *WellDao::tableForEdit(const QString tablename,const QStr
         proxyModel->setFilterKeyColumn(record.indexOf(CFG(IDWell)));
     }
     processTable(sourceModel);
-    return model;
+    CI(key,model);
+//    return model;
 }
 
 QSqlRecord WellDao::well(QString idWell)
