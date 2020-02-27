@@ -12,6 +12,14 @@
 #include "qwmdistinctvaluedelegate.h"
 #include "qwmheaderview.h"
 #include <QSettings>
+#define CLEAR_DELEGATES(w) \
+for(int i;i<w->model()->columnCount();i++){ \
+    w->setItemDelegateForColumn(i,nullptr);\
+}\
+for(int i;i<w->model()->rowCount();i++){\
+    w->setItemDelegateForRow(i,nullptr);\
+}
+
 QWMDataTableView::QWMDataTableView(QWidget *parent):QTableView(parent)
 {
     QWMHeaderView * vHeaderView= new QWMHeaderView(Qt::Vertical, this);
@@ -42,6 +50,7 @@ void QWMDataTableView::bindDelegate()
     SX(sourcemodel,this->model());
     DelegateSettor  func;
     int counter=0;
+    CLEAR_DELEGATES(this);
     if(model->mode()==QWMRotatableProxyModel::H){
         func =& QWMDataTableView::setItemDelegateForColumn;
         counter=model->columnCount();
@@ -59,6 +68,7 @@ void QWMDataTableView::bindDelegate()
                                                              );
         QString tableName=sourcemodel->tableName();
         fieldInfo=MDL->fieldInfo(tableName,fieldName);
+
         if(fieldInfo!=nullptr){
             if( fieldInfo->PhysicalType()==MDLDao::DateTime )
             {

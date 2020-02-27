@@ -119,14 +119,27 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
                     bool b=value.toBool();
                     return QVariant();
                 }else if(fieldInfo->PhysicalType()==MDLDao::DateTime){
-                    if(fieldInfo->LookupTyp()==MDLDao::Date){
-                        QDate date=value.toDate();
-                        return date;
-                    }else if(fieldInfo->LookupTyp()==MDLDao::Time){
-                        QTime time=value.toTime();
-                        return time;
-                    }else{
-                        return value.toDateTime();
+                    if(role==Qt::DisplayRole){
+                        if(fieldInfo->LookupTyp()==MDLDao::Date){
+                            QDate date=value.toDate();
+                            return date.toString("yyyy-MM-dd");
+                        }else if(fieldInfo->LookupTyp()==MDLDao::Time){
+                            QTime time=value.toTime();
+                            return time.toString("hh-mm-ss");;
+                        }else{
+                            return value.toDateTime().toString("yyyy-MM-dd hh:mm:ss");
+                        }
+                    }else
+                    {
+                        if(fieldInfo->LookupTyp()==MDLDao::Date){
+                            QDate date=value.toDate();
+                            return date;
+                        }else if(fieldInfo->LookupTyp()==MDLDao::Time){
+                            QTime time=value.toTime();
+                            return time;
+                        }else{
+                            return value.toDateTime();
+                        }
                     }
                 }
                 else{
