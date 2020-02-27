@@ -77,6 +77,7 @@ QWMDataEditor::QWMDataEditor(QString idWell,QString name,QWidget *parent) :
     connect(ui->trvTables,&QTreeView::clicked,this,&QWMDataEditor::on_trv_table_node_clicked);
     connect(ui->actionRedo,&QAction::triggered,this,&QWMDataEditor::redo);
     connect(ui->actionUndo,&QAction::triggered,this,&QWMDataEditor::undo);
+    connect(_tbvData,&QWMDataTableView::RecordCountChanged,this,&QWMDataEditor::on_data_record_changed);
     CHECK_UNDO_STATE
 }
 
@@ -314,6 +315,8 @@ QString QWMDataEditor::nodeParentID(const QModelIndex &index,QString &lastError)
 
 MDLTable *QWMDataEditor::nodeTableInfo(const QModelIndex &index)
 {
+    if(!index.isValid())
+        return nullptr;
     if(index.data(CAT_ROLE)==QWMApplication::TABLE){
         QString tableName=index.data(TABLE_NAME_ROLE).toString();
         QString parentTableName=MDL->parentTable(tableName);
@@ -439,7 +442,7 @@ void QWMDataEditor::addRecord(const QModelIndex &index)
         QString tableName=index.data(TABLE_NAME_ROLE).toString();
         QWMRotatableProxyModel * model=(QWMRotatableProxyModel*)_tbvData->model();
         SX(sourceModel,model);
-        PX(proxyModel,model);
+//        PX(proxyModel,model);
 
         MDLTable * tableInfo=nodeTableInfo(index);
         if(tableInfo->OneToOne()){//1:1的情况，默认选择首行
@@ -464,11 +467,8 @@ void QWMDataEditor::addRecord(const QModelIndex &index)
 
 void QWMDataEditor::removeRecord(const QModelIndex &index)
 {
-    if(index.data(CAT_ROLE)==QWMApplication::TABLE){
+    if(index.isValid()){
         QWMRotatableProxyModel * model=(QWMRotatableProxyModel*)_tbvData->model();
-        SX(sourceModel,model);
-        PX(proxyModel,model);
-
         model->removeRecord(index);
     }
 
@@ -504,11 +504,9 @@ void QWMDataEditor::on_actionRotate_triggered(bool checked)
     if(checked)
     {
         model->setMode(QWMRotatableProxyModel::V);
-
     }
     else{
         model->setMode(QWMRotatableProxyModel::H);
-
     }
     //    model->endResetModel();
     //    showDataGrid(model);
@@ -540,6 +538,29 @@ void QWMDataEditor::init_record_on_prime_insert(int row, QSqlRecord &record)
     if(record.indexOf(CFG(IDWell))>=0){
         record.setValue(record.indexOf((CFG(IDWell))),_idWell);
     }
+}
+
+void QWMDataEditor::on_data_record_changed(int oldCount, int newCount)
+{
+    MDLTable * tableInfo=nodeTableInfo(ui->trvTables->currentIndex());
+    if(tableInfo->OneToOne()){
+        if(newCount>0){
+            ui->actionNew->setEnabled(false);
+        }else
+        {
+            ui->actionNew->setEnabled(true);
+        }
+        ui->actionDelete->setEnabled(false);
+    }else{
+        if(newCount<=0){
+            ui->actionDelete->setEnabled(false);
+            ui->actionNew->setEnabled(true);
+        }else{
+            ui->actionDelete->setEnabled(true);
+            ui->actionNew->setEnabled(true);
+        }
+    }
+
 }
 
 

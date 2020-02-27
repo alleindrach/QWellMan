@@ -122,8 +122,8 @@ Qt::ItemFlags QWMSortFilterProxyModel::flags(const QModelIndex &index) const
 
     //    QModelIndex sourceIndex=mapToSource(index);
     if(groupTitle(index.column()).isNull()){
-        int col=realColumn(index.column());
-        QModelIndex realIndex=createIndex(index.row(),col);
+//        int col=realColumn(index.column());
+//        QModelIndex realIndex=createIndex(index.row(),col);
         return QExSortFilterProxyModel::flags(index);
     }else{
         return 0;

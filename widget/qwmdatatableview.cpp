@@ -14,11 +14,17 @@
 #include <QSettings>
 QWMDataTableView::QWMDataTableView(QWidget *parent):QTableView(parent)
 {
-    QWMHeaderView * headerView= new QWMHeaderView(Qt::Vertical, this);
-    setVerticalHeader(headerView);
-    disconnect(headerView, SIGNAL(sectionCountChanged(int,int)),0,0);
-    connect(headerView, SIGNAL(sectionCountChanged(int,int)),
-                this, SLOT(rowCountChanged(int,int)));
+    QWMHeaderView * vHeaderView= new QWMHeaderView(Qt::Vertical, this);
+    setVerticalHeader(vHeaderView);
+    disconnect(vHeaderView, SIGNAL(sectionCountChanged(int,int)),0,0);
+    connect(vHeaderView, SIGNAL(sectionCountChanged(int,int)),
+            this, SLOT(rowCountChanged(int,int)));
+
+    QWMHeaderView * hHeaderView= new QWMHeaderView(Qt::Horizontal, this);
+    setHorizontalHeader(hHeaderView);
+    disconnect(hHeaderView, SIGNAL(sectionCountChanged(int,int)),0,0);
+    connect(hHeaderView, SIGNAL(sectionCountChanged(int,int)),
+            this, SLOT(columnCountChanged(int,int)));
 }
 
 void QWMDataTableView::setModel(QAbstractItemModel *model)
@@ -152,8 +158,6 @@ void QWMDataTableView::on_mode_change(QWMRotatableProxyModel::Mode)
     QWMRotatableProxyModel * model=(QWMRotatableProxyModel*)this->model();
     PX(pmodel,this->model());
     SX(smodel,this->model());
-
-
     if(model->mode()==QWMRotatableProxyModel::H){
         for(int j=0;j<model->columnCount();j++){
             if(j<model->visibleFieldsCount()){
@@ -187,5 +191,22 @@ void QWMDataTableView::on_mode_change(QWMRotatableProxyModel::Mode)
 
 void QWMDataTableView::rowCountChanged(int oldCount, int newCount)
 {
-    return QTableView::rowCountChanged(oldCount,newCount);
+    QWMRotatableProxyModel * model=(QWMRotatableProxyModel *) this->verticalHeader()->model();
+    if(model!=nullptr){
+        if(model->mode()==QWMRotatableProxyModel::H){
+            emit this->RecordCountChanged(oldCount,newCount);
+        }
+    }
+    QTableView::rowCountChanged(oldCount,newCount);
+}
+
+void QWMDataTableView::columnCountChanged(int oldCount, int newCount)
+{
+    QWMRotatableProxyModel * model=(QWMRotatableProxyModel *) this->horizontalHeader()->model();
+    if(model!=nullptr){
+        if(model->mode()==QWMRotatableProxyModel::V){
+            emit this->RecordCountChanged(oldCount,newCount);
+        }
+    }
+    QTableView::columnCountChanged(oldCount,newCount);
 }

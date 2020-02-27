@@ -10,7 +10,7 @@ class QWMHeaderView : public QHeaderView
 public:
     explicit QWMHeaderView(Qt::Orientation orientation, QWidget *parent = nullptr);
     virtual ~QWMHeaderView();
-    void setModel(QAbstractItemModel *model) override;
+    virtual void setModel(QAbstractItemModel *model) override;
 protected  Q_SLOTS:
     void sectionsInserted(const QModelIndex &parent, int logicalFirst, int logicalLast);
 };

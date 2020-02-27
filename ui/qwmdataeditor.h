@@ -43,18 +43,15 @@ protected:
 public Q_SLOTS:
     void undo();
     void redo();
-private slots:
+private Q_SLOTS:
     void on_actionSaveExit_triggered();
-
     void on_trv_table_node_clicked(const QModelIndex &index);
-
     void on_actionRotate_triggered(bool checked);
-
     void on_current_record_changed(const QModelIndex &current, const QModelIndex &previous);
     void on_actionNew_triggered();
-
     void on_actionDelete_triggered();
     void init_record_on_prime_insert(int row, QSqlRecord &record);
+    void on_data_record_changed(int , int );
 private:
     Ui::QWMDataEditor *ui;
     QString _idWell;
