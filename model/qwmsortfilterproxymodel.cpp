@@ -88,11 +88,6 @@ bool QWMSortFilterProxyModel::insertRecord(int row, const QSqlRecord &record)
     QModelIndex sourceIndex=mapToSource(index);
     QWMRecordEditCommand * command=new QWMRecordEditCommand(model,record,QWMRecordEditCommand::insert);
     DOC->addUndoCommand(command);
-
-    //    bool success=model->insertRecord(row,record);
-    //    if(!success && model->lastError().isValid()){
-    //        qDebug()<<"QWMSortFilterProxyModel::insertRecord error:"<< model->lastError().text();
-    //    }
     return true;
 }
 

@@ -39,9 +39,9 @@ void QWMDataTableView::setModel(QAbstractItemModel *model)
 {
     QTableView::setModel(model);
     QWMRotatableProxyModel * rotateModel=(QWMRotatableProxyModel*)model;
-    disconnect(rotateModel,&QWMRotatableProxyModel::modeChange,0,0);
-    connect(rotateModel,&QWMRotatableProxyModel::modeChange,this,&QWMDataTableView::on_mode_change);
-
+    disconnect(rotateModel,&QWMRotatableProxyModel::modeChanged,0,0);
+    connect(rotateModel,&QWMRotatableProxyModel::modeChanged,this,&QWMDataTableView::on_mode_change);
+    connect(rotateModel,&QAbstractProxyModel::modelReset,this,&QWMDataTableView::on_mode_change);
 }
 
 void QWMDataTableView::bindDelegate()
@@ -164,7 +164,7 @@ void QWMDataTableView::on_header_clicked(int section)
     qDebug()<<"on_header_clicked["<<section<<"]";
 }
 
-void QWMDataTableView::on_mode_change(QWMRotatableProxyModel::Mode)
+void QWMDataTableView::on_mode_change()
 {
     QWMRotatableProxyModel * model=(QWMRotatableProxyModel*)this->model();
     PX(pmodel,this->model());

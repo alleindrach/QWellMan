@@ -362,14 +362,14 @@ void QWMRotatableProxyModel::setMode(QWMRotatableProxyModel::Mode m)
     P(model);
     model->setShowGroup(m==QWMRotatableProxyModel::V);
     endResetModel();
-    emit modeChange(m);
+    emit modeChanged();
 }
 
 void QWMRotatableProxyModel::reset()
 {
     beginResetModel();
     endResetModel();
-    emit modeChange(this->mode());
+    emit modeChanged();
 }
 
 QSqlError QWMRotatableProxyModel::lastError()
@@ -573,6 +573,7 @@ void QWMRotatableProxyModel::source_items_about_to_be_removed(const QModelIndex 
 
 void QWMRotatableProxyModel::source_items_removed(const QModelIndex &source_parent, int start, int end, Qt::Orientation orient)
 {
+    this->reset();
     //no mapping ,do nothing
 }
 

@@ -92,7 +92,7 @@ public  slots:
     void sourceReset();
 
 signals:
-    void  modeChange(Mode m);
+    void  modeChanged();
 
     //    void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>());
 

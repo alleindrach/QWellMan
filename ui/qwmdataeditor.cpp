@@ -575,14 +575,7 @@ void QWMDataEditor::addRecord(const QModelIndex &index)
         QSqlRecord record=model->record();
         WELL->initRecord(record,_idWell,parentID);
         bool success=model->insertRecord(-1,record);
-        //        int count=sourceModel->rowCount();
-        //        for(int i=0;i<count;i++){
-        //            qDebug()<<i<<":"<<sourceModel->record(i).value(CFG(ID))<<",P:"<<sourceModel->record(i).value(CFG(ParentID));
 
-        //        }
-        //        int count2=model->columnCount();
-        //        int count3=model->rowCount();
-        //        model->setFilterFixedString(parentID);
     }
 
 }

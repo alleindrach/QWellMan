@@ -28,7 +28,7 @@ protected slots:
     virtual void closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint)  override;
     virtual void commitData(QWidget *editor)   override;
     void on_header_clicked(int section);
-    void on_mode_change(QWMRotatableProxyModel::Mode);
+    void on_mode_change();
     void rowCountChanged(int oldCount, int newCount);
     void columnCountChanged(int oldCount, int newCount);
 signals:

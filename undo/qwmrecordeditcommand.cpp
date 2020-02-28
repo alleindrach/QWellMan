@@ -39,12 +39,6 @@ bool QWMRecordEditCommand::insertRecord()
             qDebug()<<"Insert Record Error:["<<_model->tableName()<<"],record["<<(_record.indexOf(CFG(ID))>=0?_record.value(CFG(ID)):_record.value(CFG(IDWell)))<<"]";
         }
     };
-//    success=_model->select();
-//    if(!success){
-//        if(_model->lastError().isValid()){
-//            qDebug()<<"Select Record Error:["<<_model->tableName()<<"],record["<<(_record.indexOf(CFG(ID))>=0?_record.value(CFG(ID)):_record.value(CFG(IDWell)))<<"]";
-//        }
-//    };
     return success;
 }
 
