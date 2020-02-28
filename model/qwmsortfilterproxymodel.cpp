@@ -143,6 +143,11 @@ QSqlRecord QWMSortFilterProxyModel::record(int row) const
     return model->record(srcIndex.row());
 }
 
+QSqlRecord QWMSortFilterProxyModel::record(QModelIndex index) const
+{
+    return record(index.row());
+}
+
 void QWMSortFilterProxyModel::setFilterFunction( std::function<bool (int, const QModelIndex &)>  acceptor)
 {
     _filterFunction=acceptor;

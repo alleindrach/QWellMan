@@ -20,6 +20,7 @@ public:
     bool removeRecord(int row);
     QSqlRecord record() const;
     QSqlRecord record(int ) const;
+    QSqlRecord record(QModelIndex) const;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
     void setFilterFunction( std::function<bool (int , const QModelIndex &)>  acceptor);
     bool submitAll() ;
@@ -53,6 +54,8 @@ private :
     bool _showGroup{false};
     QHash<QString,QStringList> _fieldGroup;
     QHash<int,QString > _groupIndex;
+
+friend class QWMMain;
 };
 
 #endif // QWMSORTFILTERPROXYMODEL_H

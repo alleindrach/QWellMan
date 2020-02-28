@@ -27,7 +27,7 @@
 #include "QSqlTableModel"
 #include "qwmtablemodel.h"
 #include "qwmsortfilterproxymodel.h"
-#include "qwmrotatableproxymodel.h"
+//#include "qwmrotatableproxymodel.h"
 #include "QTableView"
 #include "QUuid"
 #include <QEvent>
@@ -174,9 +174,9 @@ void QWMMain::loadAllWells()
 
     QAbstractItemModel * model= WELL->wells(QWMApplication::ALL);
     ui->tbvWells->setModel(model);
-    SX(tableModel,model);
+    SA(tableModel,model);
     tableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    showWellGrid(static_cast<QWMRotatableProxyModel*>(model));
+    showWellGrid(static_cast<QWMSortFilterProxyModel*>(model));
     //    connect(tableModel,&QSqlTableModel::primeInsert,this,&QWMMain::init_record_on_prime_insert);
 }
 
@@ -185,7 +185,7 @@ void QWMMain::loadFavoriateWells()
 
     QAbstractItemModel * model= WELL->wells(QWMApplication::FAVORITE);
     ui->tbvWells->setModel(model);
-    showWellGrid(static_cast<QWMRotatableProxyModel*>(model));
+    showWellGrid(static_cast<QWMSortFilterProxyModel*>(model));
 }
 
 void QWMMain::loadRecentWells()
@@ -193,7 +193,7 @@ void QWMMain::loadRecentWells()
 
     QAbstractItemModel * model= WELL->wells(QWMApplication::RECENT);
     ui->tbvWells->setModel(model);
-    showWellGrid(static_cast<QWMRotatableProxyModel*>(model));
+    showWellGrid(static_cast<QWMSortFilterProxyModel*>(model));
 }
 
 
@@ -222,20 +222,15 @@ void QWMMain::on_trvCatalogs_clicked(const QModelIndex &index)
     case QWMApplication::QUICK_QUERY:
         break;
     }
-    QWMRotatableProxyModel * model=static_cast<QWMRotatableProxyModel*>(ui->tbvWells->model());
-    if(model->mode()==QWMRotatableProxyModel::H){
-        ui->actionRotate->setChecked(false);
-    }else
-    {
-        ui->actionRotate->setChecked(true);
-    }
+    QWMSortFilterProxyModel * model=static_cast<QWMSortFilterProxyModel*>(ui->tbvWells->model());
+
 }
 
 void QWMMain::on_actionFavorite_triggered()
 {
 
     //    QSqlQueryModel* model= (QSqlQueryModel *)ui->tbvWells->model();
-    QWMRotatableProxyModel * model=static_cast<QWMRotatableProxyModel*>(ui->tbvWells->model());
+    QWMSortFilterProxyModel * model=static_cast<QWMSortFilterProxyModel*>(ui->tbvWells->model());
     QItemSelectionModel * selection=ui->tbvWells->selectionModel();
     switch(ui->trvCatalogs->currentIndex().data(CAT_ROLE).toInt()){
     case QWMApplication::ALL:
@@ -255,13 +250,8 @@ void QWMMain::on_actionFavorite_triggered()
 void QWMMain::resizeEvent(QResizeEvent *event)
 {
     //列宽随窗口大小改变而改变，每列平均分配，充满整个表，但是此时列宽不能拖动进行改变
-    QWMRotatableProxyModel * model=static_cast<QWMRotatableProxyModel *>( ui->tbvWells->model());
-    if(model->mode()==QWMRotatableProxyModel::H){
-        ui->tbvWells->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    }else
-    {
-        ui->tbvWells->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    }
+    QWMSortFilterProxyModel * model=static_cast<QWMSortFilterProxyModel *>( ui->tbvWells->model());
+    ui->tbvWells->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 void QWMMain::showStatus(QString status)
@@ -309,38 +299,20 @@ void QWMMain::editWell(QString idWell)
     WELL->addRecentWell(idwell);
 }
 
-void QWMMain::showWellGrid(QWMRotatableProxyModel * model)
+void QWMMain::showWellGrid(QWMSortFilterProxyModel * model)
 {
-
-    PX(pmodel,model);
-
-    if(model->mode()==QWMRotatableProxyModel::H){
-        for(int j=0;j<model->columnCount();j++){
-            if(j<model->visibleFieldsCount()){
-                ui->tbvWells->setColumnHidden(j,false);
-            }else
-            {
-                ui->tbvWells->setColumnHidden(j,true);
-            }
-        }
-        for(int i=0;i<model->rowCount();i++){
-            ui->tbvWells->setRowHidden(i,false);
-        }
-//        ui->tbvWells->setSelectionBehavior(QAbstractItemView::SelectRows);
-    }else{
-        for(int i=0;i<model->rowCount();i++){
-            if(i<model->visibleFieldsCount()){
-                ui->tbvWells->setRowHidden(i,false);
-            }else
-            {
-                ui->tbvWells->setRowHidden(i,true);
-            }
-        }
-        for(int j=0;j<model->columnCount();j++){
+    for(int j=0;j<model->columnCount();j++){
+        if(j<model->visibleFieldsCount()){
             ui->tbvWells->setColumnHidden(j,false);
+        }else
+        {
+            ui->tbvWells->setColumnHidden(j,true);
         }
-//        ui->tbvWells->setSelectionBehavior(QAbstractItemView::SelectColumns);
     }
+    for(int i=0;i<model->rowCount();i++){
+        ui->tbvWells->setRowHidden(i,false);
+    }
+    //        ui->tbvWells->setSelectionBehavior(QAbstractItemView::SelectRows);
     this->resize(this->size()+QSize(1,1));
 }
 
@@ -366,7 +338,7 @@ void QWMMain::on_tbvWells_entered(const QModelIndex &index)
 
 void QWMMain::on_actionUnFavorite_triggered()
 {
-    QWMRotatableProxyModel * model=static_cast<QWMRotatableProxyModel*>(ui->tbvWells->model());
+    QWMSortFilterProxyModel * model=static_cast<QWMSortFilterProxyModel*>(ui->tbvWells->model());
 
     QItemSelectionModel * selection=ui->tbvWells->selectionModel();
 
@@ -421,8 +393,8 @@ void QWMMain::on_actionListColumn_triggered()
 
 void QWMMain::on_well_view_header_fields_change()
 {
-    QWMRotatableProxyModel * model=static_cast<QWMRotatableProxyModel*>(ui->tbvWells->model());
-    SX(sourceModel,ui->tbvWells->model());
+    QWMSortFilterProxyModel * model=static_cast<QWMSortFilterProxyModel*>(ui->tbvWells->model());
+    SA(sourceModel,ui->tbvWells->model());
     model->beginResetModel();
     sourceModel->setVisibleFields(APP->wellDisplayList());
     model->endResetModel();
@@ -432,7 +404,7 @@ void QWMMain::on_well_view_header_fields_change()
 
 void QWMMain::on_actionEdit_triggered()
 {
-    QWMRotatableProxyModel * model=static_cast<QWMRotatableProxyModel*>(ui->tbvWells->model());
+    QWMSortFilterProxyModel * model=static_cast<QWMSortFilterProxyModel*>(ui->tbvWells->model());
     QItemSelectionModel * selection=ui->tbvWells->selectionModel();
     QModelIndex index=selection->selectedRows().first();
     if(index.isValid()){
@@ -452,9 +424,9 @@ void QWMMain::on_actionNew_triggered()
     switch(ui->trvCatalogs->currentIndex().data(CAT_ROLE).toInt()){
 
     case QWMApplication::ALL:
-        QWMRotatableProxyModel * model=static_cast<QWMRotatableProxyModel*>(ui->tbvWells->model());
-        PX(proxyModel,ui->tbvWells->model());
-        SX(tableModel,ui->tbvWells->model());
+        QWMSortFilterProxyModel * model=static_cast<QWMSortFilterProxyModel*>(ui->tbvWells->model());
+        PA(proxyModel,ui->tbvWells->model());
+        SA(tableModel,ui->tbvWells->model());
         QSqlRecord record=model->record();
         WELL->initRecord(record);
         bool success=model->insertRecordDirect(0,record);
@@ -494,8 +466,8 @@ void QWMMain::on_actionDelete_triggered()
     case QWMApplication::ALL:
     case QWMApplication::RECENT:
     case QWMApplication::FAVORITE:
-        PX(proxyModel,ui->tbvWells->model());
-        SX(sourceModel,ui->tbvWells->model());
+        PA(proxyModel,ui->tbvWells->model());
+        SA(sourceModel,ui->tbvWells->model());
         QItemSelectionModel* selection=ui->tbvWells->selectionModel();
         foreach(QModelIndex index,selection->selectedRows())
         {
@@ -510,14 +482,3 @@ void QWMMain::on_actionDelete_triggered()
     }
 }
 
-void QWMMain::on_actionRotate_triggered(bool checked)
-{
-    QWMRotatableProxyModel* model=static_cast<QWMRotatableProxyModel*>( ui->tbvWells->model());
-    model->beginResetModel();
-    if(checked)
-        model->setMode(QWMRotatableProxyModel::V);
-    else
-        model->setMode(QWMRotatableProxyModel::H);
-    model->endResetModel();
-    showWellGrid(model);
-}

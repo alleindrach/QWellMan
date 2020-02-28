@@ -7,7 +7,8 @@
 #include <QStandardItem>
 #include <QLabel>
 #include <QSortFilterProxyModel>
-#include "qwmrotatableproxymodel.h"
+#include <qwmsortfilterproxymodel.h>
+//#include "qwmrotatableproxymodel.h"
 #include "qwmdataeditor.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class QWMMain; }
@@ -34,7 +35,7 @@ protected:
     void setCurrentEditor(QWMDataEditor *);
 private:
     void editWell(QString idWell);
-    void showWellGrid(QWMRotatableProxyModel *  model);
+    void showWellGrid(QWMSortFilterProxyModel *  model);
     virtual bool eventFilter(QObject *watched, QEvent *event);
 private slots:
 
@@ -65,7 +66,6 @@ private slots:
 
     void on_actionDelete_triggered();
 
-    void on_actionRotate_triggered(bool checked);
     friend class QWMDataEditor;
 
 private:

@@ -105,6 +105,11 @@ if(q.lastError().isValid()) qDebug()<<" Query["<<q.lastQuery()<<"] Error["<<q.la
 #define PX(model,proxy) \
     QWMSortFilterProxyModel * model=static_cast<QWMSortFilterProxyModel *>(static_cast<QWMRotatableProxyModel *>(proxy)->sourceModel());
 
+#define SA(model,proxy) \
+    QWMTableModel * model=static_cast<QWMTableModel *>(static_cast<QWMSortFilterProxyModel *>(proxy)->sourceModel());
+#define PA(model,proxy) \
+    QWMSortFilterProxyModel * model=static_cast<QWMSortFilterProxyModel *>(proxy);
+
 #define INITFLD(record,fld,value) \
     if(!value.isNull()){ \
         int index=record.indexOf(fld); \

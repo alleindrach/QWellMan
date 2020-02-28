@@ -344,9 +344,8 @@ QAbstractItemModel*  WellDao::wells(int type)
             return !isvalid;
         }
     });
-    QWMRotatableProxyModel * rotateProxy=new QWMRotatableProxyModel(QWMRotatableProxyModel::H,proxy);
-    rotateProxy->setSourceModel(proxy);
-    CI(key,rotateProxy);
+
+    CI(key,proxy);
 }
 void WellDao::initRecord(QSqlRecord & record,QString idWell,QString parentID){
     //初始化记录
