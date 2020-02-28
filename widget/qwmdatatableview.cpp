@@ -42,25 +42,6 @@ void QWMDataTableView::setModel(QAbstractItemModel *model)
     disconnect(rotateModel,&QWMRotatableProxyModel::modeChange,0,0);
     connect(rotateModel,&QWMRotatableProxyModel::modeChange,this,&QWMDataTableView::on_mode_change);
 
-
-//    disconnect(model, SIGNAL(rowsInserted(QModelIndex,int,int)),0,0);
-//    disconnect(model, SIGNAL(columnsInserted(QModelIndex,int,int)),0,0);
-//    disconnect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)),0,0);
-//    disconnect(model, SIGNAL(columnsRemoved(QModelIndex,int,int)),0,0);
-
-//    QWMRotatableProxyModel * rmodel=qobject_cast<QWMRotatableProxyModel *>(model);
-//    rmodel->connect(model,&QAbstractItemModel::rowsInserted,rmodel,&QWMRotatableProxyModel::rowsInsertedAdaptor);
-//    rmodel->connect(model,&QAbstractItemModel::rowsRemoved,rmodel,&QWMRotatableProxyModel::rowsRemovedAdaptor);
-//    rmodel->connect(model,&QAbstractItemModel::columnsInserted,rmodel,&QWMRotatableProxyModel::columnsInsertedAdaptor);
-//    rmodel->connect(model,&QAbstractItemModel::columnsRemoved,rmodel,&QWMRotatableProxyModel::columnsRemovedAdaptor);
-
-//    connect(rmodel, &QWMRotatableProxyModel::rowsInserted,this,&QWMDataTableView::rowsInserted);
-//    disconnect(model, SIGNAL(columnsInserted(QModelIndex,int,int)),0,0);
-//    disconnect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)),0,0);
-//    disconnect(model, SIGNAL(columnsRemoved(QModelIndex,int,int)),0,0);
-
-
-
 }
 
 void QWMDataTableView::bindDelegate()

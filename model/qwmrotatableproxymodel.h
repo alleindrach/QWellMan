@@ -43,6 +43,7 @@ public:
     virtual void setSourceModel(QAbstractItemModel *sourceModel);
     Mode mode();
     void setMode(Mode m);
+    void reset();
     QSqlError  lastError() ;
     bool isDirty();
     void source_items_inserted(const QModelIndex &source_parent,
@@ -55,10 +56,10 @@ public:
                                Qt::Orientation orient, bool emit_signal = true);
 public  slots:
 //    void  on_source_model_data_changed(QModelIndex,QModelIndex,QVector<int>);
-    void rowsInsertedAdaptor(const QModelIndex &index, int start, int end);
-    void rowsRemovedAdaptor(const QModelIndex &index, int start, int end);
-    void columnsInsertedAdaptor(const QModelIndex &index, int start, int end);
-    void columnsRemovedAdaptor(const QModelIndex &index, int start, int end);
+//    void rowsInsertedAdaptor(const QModelIndex &index, int start, int end);
+//    void rowsRemovedAdaptor(const QModelIndex &index, int start, int end);
+//    void columnsInsertedAdaptor(const QModelIndex &index, int start, int end);
+//    void columnsRemovedAdaptor(const QModelIndex &index, int start, int end);
     void sourceHeaderDataChanged(Qt::Orientation orientation,int start, int end);
     void sourceDataChanged(const QModelIndex &source_top_left,const QModelIndex &source_bottom_right,
                            const QVector<int> &roles);

@@ -365,6 +365,13 @@ void QWMRotatableProxyModel::setMode(QWMRotatableProxyModel::Mode m)
     emit modeChange(m);
 }
 
+void QWMRotatableProxyModel::reset()
+{
+    beginResetModel();
+    endResetModel();
+    emit modeChange(this->mode());
+}
+
 QSqlError QWMRotatableProxyModel::lastError()
 {
     S(model);
@@ -391,6 +398,8 @@ void QWMRotatableProxyModel::source_items_inserted(const QModelIndex &source_par
         endInsertRows();
     else
         endInsertColumns();
+
+    this->reset();
 }
 
 //void QWMRotatableProxyModel::on_source_model_data_changed(QModelIndex  lefttop, QModelIndex rightbottom, QVector<int>roles)
@@ -400,45 +409,45 @@ void QWMRotatableProxyModel::source_items_inserted(const QModelIndex &source_par
 //    emit dataChanged(proxyLeftTop,proxyRightBottom,roles);
 //}
 
-void QWMRotatableProxyModel::rowsInsertedAdaptor(const QModelIndex &index, int start, int end)
-{
-    if(_mode==QWMRotatableProxyModel::H){
-        emit this->rowsInserted(index,start,end);
-    }else
-    {
-        emit this->columnsInserted(index,start,end);
-    }
-}
+//void QWMRotatableProxyModel::rowsInsertedAdaptor(const QModelIndex &index, int start, int end)
+//{
+//    if(_mode==QWMRotatableProxyModel::H){
+//        emit this->rowsInserted(index,start,end);
+//    }else
+//    {
+//        emit this->columnsInserted(index,start,end);
+//    }
+//}
 
-void QWMRotatableProxyModel::rowsRemovedAdaptor(const QModelIndex &index, int start, int end)
-{
-    if(_mode==QWMRotatableProxyModel::H){
-        emit this->rowsRemoved(index,start,end);
-    }else
-    {
-        emit this->columnsRemoved(index,start,end);
-    }
-}
+//void QWMRotatableProxyModel::rowsRemovedAdaptor(const QModelIndex &index, int start, int end)
+//{
+//    if(_mode==QWMRotatableProxyModel::H){
+//        emit this->rowsRemoved(index,start,end);
+//    }else
+//    {
+//        emit this->columnsRemoved(index,start,end);
+//    }
+//}
 
-void QWMRotatableProxyModel::columnsInsertedAdaptor(const QModelIndex &index, int start, int end)
-{
-    if(_mode==QWMRotatableProxyModel::H){
-        emit this->columnsInserted(index,start,end);
-    }else
-    {
-        emit this->rowsInserted(index,start,end);
-    }
-}
+//void QWMRotatableProxyModel::columnsInsertedAdaptor(const QModelIndex &index, int start, int end)
+//{
+//    if(_mode==QWMRotatableProxyModel::H){
+//        emit this->columnsInserted(index,start,end);
+//    }else
+//    {
+//        emit this->rowsInserted(index,start,end);
+//    }
+//}
 
-void QWMRotatableProxyModel::columnsRemovedAdaptor(const QModelIndex &index, int start, int end)
-{
-    if(_mode==QWMRotatableProxyModel::H){
-        emit this->columnsRemoved(index,start,end);
-    }else
-    {
-        emit this->rowsRemoved(index,start,end);
-    }
-}
+//void QWMRotatableProxyModel::columnsRemovedAdaptor(const QModelIndex &index, int start, int end)
+//{
+//    if(_mode==QWMRotatableProxyModel::H){
+//        emit this->columnsRemoved(index,start,end);
+//    }else
+//    {
+//        emit this->rowsRemoved(index,start,end);
+//    }
+//}
 
 struct QSortFilterProxyModelDataChanged
 {
