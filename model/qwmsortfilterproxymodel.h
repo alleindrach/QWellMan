@@ -28,6 +28,7 @@ public:
     int  visibleFieldsCount();
     bool isFieldVisible(const QString & field);
     const QString  groupTitle(const int col) const;
+    QString fieldName(QModelIndex  index);
     bool showGroup();
     void setShowGroup(bool );
     const int realColumn(const int col) const ;

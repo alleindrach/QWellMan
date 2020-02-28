@@ -1,6 +1,5 @@
 #ifndef MDLUNIT_H
 #define MDLUNIT_H
-
 #include <QObject>
 #include "record.h"
 #include "dto.h"

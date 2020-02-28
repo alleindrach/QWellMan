@@ -25,6 +25,8 @@
 #define CHECK_UNDO_STATE \
     ui->actionRedo->setEnabled(_undoStack.canRedo());\
     ui->actionUndo->setEnabled(_undoStack.canUndo());\
+    ui->actionSave->setEnabled(isCurrentTableDirty());\
+    ui->actionSaveAll->setEnabled(isDirty());
 
 template<typename Base, typename T>
 inline bool instanceof(const T *ptr) {
@@ -243,19 +245,68 @@ void QWMDataEditor::showDataGrid(QWMRotatableProxyModel *model)
     this->resize(this->size()+QSize(1,1));
 }
 
+QList<QWMRotatableProxyModel *> QWMDataEditor::dirtyTables(QModelIndex index)
+{
+    QList<QWMRotatableProxyModel *> result;
+    QAbstractItemModel * model=ui->trvTables->model();
+    QString parentID=index.data(PK_VALUE_ROLE).toString();
+    QString parentTableName=index.data(TABLE_NAME_ROLE).toString();
+    qDebug()<<"dirtyTables["<<index.row()<<","<<index.column()<<"]."<<parentTableName<<"."<<parentID;
+    if(!parentID.isNull()){
+        for(int i=0;i<model->rowCount(index);i++){
+            QModelIndex childIndex=index.child(i,0);
+            QString tableName=model->data(childIndex,TABLE_NAME_ROLE).toString();
+            if(tableName=="wvJobReportSupportVes"){
+                qDebug()<<"main.wvJobReportSupportVes";
+            }
+            int modelTypeId=QMetaType::type((QString(QWMRotatableProxyModel::staticMetaObject.className())+"*").toStdString().c_str());
+            QVariant value=model->data(childIndex,MODEL_ROLE);
+
+            qDebug()<<"\tdirtySub Tables["<<i<<"]."<<tableName<<"."<<parentID;
+
+            if(!value.isNull()){
+                QWMRotatableProxyModel * model=value.value<QWMRotatableProxyModel*>();//  WELL->tableForEdit(tableName,_idWell,parentID);
+                qDebug()<<"\t\tdirtySub Tables["<<i<<"].modeldirty."<<(model!=nullptr? QString(model->isDirty()):"null");
+                if(model!=nullptr && model->isDirty()){
+                    result<<model;
+                }
+            }
+            result<<dirtyTables(childIndex);
+        }
+    }
+    return result;
+}
+
 void QWMDataEditor::closeEvent(QCloseEvent *event)
 {
 
+    bool canceled=false;
+    if(isDirty()){
+        int result=QMessageBox::warning(this, tr("提示"),tr("是否保存之前已经修改过的数据？"),QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
+        if(result==QMessageBox::Yes){
+            QStringList errors;
+            bool success=this->saveAll(errors);
+            if(!success){
+                result=QMessageBox::warning(this, tr("提示"),tr("提交错误，关闭可能导致数据丢失，是否关闭?"),QMessageBox::Yes|QMessageBox::No);
+                if(result==QMessageBox::No){
+                    event->ignore();
+                    return;
+                }
+            }
+        }else if(result==QMessageBox::Cancel){
+            event->ignore();
+            return;
+        }
+    }
     QWMMain * main= static_cast<QWMMain *>(this->parent());
     main->show();
     main->setCurrentEditor(nullptr);
     event->accept();
 }
 
-
-void QWMDataEditor::on_actionSaveExit_triggered()
-{
+bool QWMDataEditor::saveAll(QStringList & errors){
     //    QHash<QWMTableModel*,int> updatedModels;
+    bool result=true;
     for(int i=0;i<_undoStack.count();i++){
         const QUndoCommand * cmd=_undoStack.command(i);
 
@@ -267,6 +318,8 @@ void QWMDataEditor::on_actionSaveExit_triggered()
                 bool success=model->submitAll();
                 if(!success){
                     qDebug()<<"Submit Statement:["+model->selectStatement()<<"],Error["<<model->lastError().text()<<"]";
+                    result=false;
+                    errors<<QString(tr("提交[%1] 字段修改，错误[%2]")).arg(model->tableName()).arg(model->lastError().text());
                 }
             }
         }else if(instanceof<QWMRecordEditCommand>(cmd)){
@@ -277,8 +330,52 @@ void QWMDataEditor::on_actionSaveExit_triggered()
                 bool success=model->submitAll();
                 if(!success){
                     qDebug()<<"Submit Statement:["+model->selectStatement()<<"],Error["<<model->lastError().text()<<"]";
+                    result=false;
+                    errors<<QString(tr("提交[%1] 记录增删 错误[%2]")).arg(model->tableName()).arg(model->lastError().text());
                 }
             }
+        }
+    }
+    CHECK_UNDO_STATE
+    return result;
+}
+
+bool QWMDataEditor::isDirty()
+{
+    for(int i=0;i<_undoStack.count();i++){
+        const QUndoCommand * cmd=_undoStack.command(i);
+
+        if(instanceof<QWMFieldEditCommand>(cmd)){
+            QWMFieldEditCommand* feCommand=(QWMFieldEditCommand*) cmd;
+            QWMTableModel * model=feCommand->model();
+            if(model->isDirty())
+            {
+                return true;
+            }
+        }else if(instanceof<QWMRecordEditCommand>(cmd)){
+            QWMRecordEditCommand* reCommand=(QWMRecordEditCommand*) cmd;
+            QWMTableModel * model=reCommand->model();
+            if(model->isDirty())
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool QWMDataEditor::isCurrentTableDirty()
+{
+    QWMRotatableProxyModel * model=(QWMRotatableProxyModel*)_tbvData->model();
+    return  model->isDirty();
+}
+void QWMDataEditor::on_actionSaveExit_triggered()
+{
+    QStringList errors;
+    if(!this->saveAll(errors)){
+        int result=QMessageBox::warning(this, tr("提示"),tr("提交错误，关闭可能导致数据丢失，是否关闭?"),QMessageBox::Yes|QMessageBox::No);
+        if(result==QMessageBox::No){
+            return ;
         }
     }
     this->close();
@@ -344,27 +441,34 @@ void QWMDataEditor::clearChildSelection(const QModelIndex &index)
     }
 }
 
-void QWMDataEditor::editTable(const QModelIndex &index)
+void QWMDataEditor::editTable(const QModelIndex &tableNodeIndex)
 {
     //1 如果当前的表和well是1：1的，且无记录，则必须生成一个新纪录
     //2 如果当前表有记录，且当前节点无选中历史，则 选中第一条记录 ，将当前记录的key保存 到treeview node的key_field中 。当前几点的RecordDes显示
     //3 如果当前表有父表，则必须父表的节点有选中记录，否则报警，如果当前的父表有选中记录，则将父表的id设置为当前表的parentid进行过滤 。
     //4 选中当前节点对应的表的其中一条记录后，子节点的所有选中记录清空
-    if(index.data(CAT_ROLE)==QWMApplication::TABLE){
+    if(tableNodeIndex.data(CAT_ROLE)==QWMApplication::TABLE){
         QString lastError;
-        QString parentID=nodeParentID(index,lastError);
+        QString parentID=nodeParentID(tableNodeIndex,lastError);
         if(parentID.isNull()&& !lastError.isEmpty()){
             QMessageBox::information(this,tr("错误"),lastError);
             return ;
         }
 
-        QString tableName=index.data(TABLE_NAME_ROLE).toString();
+        QString tableName=tableNodeIndex.data(TABLE_NAME_ROLE).toString();
         QWMRotatableProxyModel * model=WELL->tableForEdit(tableName,_idWell,parentID);
+        QVariant v=QVariant::fromValue(model);
+
+        if(tableName=="wvJobReportSupportVes")
+        {
+            qDebug()<<"editTable:["<<tableName<<"],index["<<tableNodeIndex.row()<<","<<tableNodeIndex.column()<<"]"<<v;
+        }
+        ui->trvTables->model()->setData(tableNodeIndex,v,MODEL_ROLE);
         SX(sourceModel,model);
         PX(proxyModel,model);
-//        sourceModel->select();
-//        while(sourceModel->canFetchMore())
-//            sourceModel->fetchMore();
+        //        sourceModel->select();
+        //        while(sourceModel->canFetchMore())
+        //            sourceModel->fetchMore();
         if(sourceModel->tableName()=="wvJobReport"){
             //qDebug()<<"error"<<proxyModel->filterRegExp();
             QModelIndex index =proxyModel->index(0,0,QModelIndex());
@@ -376,33 +480,36 @@ void QWMDataEditor::editTable(const QModelIndex &index)
         connect(_tbvData->selectionModel(),&QItemSelectionModel::currentRowChanged,this, &QWMDataEditor::on_current_record_changed);
         disconnect(_tbvData->selectionModel(),&QItemSelectionModel::currentColumnChanged,nullptr,nullptr);
         connect(_tbvData->selectionModel(),&QItemSelectionModel::currentColumnChanged,this, &QWMDataEditor::on_current_record_changed);
+        disconnect(_tbvData->selectionModel(),&QItemSelectionModel::currentChanged,nullptr,nullptr);
+        connect(_tbvData->selectionModel(),&QItemSelectionModel::currentChanged,this, &QWMDataEditor::on_current_record_changed);
+
         int sourceCount=sourceModel->rowCount();
         int proxyCount=proxyModel->rowCount();
         qDebug()<<"Table:"<<sourceModel->tableName()<<",Filter:"<<parentID<<",SourceCNT:"<<sourceCount<<",ProxyCNT:"<<proxyCount;
-        if(sourceModel->rowCount()>0){
-            QItemSelectionModel * selectModel=_tbvData->selectionModel();
-            QItemSelection prevSelect=selectModel->selection();
-            if(prevSelect.isEmpty()){
-                selectModel->select(model->index(0,0),QItemSelectionModel::SelectCurrent);
-                if(model->mode()==QWMRotatableProxyModel::H)
-                    emit selectModel->currentRowChanged(model->index(0,0), QModelIndex());
-                else
-                    emit selectModel->currentColumnChanged(model->index(0,0), QModelIndex());
-            }
-        }
-        MDLTable * tableInfo=nodeTableInfo(index);
-        if(tableInfo->OneToOne()){//1:1的情况，默认选择首行
-            if( (model->mode()==QWMRotatableProxyModel::H && model->rowCount()==0)||(model->mode()==QWMRotatableProxyModel::V && model->columnCount()==0)) {
-                //新建一条1：1的记录
+        MDLTable * tableInfo=nodeTableInfo(tableNodeIndex);
+        if(proxyModel->rowCount()>0){
+
+            //            if(!selectModel->hasSelection()){
+            //                selectModel->select(model->index(0,0),QItemSelectionModel::SelectCurrent);
+            //                QModelIndex xInd=ui->trvTables->selectionModel()->currentIndex();
+            //                ui->trvTables->model()->setData(tableNodeIndex,QPoint(0,0),SELECT_ROLE);
+            //                if(model->mode()==QWMRotatableProxyModel::H)
+            //                    emit selectModel->currentRowChanged(model->index(0,0), QModelIndex());
+            //                else
+            //                    emit selectModel->currentColumnChanged(model->index(0,0), QModelIndex());
+            //            }
+            ui->actionNew->setEnabled(true);
+            ui->actionDelete->setEnabled(true);
+        }else{
+            if(tableInfo->OneToOne()){//1:1的情况，默认选择首行
                 QSqlRecord record=model->record();
                 WELL->initRecord(record,_idWell,parentID);
                 model->insertRecord(0,record);
             }
-            ui->actionNew->setEnabled(false);
             ui->actionDelete->setEnabled(false);
-        }else
-        {
-            ui->actionNew->setEnabled(true);
+        }
+        if(tableInfo->OneToOne()){//1:1的情况
+            ui->actionNew->setEnabled(false);
             ui->actionDelete->setEnabled(false);
         }
         if(model->mode()==QWMRotatableProxyModel::H ){
@@ -411,14 +518,29 @@ void QWMDataEditor::editTable(const QModelIndex &index)
         {
             ui->actionRotate->setChecked(true);
         }
-
-        //        void currentRowChanged(const QModelIndex &current, const QModelIndex &previous);
-        //        void currentColumnChanged(const QModelIndex &current, const QModelIndex &previous);
+        QVariant  pos=tableNodeIndex.data(SELECT_ROLE);
+        if(tableNodeIndex.data(SELECT_ROLE).isNull()){
+            QItemSelectionModel * selection=_tbvData->selectionModel();
+            if(!selection->hasSelection()){
+                if(model->rowCount()*model->columnCount()>0){
+                    selection->setCurrentIndex(model->firstEditableCell(),QItemSelectionModel::SelectCurrent);
+                }
+            }
+        }else{
+            QPoint pos=tableNodeIndex.data(SELECT_ROLE).toPoint();
+            QItemSelectionModel * selection=_tbvData->selectionModel();
+            selection->setCurrentIndex(_tbvData->model()->index(pos.x(),pos.y()),QItemSelectionModel::SelectCurrent);
+        }
         showDataGrid(model);
         if(!sourceModel->isSignalConnected(QMetaMethod::fromSignal(&QWMTableModel::primeInsert))){
             connect(sourceModel,&QWMTableModel::primeInsert,this,&QWMDataEditor::init_record_on_prime_insert);
         }
-
+        if(model->isDirty()){
+            ui->actionSave->setEnabled(false);
+        }
+        if(this->isDirty()){
+            ui->actionSave->setEnabled(false);
+        }
     }
 }
 
@@ -442,7 +564,7 @@ void QWMDataEditor::addRecord(const QModelIndex &index)
         QString tableName=index.data(TABLE_NAME_ROLE).toString();
         QWMRotatableProxyModel * model=(QWMRotatableProxyModel*)_tbvData->model();
         SX(sourceModel,model);
-//        PX(proxyModel,model);
+        //        PX(proxyModel,model);
 
         MDLTable * tableInfo=nodeTableInfo(index);
         if(tableInfo->OneToOne()){//1:1的情况，默认选择首行
@@ -453,14 +575,14 @@ void QWMDataEditor::addRecord(const QModelIndex &index)
         QSqlRecord record=model->record();
         WELL->initRecord(record,_idWell,parentID);
         bool success=model->insertRecord(-1,record);
-//        int count=sourceModel->rowCount();
-//        for(int i=0;i<count;i++){
-//            qDebug()<<i<<":"<<sourceModel->record(i).value(CFG(ID))<<",P:"<<sourceModel->record(i).value(CFG(ParentID));
+        //        int count=sourceModel->rowCount();
+        //        for(int i=0;i<count;i++){
+        //            qDebug()<<i<<":"<<sourceModel->record(i).value(CFG(ID))<<",P:"<<sourceModel->record(i).value(CFG(ParentID));
 
-//        }
-//        int count2=model->columnCount();
-//        int count3=model->rowCount();
-//        model->setFilterFixedString(parentID);
+        //        }
+        //        int count2=model->columnCount();
+        //        int count3=model->rowCount();
+        //        model->setFilterFixedString(parentID);
     }
 
 }
@@ -473,13 +595,47 @@ void QWMDataEditor::removeRecord(const QModelIndex &index)
     }
 
 }
+bool QWMDataEditor::saveDirtTables(QModelIndex index,QStringList & errors){
+    //此处要获取已经脏了的数据库表，更新
+    if(!index.isValid())
+        return true;
+    QList<QWMRotatableProxyModel *> tablesDirt=dirtyTables(index);
+    bool result=true;
+    if(!tablesDirt.isEmpty()){
+
+        int result=QMessageBox::warning(this, tr("提示"),tr("是否保存之前已经修改过的数据？"),QMessageBox::Yes|QMessageBox::No);
+        if(result==QMessageBox::Yes){
+            foreach(QWMRotatableProxyModel* table,tablesDirt){
+                bool success=table->submitAll();
+                if(!success){
+                    result=false;
+                    SX(sourceTable,table);
+                    PX(proxyTable,table);
+                    if(table->lastError().isValid()){
+                        errors<<tr("表[")<<sourceTable->tableName()<<"] 提交异常["<<table->lastError().text()<<",IDWELL["<<_idWell<<",PARENTID["<<proxyTable->filterRegExp().pattern()<<"]";
+                    }else
+                    {
+                        errors<<tr("表[")<<sourceTable->tableName()<<"] 提交异常,IDWELL["<<_idWell<<",PARENTID["<<proxyTable->filterRegExp().pattern()<<"]";
+                    }
+                }
+            }
+        }
+    }
+    return result;
+}
 void QWMDataEditor::on_current_record_changed(const QModelIndex &current, const QModelIndex &previous){
     QWMRotatableProxyModel * model=static_cast<QWMRotatableProxyModel*>(_tbvData->model());
     SX(sourceModel,model);
+
     if((model->mode()==QWMRotatableProxyModel::H && current.row()!=previous.row()  && current.row()>=0 && model->rowCount()>0) ||
             (model->mode()==QWMRotatableProxyModel::V && current.column()!=previous.column() && current.column()>=0 && model->columnCount()>0)
             ){
-
+        if(previous.isValid()){
+            QStringList errors;
+            bool result=
+                    saveDirtTables(ui->trvTables->currentIndex(),errors);
+            clearChildSelection(ui->trvTables->currentIndex());
+        }
         QSqlRecord record=model->record(current);
         PK_VALUE(pk,record);
         QString tableName=sourceModel->tableName();
@@ -488,7 +644,10 @@ void QWMDataEditor::on_current_record_changed(const QModelIndex &current, const 
         QString dispText=QString("%1  [%2]").arg(tableInfo->CaptionLongP()).arg(des);
         ui->trvTables->model()->setData(ui->trvTables->currentIndex(),dispText,Qt::DisplayRole);
         ui->trvTables->model()->setData(ui->trvTables->currentIndex(),pk,PK_VALUE_ROLE);
-        clearChildSelection(ui->trvTables->currentIndex());
+        //        clearChildSelection(ui->trvTables->currentIndex());
+    }
+    if(ui->trvTables->currentIndex().isValid()){
+        ui->trvTables->model()->setData(ui->trvTables->currentIndex(),QPoint(current.row(),current.column()),SELECT_ROLE);
     }
 
 }
@@ -563,22 +722,32 @@ void QWMDataEditor::on_data_record_changed(int oldCount, int newCount)
 
 }
 
+void QWMDataEditor::on_actionSave_triggered()
+{
+    QWMRotatableProxyModel * model=qobject_cast<QWMRotatableProxyModel*>( _tbvData->model());
+    bool success=model->submitAll();
+    if(!success){
+        QString msg="";
+        if(model->lastError().isValid()){
+            msg=model->lastError().text();
+        }
+        QMessageBox::critical(this,tr("错误"),tr("提交错误[%1]").arg(msg));
+    }
+    CHECK_UNDO_STATE
+}
 
+void QWMDataEditor::on_actionExit_triggered()
+{
+    QCloseEvent *event=new QCloseEvent();
+    QApplication::postEvent(this,event);
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void QWMDataEditor::on_actionSaveAll_triggered()
+{
+    QStringList errors;
+    bool success=this->saveAll(errors);
+    if(!success){
+        QString msg=errors.join("\n");
+        QMessageBox::critical(this,tr("错误"),tr("提交错误[%1]").arg(msg));
+    }
+}

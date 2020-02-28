@@ -4,6 +4,7 @@
 #include <QSqlRecord>
 #include <QSqlError>
 #include <QItemSelection>
+#include "common.h"
 class QWMRotatableProxyModel : public QExSortFilterProxyModel
 {
     Q_OBJECT
@@ -31,6 +32,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     QString fieldName(QModelIndex  index);
     QString tableName();
+    QModelIndex firstEditableCell() ;
     bool showGroup();
     void setShowGroup(bool show);
     bool submitAll() ;
@@ -42,6 +44,7 @@ public:
     Mode mode();
     void setMode(Mode m);
     QSqlError  lastError() ;
+    bool isDirty();
 public  slots:
     void  on_source_model_data_changed(QModelIndex,QModelIndex,QVector<int>);
 signals:
@@ -60,5 +63,5 @@ private :
 private slots:
 
 };
-
+Q_DECLARE_METATYPE(QWMRotatableProxyModel*);
 #endif // QWMROTATEPROXYMODEL_H

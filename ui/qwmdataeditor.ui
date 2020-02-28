@@ -74,7 +74,7 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionSaveExit"/>
+    <addaction name="actionSave"/>
    </widget>
    <widget class="QMenu" name="menuTool">
     <property name="title">
@@ -109,7 +109,9 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionSaveExit"/>
+   <addaction name="actionExit"/>
+   <addaction name="actionSave"/>
+   <addaction name="actionSaveAll"/>
    <addaction name="separator"/>
    <addaction name="actionNew"/>
    <addaction name="actionDelete"/>
@@ -119,16 +121,16 @@
    <addaction name="actionUndo"/>
    <addaction name="actionRedo"/>
   </widget>
-  <action name="actionSaveExit">
+  <action name="actionSave">
    <property name="icon">
     <iconset resource="../resource/resource.qrc">
      <normaloff>:/images/icons/save.png</normaloff>:/images/icons/save.png</iconset>
    </property>
    <property name="text">
-    <string>Save&amp;Exit</string>
+    <string>&amp;Save</string>
    </property>
    <property name="toolTip">
-    <string>Save And Exit</string>
+    <string>Save Current Document</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -213,6 +215,30 @@
    </property>
    <property name="toolTip">
     <string>Rotate </string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="icon">
+    <iconset resource="../resource/resource.qrc">
+     <normaloff>:/images/icons/quit@2x.png</normaloff>:/images/icons/quit@2x.png</iconset>
+   </property>
+   <property name="text">
+    <string>Exit</string>
+   </property>
+   <property name="toolTip">
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionSaveAll">
+   <property name="icon">
+    <iconset resource="../resource/resource.qrc">
+     <normaloff>:/images/icons/saveAll.png</normaloff>:/images/icons/saveAll.png</iconset>
+   </property>
+   <property name="text">
+    <string>SaveAll</string>
+   </property>
+   <property name="toolTip">
+    <string>Save All</string>
    </property>
   </action>
  </widget>

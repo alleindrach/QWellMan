@@ -1,6 +1,5 @@
 #ifndef MDLTABLECHILDREN_H
 #define MDLTABLECHILDREN_H
-
 #include <QObject>
 #include "record.h"
 #include "dto.h"

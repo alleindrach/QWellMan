@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QSqlRecord>
 #include <QSqlQuery>
-#include  "dto.h"
+#include "dto.h"
 #include "QVariant"
 #include "QMetaType"
 #include "QMetaObject"

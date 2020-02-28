@@ -1,6 +1,5 @@
 #ifndef MDLTABLE_H
 #define MDLTABLE_H
-
 #include "record.h"
 #include "dto.h"
 class MDLTable:public Record

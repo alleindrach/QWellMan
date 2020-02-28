@@ -14,8 +14,10 @@
     private: \
        TYPE m_ ## NAME;
 
+
 #define DECLARE(x)  \
     Q_DECLARE_METATYPE(x)  \
     Q_DECLARE_METATYPE(x*) \
     Q_DECLARE_METATYPE(QList<x*>)
+
 #endif // DTO_H

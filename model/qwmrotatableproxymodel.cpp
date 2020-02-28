@@ -59,13 +59,13 @@ QSqlRecord QWMRotatableProxyModel::record(QModelIndex pos) const
 
 QVariant QWMRotatableProxyModel::data(const QModelIndex &item, int role) const
 {
-//    if(_mode==H){
-        return QExSortFilterProxyModel::data(item,role);
-//    }else
-//    {
-//        QModelIndex sourceIndex=mapToSource(item);
-//        return QExSortFilterProxyModel::data(sourceIndex,role);
-//    }
+    //    if(_mode==H){
+    return QExSortFilterProxyModel::data(item,role);
+    //    }else
+    //    {
+    //        QModelIndex sourceIndex=mapToSource(item);
+    //        return QExSortFilterProxyModel::data(sourceIndex,role);
+    //    }
 }
 QModelIndex QWMRotatableProxyModel::mapToSource(const QModelIndex &proxyIndex) const
 {
@@ -98,7 +98,7 @@ QModelIndex QWMRotatableProxyModel::mapFromSource(const QModelIndex &sourceIndex
 Qt::ItemFlags QWMRotatableProxyModel::flags(const QModelIndex &index) const
 {
     P(model);
-//    QModelIndex sourceIndex=mapToSource(index);
+    //    QModelIndex sourceIndex=mapToSource(index);
     return QExSortFilterProxyModel::flags(index);
 }
 
@@ -123,12 +123,12 @@ QItemSelection QWMRotatableProxyModel::mapSelectionFromSource(const QItemSelecti
 QModelIndex QWMRotatableProxyModel::index(int row, int column, const QModelIndex &parent) const
 {
 
-//    if(_mode==H){
-        return QExSortFilterProxyModel::index(row,column,parent);
-//    }else
-//    {
-//        return QExSortFilterProxyModel::index(column,row,parent);
-//    }
+    //    if(_mode==H){
+    return QExSortFilterProxyModel::index(row,column,parent);
+    //    }else
+    //    {
+    //        return QExSortFilterProxyModel::index(column,row,parent);
+    //    }
 
 }
 
@@ -150,7 +150,7 @@ int QWMRotatableProxyModel::rowCount(const QModelIndex &parent) const
     }else
     {
         int rowCount=model->columnCount(source_parent);
-//        qDebug()<<"row:"<<rowCount;
+        //        qDebug()<<"row:"<<rowCount;
         return rowCount;
     }
 }
@@ -165,12 +165,12 @@ int QWMRotatableProxyModel::columnCount(const QModelIndex &parent) const
     }else
     {
         if(sourceModel->tableName()=="wvJobReport"){
-//               qDebug()<<"error";
+            //               qDebug()<<"error";
             int i=0;
 
         }
         int columnCount=model->rowCount(source_parent);
-//        qDebug()<<"column:"<<columnCount;
+        //        qDebug()<<"column:"<<columnCount;
         return columnCount;
     }
 }
@@ -199,6 +199,29 @@ QString QWMRotatableProxyModel::tableName()
 {
     S(model);
     return model->tableName();
+}
+
+QModelIndex QWMRotatableProxyModel::firstEditableCell()
+{
+    P(model);
+    if(model->rowCount()<=0)
+        return  QModelIndex();
+    else{
+        int i=0;
+        QString fn=QString();
+        for(i=0;i<model->columnCount();i++){
+            fn= model->headerData(i,Qt::Horizontal,FIELD_ROLE).toString();
+            if(!fn.isNull())
+                break;
+            if(i>=model->columnCount())
+                break;
+        }
+        if(!fn.isNull()){
+            QModelIndex  index= mapFromSource( model->index(0,i));
+            return index;
+        }
+    }
+    return QModelIndex();
 }
 
 bool QWMRotatableProxyModel::showGroup()
@@ -271,6 +294,12 @@ QSqlError QWMRotatableProxyModel::lastError()
 {
     S(model);
     return  model->lastError();
+}
+
+bool QWMRotatableProxyModel::isDirty()
+{
+    S(model);
+    return model->isDirty();
 }
 
 void QWMRotatableProxyModel::on_source_model_data_changed(QModelIndex  lefttop, QModelIndex rightbottom, QVector<int>roles)

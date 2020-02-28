@@ -201,5 +201,8 @@
         <file>images/icons/data@4x.png</file>
         <file>images/icons/data@2x.png</file>
         <file>images/icons/data@1x.png</file>
+        <file>images/icons/quit@1x.png</file>
+        <file>images/icons/quit@2x.png</file>
+        <file>images/icons/quit@4x.png</file>
     </qresource>
 </RCC>

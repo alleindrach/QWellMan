@@ -31,7 +31,11 @@ public:
     void showUnitSetting(QString unit);
     void showReferenceDatum(QString datum);
     void showDataGrid(QWMRotatableProxyModel *  model);
-
+    QList<QWMRotatableProxyModel*> dirtyTables(QModelIndex index);
+    bool saveDirtTables(QModelIndex index,QStringList & errors);
+    bool saveAll(QStringList & errors);
+    bool isDirty();
+    bool isCurrentTableDirty();
 protected:
     virtual void closeEvent(QCloseEvent *event);
     QString nodeParentID(const QModelIndex &index,QString & lastError);
@@ -52,6 +56,12 @@ private Q_SLOTS:
     void on_actionDelete_triggered();
     void init_record_on_prime_insert(int row, QSqlRecord &record);
     void on_data_record_changed(int , int );
+    void on_actionSave_triggered();
+
+    void on_actionExit_triggered();
+
+    void on_actionSaveAll_triggered();
+
 private:
     Ui::QWMDataEditor *ui;
     QString _idWell;

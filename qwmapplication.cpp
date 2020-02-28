@@ -21,7 +21,7 @@ QWMApplication::QWMApplication(int &argc, char **argv):QApplication(argc,argv)
     REGISTER_ALL(MDLUnitType);
     REGISTER_ALL(MDLUnitTypeSet);
     REGISTER_ALL(MDLUnitConversion);
-
+    REGISTER(QWMRotatableProxyModel*);
 //    qRegisterMetaType<Record>("Record");
 //    qRegisterMetaType<MDLTable>("MDLTable");
     connect(this,&QWMApplication::shutdown,this,&QCoreApplication::exit,Qt::QueuedConnection);

@@ -36,6 +36,8 @@
 #define FIELD_ROLE (Qt::UserRole+120)
 #define TABLE_NAME_ROLE (Qt::UserRole+130)
 #define PK_VALUE_ROLE (Qt::UserRole+150)
+#define MODEL_ROLE  (Qt::UserRole+160)
+#define SELECT_ROLE (Qt::UserRole+170)
 #define BEGIN_SQL_DECLARATION(typ) \
     QHash<QString,QString> typ::_sql={
 

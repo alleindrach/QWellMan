@@ -122,8 +122,8 @@ Qt::ItemFlags QWMSortFilterProxyModel::flags(const QModelIndex &index) const
 
     //    QModelIndex sourceIndex=mapToSource(index);
     if(groupTitle(index.column()).isNull()){
-//        int col=realColumn(index.column());
-//        QModelIndex realIndex=createIndex(index.row(),col);
+        //        int col=realColumn(index.column());
+        //        QModelIndex realIndex=createIndex(index.row(),col);
         return QExSortFilterProxyModel::flags(index);
     }else{
         return 0;
@@ -249,6 +249,13 @@ const QString QWMSortFilterProxyModel::groupTitle(const int col) const
     return QString();
 }
 
+QString QWMSortFilterProxyModel::fieldName(QModelIndex index)
+{
+    S1(model);
+    QModelIndex  sourceIndex=mapToSource(index);
+    return model->fieldNameEx(sourceIndex.column());
+}
+
 void QWMSortFilterProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
 {
     QWMTableModel  * model=(QWMTableModel *) sourceModel;
@@ -337,16 +344,21 @@ QVariant QWMSortFilterProxyModel::data(const QModelIndex &index, int role) const
 bool QWMSortFilterProxyModel::setData(const QModelIndex &item, const QVariant &value, int role)
 {
     S1(model);
-    QModelIndex sourceIndex=mapToSource(item);
-    Modifier m;
-    m.col=sourceIndex.column();
-    m.row=sourceIndex.row();
-    m.newValue=value;
-    m.oldValue=model->data(sourceIndex,Qt::EditRole);
-    QList<Modifier> list;
-    list.append(m);
-    QWMFieldEditCommand * command=new QWMFieldEditCommand(model,list);
-    DOC->addUndoCommand(command);
+    if(role==Qt::EditRole){
+        QModelIndex sourceIndex=mapToSource(item);
+        Modifier m;
+        m.col=sourceIndex.column();
+        m.row=sourceIndex.row();
+        m.newValue=value;
+        m.oldValue=model->data(sourceIndex,Qt::EditRole);
+        QList<Modifier> list;
+        list.append(m);
+        QWMFieldEditCommand * command=new QWMFieldEditCommand(model,list);
+        DOC->addUndoCommand(command);
+    }else
+    {
+        return QExSortFilterProxyModel::setData(item,value,role);
+    }
     return true;
 
 }
