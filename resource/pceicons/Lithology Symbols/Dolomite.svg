@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill-rule="evenodd" height="0.125in" preserveAspectRatio="none" stroke-linecap="round" viewBox="0 0 16000 13038" width="0.153in">
+<style type="text/css">
+.brush0 { fill: rgb(255,255,255); }
+.pen0 { stroke: rgb(0,0,0); stroke-width: 1; stroke-linejoin: round; }
+.brush1 { fill: rgb(225,123,117); }
+.pen1 { stroke: none; }
+.brush2 { fill: none; }
+.pen2 { stroke: rgb(31,26,23); stroke-width: 104; stroke-linejoin: round; }
+</style>
+<g>
+<polygon class="pen1 brush1" points="68,60 15939,60 15939,12978 68,12978 68,60"/>
+<polyline class="pen2" fill="none" points="68,60 15939,60 15939,12978 68,12978 68,60"/>
+<polygon class="pen1 brush1" points="9954,6522 15908,6524 11972,12985 6028,12985 9954,6522"/>
+<polyline class="pen2" fill="none" points="9954,6522 15908,6524 11972,12985 6028,12985 9954,6522"/>
+<polygon class="pen1 brush1" points="5280,61 11247,60 7298,6524 92,6525 1386,6501 5280,61"/>
+<polyline class="pen2" fill="none" points="5280,61 11247,60 7298,6524 92,6525 1386,6501 5280,61"/>
+<polygon class="pen1 brush1" points="11240,61 15938,52 15945,643 15933,2127 12994,6509 7328,6509 11240,61"/>
+<polyline class="pen2" fill="none" points="11240,61 15938,52 15945,643 15933,2127 12994,6509 7328,6509 11240,61"/>
+<polygon class="pen1 brush1" points="4018,6523 9985,6524 6036,12986 92,12986 4018,6523"/>
+<polyline class="pen2" fill="none" points="4018,6523 9985,6524 6036,12986 92,12986 4018,6523"/>
+</g>
+</svg>

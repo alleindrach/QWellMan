@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill-rule="evenodd" height="0.168in" preserveAspectRatio="none" stroke-linecap="round" viewBox="0 0 5371 16000" width="0.056in">
+<style type="text/css">
+.brush0 { fill: rgb(255,255,255); }
+.pen0 { stroke: rgb(0,0,0); stroke-width: 1; stroke-linejoin: round; }
+.brush1 { fill: rgb(194,193,193); }
+.pen1 { stroke: none; }
+.brush2 { fill: rgb(202,202,201); }
+.brush3 { fill: rgb(212,211,211); }
+.brush4 { fill: rgb(222,222,221); }
+.brush5 { fill: rgb(233,233,233); }
+.brush6 { fill: rgb(244,244,243); }
+.brush7 { fill: rgb(251,251,251); }
+.brush8 { fill: rgb(246,246,246); }
+.brush9 { fill: rgb(242,242,242); }
+.brush10 { fill: rgb(237,237,237); }
+.brush11 { fill: rgb(232,232,231); }
+.brush12 { fill: rgb(228,228,228); }
+.brush13 { fill: rgb(223,223,223); }
+.brush14 { fill: rgb(218,218,217); }
+.brush15 { fill: rgb(214,214,213); }
+.brush16 { fill: rgb(210,209,209); }
+.brush17 { fill: rgb(206,205,205); }
+.brush18 { fill: none; }
+.pen2 { stroke: rgb(31,26,23); stroke-width: 95; stroke-linejoin: round; }
+</style>
+<g>
+<polygon class="pen1 brush1" points="48,15952 48,48 312,48 312,15952 48,15952"/>
+<polygon class="pen1 brush1" points="48,15952 48,48 575,48 575,15952 48,15952"/>
+<polygon class="pen1 brush2" points="312,15952 312,48 839,48 839,15952 312,15952"/>
+<polygon class="pen1 brush3" points="575,15952 575,48 1103,48 1103,15952 575,15952"/>
+<polygon class="pen1 brush4" points="839,15952 839,48 1367,48 1367,15952 839,15952"/>
+<polygon class="pen1 brush5" points="1103,15952 1103,48 1630,48 1630,15952 1103,15952"/>
+<polygon class="pen1 brush6" points="1367,15952 1367,48 1894,48 1894,15952 1367,15952"/>
+<polygon class="pen1 brush0" points="1630,15952 1630,48 2158,48 2158,15952 1630,15952"/>
+<polygon class="pen1 brush7" points="1894,15952 1894,48 2422,48 2422,15952 1894,15952"/>
+<polygon class="pen1 brush8" points="2158,15952 2158,48 2686,48 2686,15952 2158,15952"/>
+<polygon class="pen1 brush9" points="2422,15952 2422,48 2950,48 2950,15952 2422,15952"/>
+<polygon class="pen1 brush10" points="2686,15952 2686,48 3213,48 3213,15952 2686,15952"/>
+<polygon class="pen1 brush11" points="2950,15952 2950,48 3477,48 3477,15952 2950,15952"/>
+<polygon class="pen1 brush12" points="3213,15952 3213,48 3741,48 3741,15952 3213,15952"/>
+<polygon class="pen1 brush13" points="3477,15952 3477,48 4005,48 4005,15952 3477,15952"/>
+<polygon class="pen1 brush14" points="3741,15952 3741,48 4269,48 4269,15952 3741,15952"/>
+<polygon class="pen1 brush15" points="4005,15952 4005,48 4533,48 4533,15952 4005,15952"/>
+<polygon class="pen1 brush16" points="4269,15952 4269,48 4796,48 4796,15952 4269,15952"/>
+<polygon class="pen1 brush17" points="4533,15952 4533,48 5060,48 5060,15952 4533,15952"/>
+<polygon class="pen1 brush2" points="4796,15952 4796,48 5323,48 5323,15952 4796,15952"/>
+<polygon class="pen1 brush1" points="5060,15952 5060,48 5323,48 5323,15952 5060,15952"/>
+<polygon class="pen2 brush18" points="48,48 5323,48 5323,15952 48,15952 48,48"/>
+</g>
+</svg>

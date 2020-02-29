@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill-rule="evenodd" height="0.646in" preserveAspectRatio="none" stroke-linecap="round" viewBox="0 0 8147 16000" width="0.329in">
+<style type="text/css">
+.brush0 { fill: rgb(255,255,255); }
+.pen0 { stroke: rgb(0,0,0); stroke-width: 1; stroke-linejoin: round; }
+.brush1 { fill: rgb(191,162,98); }
+.pen1 { stroke: none; }
+.brush2 { fill: none; }
+.pen2 { stroke: rgb(191,162,98); stroke-width: 25; stroke-linejoin: round; }
+.brush3 { fill: rgb(31,26,23); }
+.pen3 { stroke: rgb(31,26,23); stroke-width: 25; stroke-linejoin: round; }
+</style>
+<g>
+<polygon class="pen1 brush1" points="12,12 8135,12 8135,15988 12,15988 12,12"/>
+<polyline class="pen2" fill="none" points="12,12 8135,12 8135,15988 12,15988 12,12"/>
+<polygon class="pen1 brush3" points="514,5437 4631,5437 4631,6009 514,6009 514,5437"/>
+<polyline class="pen3" fill="none" points="514,5437 4631,5437 4631,6009 514,6009 514,5437"/>
+<polygon class="pen1 brush3" points="3373,7382 7490,7382 7490,7953 3373,7953 3373,7382"/>
+<polyline class="pen3" fill="none" points="3373,7382 7490,7382 7490,7953 3373,7953 3373,7382"/>
+<polygon class="pen1 brush3" points="514,9326 4631,9326 4631,9898 514,9898 514,9326"/>
+<polyline class="pen3" fill="none" points="514,9326 4631,9326 4631,9898 514,9898 514,9326"/>
+<polygon class="pen1 brush3" points="3373,11270 7490,11270 7490,11842 3373,11842 3373,11270"/>
+<polyline class="pen3" fill="none" points="3373,11270 7490,11270 7490,11842 3373,11842 3373,11270"/>
+<polygon class="pen1 brush3" points="514,12871 4631,12871 4631,13443 514,13443 514,12871"/>
+<polyline class="pen3" fill="none" points="514,12871 4631,12871 4631,13443 514,13443 514,12871"/>
+<polygon class="pen1 brush3" points="3373,14815 7490,14815 7490,15387 3373,15387 3373,14815"/>
+<polyline class="pen3" fill="none" points="3373,14815 7490,14815 7490,15387 3373,15387 3373,14815"/>
+<polygon class="pen1 brush3" points="514,977 4631,977 4631,1549 514,1549 514,977"/>
+<polyline class="pen3" fill="none" points="514,977 4631,977 4631,1549 514,1549 514,977"/>
+<polygon class="pen1 brush3" points="3373,2921 7490,2921 7490,3493 3373,3493 3373,2921"/>
+<polyline class="pen3" fill="none" points="3373,2921 7490,2921 7490,3493 3373,3493 3373,2921"/>
+</g>
+</svg>

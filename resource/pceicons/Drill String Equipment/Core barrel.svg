@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill-rule="evenodd" height="0.291in" preserveAspectRatio="none" stroke-linecap="round" viewBox="0 0 8556 16000" width="0.156in">
+<style type="text/css">
+.brush0 { fill: rgb(255,255,255); }
+.pen0 { stroke: rgb(0,0,0); stroke-width: 1; stroke-linejoin: round; }
+.brush1 { fill: rgb(150,148,107); }
+.pen1 { stroke: none; }
+.brush2 { fill: rgb(162,161,120); }
+.brush3 { fill: rgb(177,176,138); }
+.brush4 { fill: rgb(195,194,161); }
+.brush5 { fill: rgb(209,209,179); }
+.brush6 { fill: rgb(232,232,217); }
+.brush7 { fill: rgb(249,249,245); }
+.brush8 { fill: rgb(239,238,228); }
+.brush9 { fill: rgb(230,229,213); }
+.brush10 { fill: rgb(220,219,196); }
+.brush11 { fill: rgb(202,202,170); }
+.brush12 { fill: rgb(190,189,154); }
+.brush13 { fill: rgb(182,181,144); }
+.brush14 { fill: rgb(175,174,136); }
+.brush15 { fill: rgb(168,167,128); }
+.brush16 { fill: none; }
+.pen2 { stroke: rgb(31,26,23); stroke-width: 110; stroke-linejoin: round; }
+.brush17 { fill: rgb(183,105,59); }
+.brush18 { fill: rgb(179,105,61); }
+.brush19 { fill: rgb(175,106,63); }
+.brush20 { fill: rgb(171,107,65); }
+.brush21 { fill: rgb(167,107,67); }
+.brush22 { fill: rgb(163,107,68); }
+.brush23 { fill: rgb(160,108,70); }
+.brush24 { fill: rgb(156,108,72); }
+.brush25 { fill: rgb(153,108,74); }
+.brush26 { fill: rgb(149,108,74); }
+.brush27 { fill: rgb(146,108,75); }
+.brush28 { fill: rgb(142,107,76); }
+.brush29 { fill: rgb(139,107,76); }
+.brush30 { fill: rgb(136,106,77); }
+.brush31 { fill: rgb(132,106,78); }
+.brush32 { fill: rgb(128,104,78); }
+.brush33 { fill: rgb(125,103,79); }
+.brush34 { fill: rgb(122,102,79); }
+.brush35 { fill: rgb(118,101,79); }
+.brush36 { fill: rgb(111,98,78); }
+.pen3 { stroke: rgb(31,26,23); stroke-width: 55; stroke-linejoin: round; }
+</style>
+<g>
+<polygon class="pen1 brush1" points="55,15352 55,648 477,648 477,15352 55,15352"/>
+<polygon class="pen1 brush1" points="55,15352 55,648 900,648 900,15352 55,15352"/>
+<polygon class="pen1 brush2" points="477,15352 477,648 1322,648 1322,15352 477,15352"/>
+<polygon class="pen1 brush3" points="900,15352 900,648 1744,648 1744,15352 900,15352"/>
+<polygon class="pen1 brush4" points="1322,15352 1322,648 2167,648 2167,15352 1322,15352"/>
+<polygon class="pen1 brush5" points="1744,15352 1744,648 2589,648 2589,15352 1744,15352"/>
+<polygon class="pen1 brush6" points="2167,15352 2167,648 3011,648 3011,15352 2167,15352"/>
+<polygon class="pen1 brush0" points="2589,15352 2589,648 3434,648 3434,15352 2589,15352"/>
+<polygon class="pen1 brush7" points="3011,15352 3011,648 3856,648 3856,15352 3011,15352"/>
+<polygon class="pen1 brush8" points="3434,15352 3434,648 4278,648 4278,15352 3434,15352"/>
+<polygon class="pen1 brush9" points="3856,15352 3856,648 4700,648 4700,15352 3856,15352"/>
+<polygon class="pen1 brush10" points="4278,15352 4278,648 5123,648 5123,15352 4278,15352"/>
+<polygon class="pen1 brush5" points="4700,15352 4700,648 5545,648 5545,15352 4700,15352"/>
+<polygon class="pen1 brush11" points="5123,15352 5123,648 5967,648 5967,15352 5123,15352"/>
+<polygon class="pen1 brush4" points="5545,15352 5545,648 6390,648 6390,15352 5545,15352"/>
+<polygon class="pen1 brush12" points="5967,15352 5967,648 6812,648 6812,15352 5967,15352"/>
+<polygon class="pen1 brush13" points="6390,15352 6390,648 7234,648 7234,15352 6390,15352"/>
+<polygon class="pen1 brush14" points="6812,15352 6812,648 7657,648 7657,15352 6812,15352"/>
+<polygon class="pen1 brush15" points="7234,15352 7234,648 8079,648 8079,15352 7234,15352"/>
+<polygon class="pen1 brush2" points="7657,15352 7657,648 8501,648 8501,15352 7657,15352"/>
+<polygon class="pen1 brush1" points="8079,15352 8079,648 8501,648 8501,15352 8079,15352"/>
+<polygon class="pen1 brush1" points="8501,15352 8501,648 8501,648 8501,15352 8501,15352"/>
+<polyline class="pen2" fill="none" points="55,648 8501,648 8501,15352 55,15352 55,648"/>
+<polygon class="pen1 brush1" points="49,15350 470,15350 470,15661 49,15350"/>
+<polygon class="pen1 brush1" points="49,15350 892,15350 892,15944 855,15944 49,15350"/>
+<polygon class="pen1 brush2" points="470,15661 470,15350 1313,15350 1313,15944 855,15944 470,15661"/>
+<polygon class="pen1 brush3" points="892,15944 892,15350 1734,15350 1734,15944 892,15944"/>
+<polygon class="pen1 brush4" points="1313,15944 1313,15350 2156,15350 2156,15944 1313,15944"/>
+<polygon class="pen1 brush5" points="1734,15944 1734,15350 2577,15350 2577,15944 1734,15944"/>
+<polygon class="pen1 brush6" points="2156,15944 2156,15350 2998,15350 2998,15944 2156,15944"/>
+<polygon class="pen1 brush0" points="2577,15944 2577,15350 3419,15350 3419,15944 2577,15944"/>
+<polygon class="pen1 brush7" points="2998,15944 2998,15350 3841,15350 3841,15944 2998,15944"/>
+<polygon class="pen1 brush8" points="3419,15944 3419,15350 4262,15350 4262,15944 3419,15944"/>
+<polygon class="pen1 brush9" points="3841,15944 3841,15350 4683,15350 4683,15945 3841,15944"/>
+<polygon class="pen1 brush10" points="4262,15944 4262,15350 5105,15350 5105,15945 4262,15944"/>
+<polygon class="pen1 brush5" points="4683,15945 4683,15350 5526,15350 5526,15945 4683,15945"/>
+<polygon class="pen1 brush11" points="5105,15945 5105,15350 5947,15350 5947,15945 5105,15945"/>
+<polygon class="pen1 brush4" points="5526,15945 5526,15350 6368,15350 6368,15945 5526,15945"/>
+<polygon class="pen1 brush12" points="5947,15945 5947,15350 6790,15350 6790,15945 5947,15945"/>
+<polygon class="pen1 brush13" points="6368,15945 6368,15350 7211,15350 7211,15945 6368,15945"/>
+<polygon class="pen1 brush14" points="6790,15945 6790,15350 7632,15350 7632,15945 6790,15945"/>
+<polygon class="pen1 brush15" points="7211,15945 7211,15350 8054,15350 8054,15764 7870,15945 7211,15945"/>
+<polygon class="pen1 brush2" points="7632,15945 7632,15350 8475,15350 7870,15945 7632,15945"/>
+<polygon class="pen1 brush1" points="8054,15764 8054,15350 8475,15350 8054,15764"/>
+<polyline class="pen2" fill="none" points="49,15350 8475,15350 7870,15945 855,15944 49,15350"/>
+<polygon class="pen1 brush1" points="470,339 470,650 49,650 470,339"/>
+<polygon class="pen1 brush1" points="892,56 892,650 49,650 855,56 892,56"/>
+<polygon class="pen1 brush2" points="470,650 470,339 855,56 1313,56 1313,650 470,650"/>
+<polygon class="pen1 brush3" points="892,650 892,56 1734,56 1734,650 892,650"/>
+<polygon class="pen1 brush4" points="1313,650 1313,56 2156,56 2156,650 1313,650"/>
+<polygon class="pen1 brush5" points="1734,650 1734,56 2577,56 2577,650 1734,650"/>
+<polygon class="pen1 brush6" points="2156,650 2156,56 2998,56 2998,650 2156,650"/>
+<polygon class="pen1 brush0" points="2577,650 2577,56 3419,56 3419,650 2577,650"/>
+<polygon class="pen1 brush7" points="2998,650 2998,56 3841,56 3841,650 2998,650"/>
+<polygon class="pen1 brush8" points="3419,650 3419,56 4262,55 4262,650 3419,650"/>
+<polygon class="pen1 brush9" points="3841,650 3841,56 4683,55 4683,650 3841,650"/>
+<polygon class="pen1 brush10" points="4262,650 4262,55 5105,55 5105,650 4262,650"/>
+<polygon class="pen1 brush5" points="4683,650 4683,55 5526,55 5526,650 4683,650"/>
+<polygon class="pen1 brush11" points="5105,650 5105,55 5947,55 5947,650 5105,650"/>
+<polygon class="pen1 brush4" points="5526,650 5526,55 6368,55 6368,650 5526,650"/>
+<polygon class="pen1 brush12" points="5947,650 5947,55 6790,55 6790,650 5947,650"/>
+<polygon class="pen1 brush13" points="6368,650 6368,55 7211,55 7211,650 6368,650"/>
+<polygon class="pen1 brush14" points="6790,650 6790,55 7632,55 7632,650 6790,650"/>
+<polygon class="pen1 brush15" points="7211,650 7211,55 7665,55 8054,340 8054,650 7211,650"/>
+<polygon class="pen1 brush2" points="7632,650 7632,55 7665,55 8475,650 7632,650"/>
+<polygon class="pen1 brush1" points="8054,650 8054,340 8475,650 8054,650"/>
+<polyline class="pen2" fill="none" points="49,650 8475,650 7665,55 855,56 49,650"/>
+<polygon class="pen1 brush17" points="1297,14889 1297,1171 1595,1171 1595,14889 1297,14889"/>
+<polygon class="pen1 brush17" points="1297,14889 1297,1171 1893,1171 1893,14889 1297,14889"/>
+<polygon class="pen1 brush18" points="1595,14889 1595,1171 2191,1171 2191,14889 1595,14889"/>
+<polygon class="pen1 brush19" points="1893,14889 1893,1171 2489,1171 2489,14889 1893,14889"/>
+<polygon class="pen1 brush20" points="2191,14889 2191,1171 2787,1171 2787,14889 2191,14889"/>
+<polygon class="pen1 brush21" points="2489,14889 2489,1171 3085,1171 3085,14889 2489,14889"/>
+<polygon class="pen1 brush22" points="2787,14889 2787,1171 3383,1171 3383,14889 2787,14889"/>
+<polygon class="pen1 brush23" points="3085,14889 3085,1171 3681,1171 3681,14889 3085,14889"/>
+<polygon class="pen1 brush24" points="3383,14889 3383,1171 3979,1171 3979,14889 3383,14889"/>
+<polygon class="pen1 brush25" points="3681,14889 3681,1171 4277,1171 4277,14889 3681,14889"/>
+<polygon class="pen1 brush26" points="3979,14889 3979,1171 4575,1171 4575,14889 3979,14889"/>
+<polygon class="pen1 brush27" points="4277,14889 4277,1171 4873,1171 4873,14889 4277,14889"/>
+<polygon class="pen1 brush28" points="4575,14889 4575,1171 5171,1171 5171,14889 4575,14889"/>
+<polygon class="pen1 brush29" points="4873,14889 4873,1171 5469,1171 5469,14889 4873,14889"/>
+<polygon class="pen1 brush30" points="5171,14889 5171,1171 5767,1171 5767,14889 5171,14889"/>
+<polygon class="pen1 brush31" points="5469,14889 5469,1171 6065,1171 6065,14889 5469,14889"/>
+<polygon class="pen1 brush32" points="5767,14889 5767,1171 6363,1171 6363,14889 5767,14889"/>
+<polygon class="pen1 brush33" points="6065,14889 6065,1171 6661,1171 6661,14889 6065,14889"/>
+<polygon class="pen1 brush34" points="6363,14889 6363,1171 6959,1171 6959,14889 6363,14889"/>
+<polygon class="pen1 brush35" points="6661,14889 6661,1171 7257,1171 7257,14889 6661,14889"/>
+<polygon class="pen1 brush36" points="6959,14889 6959,1171 7257,1171 7257,14889 6959,14889"/>
+<polyline class="pen3" fill="none" points="1297,1171 7257,1171 7257,14889 1297,14889 1297,1171"/>
+</g>
+</svg>

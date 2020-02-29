@@ -362,14 +362,14 @@ void QWMRotatableProxyModel::setMode(QWMRotatableProxyModel::Mode m)
     P(model);
     model->setShowGroup(m==QWMRotatableProxyModel::V);
     endResetModel();
-    emit modeChanged();
+//    emit modeChanged();
 }
 
 void QWMRotatableProxyModel::reset()
 {
     beginResetModel();
     endResetModel();
-    emit modeChanged();
+//    emit modeChanged();
 }
 
 QSqlError QWMRotatableProxyModel::lastError()

@@ -12,6 +12,7 @@
 #include "qwmdistinctvaluedelegate.h"
 #include "qwmheaderview.h"
 #include <QSettings>
+#include "qwmicondelegate.h"
 #define CLEAR_DELEGATES(w) \
 for(int i=0;i<w->model()->columnCount();i++){ \
     w->setItemDelegateForColumn(i,nullptr);\
@@ -89,6 +90,9 @@ void QWMDataTableView::bindDelegate()
             else if(fieldInfo->LookupTyp()==MDLDao::DBDistinctValues){
                 (this->*func)(i,new QWMDistinctValueDelegate(tableName,fieldName,this));
             }
+            else if(fieldInfo->LookupTyp()==MDLDao::Icon){
+                (this->*func)(i,new QWMIconDelegate(this));
+            }
         }
     }
 }
@@ -151,7 +155,41 @@ void QWMDataTableView::updateGeometries()
 
 void QWMDataTableView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint)
 {
-    return QTableView::closeEditor(editor,hint);
+
+//    Q_D(QWMDataTableView);
+    QWMRotatableProxyModel * model=qobject_cast<QWMRotatableProxyModel* >(this->model());
+    QWMRotatableProxyModel::Mode mode= model->mode();
+    QTableView::closeEditor(editor,hint);
+
+
+//       // The EndEditHint part
+//       QItemSelectionModel::SelectionFlags flags = QItemSelectionModel::NoUpdate;
+//       if (selectionMode() != NoSelection)
+//           flags = QItemSelectionModel::ClearAndSelect ;
+//       switch (hint) {
+//       case QAbstractItemDelegate::EditNextItem: {
+//           QModelIndex index =(mode==QWMRotatableProxyModel::H?  moveCursor(MoveNext, Qt::NoModifier): moveCursor(MoveDown, Qt::NoModifier));
+//           if (index.isValid()) {
+////               QPersistentModelIndex persistent(index);
+//               this->selectionModel()->setCurrentIndex(index, flags);
+//               // currentChanged signal would have already started editing
+//               if (index.flags() & Qt::ItemIsEditable
+//                   && (!(editTriggers() & QAbstractItemView::CurrentChanged)))
+//                   QAbstractItemView::edit(index);
+//           } break; }
+//       case QAbstractItemDelegate::EditPreviousItem: {
+//           QModelIndex index = (mode==QWMRotatableProxyModel::H?  moveCursor(MovePrevious, Qt::NoModifier): moveCursor(MoveUp, Qt::NoModifier))
+//           if (index.isValid()) {
+//               this->selectionModel()->setCurrentIndex(index, flags);
+//               // currentChanged signal would have already started editing
+//               if (index.flags() & Qt::ItemIsEditable
+//                   && (!(editTriggers() & QAbstractItemView::CurrentChanged)))
+//                   QAbstractItemView::edit(index);
+//           } break; }
+
+//       default:
+//           break;
+//       }
 }
 
 void QWMDataTableView::commitData(QWidget *editor)

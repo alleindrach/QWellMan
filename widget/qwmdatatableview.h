@@ -13,6 +13,7 @@ public:
     QRect visualRect(const QModelIndex &index) const override;
     QModelIndex indexAt(const QPoint &p) const override;
     virtual bool edit(const QModelIndex &index, EditTrigger trigger, QEvent *event) override;
+
 protected Q_SLOTS:
     virtual void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>()) override;
     virtual void rowsInserted(const QModelIndex &parent, int start, int end) override;

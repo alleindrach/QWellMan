@@ -39,9 +39,11 @@ SOURCES += \
     widget/delegate/comboboxdelegate.cpp \
     widget/delegate/qwmdatedelegate.cpp \
     widget/delegate/qwmdistinctvaluedelegate.cpp \
+    widget/delegate/qwmicondelegate.cpp \
     widget/delegate/qwmliblookupdelegate.cpp \
     widget/delegate/spinboxdelegate.cpp \
     widget/editor/qwmdatetimeeditor.cpp \
+    widget/editor/qwmiconselector.cpp \
     widget/editor/qwmlibselector.cpp \
     widget/editor/qwmlibtabselector.cpp \
     widget/qdlgwellfieldsselector.cpp \
@@ -73,9 +75,11 @@ HEADERS += \
     widget/delegate/comboboxdelegate.h \
     widget/delegate/qwmdatedelegate.h \
     widget/delegate/qwmdistinctvaluedelegate.h \
+    widget/delegate/qwmicondelegate.h \
     widget/delegate/qwmliblookupdelegate.h \
     widget/delegate/spinboxdelegate.h \
     widget/editor/qwmdatetimeeditor.h \
+    widget/editor/qwmiconselector.h \
     widget/editor/qwmlibselector.h \
     widget/editor/qwmlibtabselector.h \
     widget/qdlgwellfieldsselector.h \
@@ -86,6 +90,7 @@ FORMS += \
     qwmmain.ui \
     ui/qwmdataeditor.ui \
     widget/editor/qwmdatetimeeditor.ui \
+    widget/editor/qwmiconselector.ui \
     widget/editor/qwmlibselector.ui \
     widget/editor/qwmlibtabselector.ui \
     widget/qdlgwellfieldsselector.ui \
