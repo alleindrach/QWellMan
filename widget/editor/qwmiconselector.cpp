@@ -38,43 +38,50 @@ QWMIconSelector::QWMIconSelector(QWidget *parent) : QWidget(parent),ui(new Ui::Q
 
 bool QWMIconSelector::eventFilter(QObject *watched, QEvent *event)
 {
-    if(event->type()==QEvent::KeyPress){
-        QKeyEvent * keyEvent=(QKeyEvent*) event;
-        if(keyEvent->key()==Qt::Key_Escape){
-            emit this->rejected(this);
-            return true;
-        }
-    }
-    if(watched==ui->comboBox && event->type()==QEvent::KeyPress){
-        //        qDebug()<<"LineEdit:"<<event->type();
-        QKeyEvent * keyEvent=(QKeyEvent*) event;
-        if(keyEvent->key()==Qt::Key_Tab){
-            if(ui->comboBox->nextInFocusChain()!=nullptr)
-                ui->comboBox->nextInFocusChain()->setFocus();
-            return true;
-        }
-    }
-    if(watched==ui->listWidget && event->type()==QEvent::KeyPress ){
-        //        qDebug()<<"TableView:"<<event->type();
-        QKeyEvent * keyEvent=(QKeyEvent*) event;
-        if(keyEvent->key()==Qt::Key_Return){
-            emit this->accepted(this);
-            return true;
-        }
-        if(keyEvent->key()==Qt::Key_Tab){
-            if(ui->listWidget->nextInFocusChain()!=nullptr){
-                ui->listWidget->nextInFocusChain()->setFocus();
+    //    if(IS_KEY_EVENT(event)){
+    //        if(IS_KEY(event,Qt::Key_Escape)){
+    //            emit this->rejected(this);
+    //            return true;
+    //        }
+    //    }
+    if(IS_KEY_EVENT(event)){
+        if(IS_KEY(event,Qt::Key_Tab)||IS_KEY(event,Qt::Key_Backtab)){
+            if(watched==ui->comboBox)
+            {
+                ui->listWidget->setFocus();
+                event->accept();
                 return true;
             }
+            if(watched==ui->listWidget){
+                ui->comboBox->setFocus();
+                event->accept();
+                return true;
+            }
+            event->accept();
+            return true;
+        }
+        if(IS_KEY(event,Qt::Key_Return)||IS_KEY(event,Qt::Key_Enter)){
+            emit this->accepted(this);
+            event->accept();
+            return true;
+        }
+        if (KEY_MATCHED(event,QKeySequence::Cancel)) {
+            // don't commit data
+            emit this->rejected(this);
+            event->accept();
+            return true;
         }
     }
+
     return false;
-    //    return true;
 }
 
 void QWMIconSelector::focusInEvent(QFocusEvent *event)
 {
-    ui->comboBox->setFocus();
+    qDebug()<<"FocusInEvent:"<<event->reason();
+    if(event->reason()!=Qt::NoFocusReason){
+        ui->comboBox->setFocus();
+    }
 }
 
 void QWMIconSelector::on_btn_clicked()
@@ -115,21 +122,7 @@ void QWMIconSelector::on_item_click(const QModelIndex &)
     if(ui->listWidget->selectionModel()->hasSelection()&& ui->listWidget->selectionModel()->currentIndex().isValid()){
         QModelIndex index=ui->listWidget->selectionModel()->currentIndex();
         QFileInfo file=index.data(DATA_ROLE).value<QFileInfo>();
-        QGraphicsScene *scene = new QGraphicsScene;
-        QPixmap pixmap(file.absoluteFilePath());
-        QSize sp=pixmap.size();
-        QSize sv=ui->graphicsView->size();
-        float ratio=qMin((sv.width()-20)/sp.width(),(sv.height()-20)/sp.height());
-
-        QGraphicsPixmapItem* item=scene->addPixmap(pixmap.scaledToWidth(sv.width()) );
-        ui->graphicsView->setScene(scene);
-//        ui->graphicsView->scale(ratio,ratio);
-//        QSize size=ui->graphicsView->size();
-//        scene->setSceneRect(0,0,size.width(),size.height());
-//        item->setOffset(0,0);
-//        item->
-
-//        ui->graphicsView->scale()
+        showIcon(file);
     }
 
 }
@@ -209,5 +202,30 @@ void QWMIconSelector::on_comboBox_currentTextChanged(const QString &text)
             ui->listWidget->setCurrentRow(0);
             emit ui->listWidget->clicked(ui->listWidget->model()->index(0,0));
         }
+        ui->listWidget->setFocus();
     }
+}
+
+void QWMIconSelector::on_listWidget_itemChanged(QListWidgetItem *item)
+{
+
+}
+
+void QWMIconSelector::showIcon(QFileInfo file)
+{
+    QGraphicsScene *scene = new QGraphicsScene;
+    QPixmap pixmap(file.absoluteFilePath());
+    QSize sp=pixmap.size();
+    QSize sv=ui->graphicsView->size();
+    float ratio=qMin((sv.width()-20)/sp.width(),(sv.height()-20)/sp.height());
+
+    QGraphicsPixmapItem* item=scene->addPixmap(pixmap.scaledToWidth(sv.width()) );
+    ui->graphicsView->setScene(scene);
+}
+
+void QWMIconSelector::on_listWidget_itemSelectionChanged()
+{
+    QModelIndex index=ui->listWidget->currentIndex();
+    QFileInfo file=index.data(DATA_ROLE).value<QFileInfo>();
+    showIcon(file);
 }

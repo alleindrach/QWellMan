@@ -147,7 +147,7 @@ void QWMDateDelegate::updateEditorGeometry(QWidget *editor,
     if(m_mode==DATETIME){
         QWMDataTableView * view=(QWMDataTableView *)this->parent();
         QRect rect =view->geometry();
-        qDebug()<<"view:"<<rect;
+//        qDebug()<<"view:"<<rect;
         int widgetWidth=250;
         int widgetHeight=250;
         int margin=20;

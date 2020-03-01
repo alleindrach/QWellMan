@@ -136,4 +136,15 @@ while(x->metaObject()->className()!=tp::staticMetaObject.className() && x->paren
 if(x!=nullptr && x->metaObject()->className()==tp::staticMetaObject.className()){\
    tpx=(tp*) x; \
 }
+#define IS_KEY(event,keycode) \
+(((QKeyEvent*) event)->key()==(keycode))
+#define IS_EVENT(event ,typ) \
+(event->type()==typ)
+
+#define IS_KEY_EVENT(event ) \
+(event->type()==QEvent::KeyPress)
+
+#define KEY_MATCHED(event ,seq)\
+    (((QKeyEvent*) event)->matches(seq))
+
 #endif // COMMON_H

@@ -34,7 +34,7 @@ void ComboBoxDelegate::setEditorData(QWidget *editor, const QModelIndex &index) 
     QString value = index.model()->data(index, Qt::DisplayRole).toString();
     QVariant data = index.data(DATA_ROLE);
 
-    qDebug()<<"text="<<value<<",data="<<data;
+//    qDebug()<<"text="<<value<<",data="<<data;
 
     int idx = cb->findData(data);
     if (idx > -1 ) {

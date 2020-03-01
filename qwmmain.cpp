@@ -473,7 +473,7 @@ void QWMMain::on_actionDelete_triggered()
         {
             QString idWell=index.data(PK_ROLE).toString();
             int effectRows=WELL->deleteItem(idWell,idWell);
-            qDebug()<<"Delete:"<<idWell<<":"<<effectRows;
+//            qDebug()<<"Delete:"<<idWell<<":"<<effectRows;
             //            proxyModel->removeRow(index.row());
         }
         sourceModel->select();

@@ -114,7 +114,7 @@ bool QWMLibSelector::eventFilter(QObject *watched, QEvent *event)
         }
     }
     if(watched==ui->lineEdit && event->type()==QEvent::KeyPress){
-        qDebug()<<"LineEdit:"<<event->type();
+//        qDebug()<<"LineEdit:"<<event->type();
         QKeyEvent * keyEvent=(QKeyEvent*) event;
         if(keyEvent->key()==Qt::Key_Tab){
             if(ui->lineEdit->nextInFocusChain()!=nullptr)
@@ -123,7 +123,7 @@ bool QWMLibSelector::eventFilter(QObject *watched, QEvent *event)
         }
     }
     if(watched==ui->tableView && event->type()==QEvent::KeyPress ){
-        qDebug()<<"TableView:"<<event->type();
+//        qDebug()<<"TableView:"<<event->type();
         QKeyEvent * keyEvent=(QKeyEvent*) event;
         if(keyEvent->key()==Qt::Key_Return){
             emit this->accepted(this);
@@ -181,7 +181,7 @@ void QWMLibSelector::on_return_pressed()
 {
     QSortFilterProxyModel * proxyModel=(QSortFilterProxyModel*)ui->tableView->model();
     int qc=proxyModel->rowCount();
-    qDebug()<<"RowCount:"<<proxyModel->rowCount();
+//    qDebug()<<"RowCount:"<<proxyModel->rowCount();
     if(proxyModel->rowCount()>0){
         QModelIndex index=proxyModel->index(0,0);
         QItemSelectionModel * selectModel= ui->tableView->selectionModel();

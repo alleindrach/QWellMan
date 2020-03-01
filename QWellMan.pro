@@ -1,5 +1,5 @@
-QT       += core gui xml sql script
-
+QT       += core gui xml sql
+QT       += script
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
@@ -113,4 +113,9 @@ INCLUDEPATH += $$PWD/dao $$PWD/widget $$PWD/widget/delegate $$PWD/widget/editor 
 
 INCLUDEPATH += /Users/Allein/Qt/5.14.0/lib/QtCore.framework/Versions/5/Headers/5.14.0
 INCLUDEPATH += /Users/Allein/Qt/5.14.0/lib/QtCore.framework/Versions/5/Headers/5.14.0/QtCore
+INCLUDEPATH += /Users/Allein/Qt/5.14.0/lib/QtWidgets.framework/Versions/5/Headers/5.14.0/QtWidgets
+INCLUDEPATH += /Users/Allein/Qt/5.14.0//lib/QtWidgets.framework/Versions/5/Headers/5.14.0
+INCLUDEPATH += /Users/Allein/Qt/5.14.0//lib/QtGui.framework/Versions/5/Headers/5.14.0
+INCLUDEPATH += /Users/Allein/Qt/5.14.0//lib/QtGui.framework/Versions/5/Headers/5.14.0/QtGui
+#INCLUDEPATH += %{Qt:QT_INSTALL_PREFIX}/lib/QtWidgets.framework/Versions/5/Headers/5.14.0/QtWidgets
 DEFINES += QT_MESSAGELOGCONTEXT

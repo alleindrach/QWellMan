@@ -251,22 +251,22 @@ QList<QWMRotatableProxyModel *> QWMDataEditor::dirtyTables(QModelIndex index)
     QAbstractItemModel * model=ui->trvTables->model();
     QString parentID=index.data(PK_VALUE_ROLE).toString();
     QString parentTableName=index.data(TABLE_NAME_ROLE).toString();
-    qDebug()<<"dirtyTables["<<index.row()<<","<<index.column()<<"]."<<parentTableName<<"."<<parentID;
+//    qDebug()<<"dirtyTables["<<index.row()<<","<<index.column()<<"]."<<parentTableName<<"."<<parentID;
     if(!parentID.isNull()){
         for(int i=0;i<model->rowCount(index);i++){
             QModelIndex childIndex=index.child(i,0);
             QString tableName=model->data(childIndex,TABLE_NAME_ROLE).toString();
-            if(tableName=="wvJobReportSupportVes"){
-                qDebug()<<"main.wvJobReportSupportVes";
-            }
+//            if(tableName=="wvJobReportSupportVes"){
+//                qDebug()<<"main.wvJobReportSupportVes";
+//            }
             int modelTypeId=QMetaType::type((QString(QWMRotatableProxyModel::staticMetaObject.className())+"*").toStdString().c_str());
             QVariant value=model->data(childIndex,MODEL_ROLE);
 
-            qDebug()<<"\tdirtySub Tables["<<i<<"]."<<tableName<<"."<<parentID;
+//            qDebug()<<"\tdirtySub Tables["<<i<<"]."<<tableName<<"."<<parentID;
 
             if(!value.isNull()){
                 QWMRotatableProxyModel * model=value.value<QWMRotatableProxyModel*>();//  WELL->tableForEdit(tableName,_idWell,parentID);
-                qDebug()<<"\t\tdirtySub Tables["<<i<<"].modeldirty."<<(model!=nullptr? QString(model->isDirty()):"null");
+//                qDebug()<<"\t\tdirtySub Tables["<<i<<"].modeldirty."<<(model!=nullptr? QString(model->isDirty()):"null");
                 if(model!=nullptr && model->isDirty()){
                     result<<model;
                 }
@@ -459,10 +459,10 @@ void QWMDataEditor::editTable(const QModelIndex &tableNodeIndex)
         QWMRotatableProxyModel * model=WELL->tableForEdit(tableName,_idWell,parentID);
         QVariant v=QVariant::fromValue(model);
 
-        if(tableName=="wvJobReportSupportVes")
-        {
-            qDebug()<<"editTable:["<<tableName<<"],index["<<tableNodeIndex.row()<<","<<tableNodeIndex.column()<<"]"<<v;
-        }
+//        if(tableName=="wvJobReportSupportVes")
+//        {
+//            qDebug()<<"editTable:["<<tableName<<"],index["<<tableNodeIndex.row()<<","<<tableNodeIndex.column()<<"]"<<v;
+//        }
         ui->trvTables->model()->setData(tableNodeIndex,v,MODEL_ROLE);
         SX(sourceModel,model);
         PX(proxyModel,model);
@@ -485,7 +485,7 @@ void QWMDataEditor::editTable(const QModelIndex &tableNodeIndex)
 
         int sourceCount=sourceModel->rowCount();
         int proxyCount=proxyModel->rowCount();
-        qDebug()<<"Table:"<<sourceModel->tableName()<<",Filter:"<<parentID<<",SourceCNT:"<<sourceCount<<",ProxyCNT:"<<proxyCount;
+//        qDebug()<<"Table:"<<sourceModel->tableName()<<",Filter:"<<parentID<<",SourceCNT:"<<sourceCount<<",ProxyCNT:"<<proxyCount;
         MDLTable * tableInfo=nodeTableInfo(tableNodeIndex);
         if(proxyModel->rowCount()>0){
 

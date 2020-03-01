@@ -1,0 +1,1 @@
+/Users/allein/Qt/qt-everywhere-src-5.14.0/qtbase/src/widgets/wm/qrotatabletableview.h

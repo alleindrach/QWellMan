@@ -98,7 +98,7 @@ QStringList UDLDao::tableGroup(QString profile)
     CS(key,QStringList);
 
     bool isDefult=profile.compare(QString(DEFAULT_PROFILE),Qt::CaseInsensitive)==0;
-    qDebug()<<"Profile"<<isDefult<< endl<<flush;
+//    qDebug()<<"Profile"<<isDefult<< endl<<flush;
 
     if(profile.isNull()||profile.isEmpty()||isDefult){
         return MDL->tableGroup();
@@ -120,7 +120,7 @@ QList<MDLTable*> UDLDao::tablesOfGroup(QString group, QString profile)
 {
 
     bool isDefult=profile.compare(QString(DEFAULT_PROFILE),Qt::CaseInsensitive)==0;
-    qDebug()<<"Profile"<<isDefult;
+//    qDebug()<<"Profile"<<isDefult;
     if(profile.isNull()||profile.isEmpty()||isDefult){
         return MDL->tablesOfGroup(group);
     }else{

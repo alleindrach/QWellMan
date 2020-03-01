@@ -288,6 +288,7 @@ void QWMRotatableProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
     QWMSortFilterProxyModel  * thisModel=qobject_cast<QWMSortFilterProxyModel*>(sourceModel);
 
     beginResetModel();
+
     disconnect(prevModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),this,0);
     disconnect(prevModel, SIGNAL(headerDataChanged(Qt::Orientation,int,int)), this, 0);
     disconnect(prevModel, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)), this, 0);
@@ -309,6 +310,9 @@ void QWMRotatableProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
 
 
     QAbstractProxyModel::setSourceModel(sourceModel);
+
+//    P(proxyModel);
+//    proxyModel->setShowGroup(_mode);
 
     connect(thisModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
             this, SLOT(sourceDataChanged(QModelIndex,QModelIndex,QVector<int>)));
@@ -346,8 +350,7 @@ void QWMRotatableProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
     connect(thisModel, SIGNAL(modelReset()), this, SLOT(_q_sourceReset()));
     endResetModel();
 
-    P(proxyModel);
-    proxyModel->setShowGroup(_mode);
+
 }
 
 QWMRotatableProxyModel::Mode QWMRotatableProxyModel::mode()

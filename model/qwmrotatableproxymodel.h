@@ -8,9 +8,10 @@
 class QWMRotatableProxyModel : public QAbstractProxyModel
 {
     Q_OBJECT
-
+    Q_PROPERTY(Mode mode READ mode WRITE setMode)
+    Q_PROPERTY(int visibleFieldsCount READ visibleFieldsCount )
 public:
-    enum Mode{H,V};
+    enum Mode{H=Qt::Horizontal,V=Qt::Vertical};
     Q_ENUM(Mode);
     explicit QWMRotatableProxyModel(Mode mode=H,QObject *parent = nullptr);
 
@@ -55,11 +56,11 @@ public:
     void remove_source_items(  const QModelIndex &source_parent, int start, int end,
                                Qt::Orientation orient, bool emit_signal = true);
 public  slots:
-//    void  on_source_model_data_changed(QModelIndex,QModelIndex,QVector<int>);
-//    void rowsInsertedAdaptor(const QModelIndex &index, int start, int end);
-//    void rowsRemovedAdaptor(const QModelIndex &index, int start, int end);
-//    void columnsInsertedAdaptor(const QModelIndex &index, int start, int end);
-//    void columnsRemovedAdaptor(const QModelIndex &index, int start, int end);
+    //    void  on_source_model_data_changed(QModelIndex,QModelIndex,QVector<int>);
+    //    void rowsInsertedAdaptor(const QModelIndex &index, int start, int end);
+    //    void rowsRemovedAdaptor(const QModelIndex &index, int start, int end);
+    //    void columnsInsertedAdaptor(const QModelIndex &index, int start, int end);
+    //    void columnsRemovedAdaptor(const QModelIndex &index, int start, int end);
     void sourceHeaderDataChanged(Qt::Orientation orientation,int start, int end);
     void sourceDataChanged(const QModelIndex &source_top_left,const QModelIndex &source_bottom_right,
                            const QVector<int> &roles);
@@ -110,7 +111,7 @@ signals:
 
 
 protected:
-//    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
+    //    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
     //    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 
 private :

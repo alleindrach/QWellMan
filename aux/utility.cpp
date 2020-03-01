@@ -11,7 +11,7 @@ QString Utility::format(QString fmtstr,QVariant v){
     pos=pat.indexIn(fmtstr,0);
     if(pos>-1)
     {
-        qDebug()<<pat.capturedTexts();
+//        qDebug()<<pat.capturedTexts();
         int precisionAfterDot=pat.capturedTexts()[4].length()+pat.capturedTexts()[5].length();
         int precisionBeforeDot=pat.capturedTexts()[2].replace(",","").length()+(precisionAfterDot>0?1:0);
         int maxDigit=precisionAfterDot+precisionBeforeDot;

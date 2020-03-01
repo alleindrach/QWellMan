@@ -153,7 +153,7 @@ void QWMSortFilterProxyModel::setFilterFunction( std::function<bool (int, const 
 bool QWMSortFilterProxyModel::submitAll()
 {
     QWMTableModel *model=static_cast<QWMTableModel *>(this->sourceModel());
-    qDebug()<<" is dirt:"<<model->isDirty();
+//    qDebug()<<" is dirt:"<<model->isDirty();
 
     model->database().transaction();
     if(model->submitAll())

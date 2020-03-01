@@ -21,28 +21,9 @@ for(int i=0;i<w->model()->rowCount();i++){\
     w->setItemDelegateForRow(i,nullptr);\
 }
 
-QWMDataTableView::QWMDataTableView(QWidget *parent):QTableView(parent)
+QWMDataTableView::QWMDataTableView(QWidget *parent):QRotatableTableView(parent)
 {
-    QWMHeaderView * vHeaderView= new QWMHeaderView(Qt::Vertical, this);
-    setVerticalHeader(vHeaderView);
-    disconnect(vHeaderView, SIGNAL(sectionCountChanged(int,int)),0,0);
-    connect(vHeaderView, SIGNAL(sectionCountChanged(int,int)),
-            this, SLOT(rowCountChanged(int,int)));
 
-    QWMHeaderView * hHeaderView= new QWMHeaderView(Qt::Horizontal, this);
-    setHorizontalHeader(hHeaderView);
-    disconnect(hHeaderView, SIGNAL(sectionCountChanged(int,int)),0,0);
-    connect(hHeaderView, SIGNAL(sectionCountChanged(int,int)),
-            this, SLOT(columnCountChanged(int,int)));
-}
-
-void QWMDataTableView::setModel(QAbstractItemModel *model)
-{
-    QTableView::setModel(model);
-    QWMRotatableProxyModel * rotateModel=(QWMRotatableProxyModel*)model;
-    disconnect(rotateModel,&QWMRotatableProxyModel::modeChanged,0,0);
-    connect(rotateModel,&QWMRotatableProxyModel::modeChanged,this,&QWMDataTableView::on_mode_change);
-    connect(rotateModel,&QAbstractProxyModel::modelReset,this,&QWMDataTableView::on_mode_change);
 }
 
 void QWMDataTableView::bindDelegate()
@@ -56,11 +37,11 @@ void QWMDataTableView::bindDelegate()
     if(model->mode()==QWMRotatableProxyModel::H){
         func =& QWMDataTableView::setItemDelegateForColumn;
         counter=model->columnCount();
-        connect(this->horizontalHeader(),&QHeaderView::sectionDoubleClicked,this,&QWMDataTableView::on_header_clicked);
+//        connect(this->horizontalHeader(),&QHeaderView::sectionDoubleClicked,this,&QWMDataTableView::on_header_clicked);
     }else{
         func = & QWMDataTableView::setItemDelegateForRow;
         counter=model->rowCount();
-        connect(this->verticalHeader(),&QHeaderView::sectionDoubleClicked,this,&QWMDataTableView::on_header_clicked);
+//        connect(this->verticalHeader(),&QHeaderView::sectionDoubleClicked,this,&QWMDataTableView::on_header_clicked);
     }
     for(int i=0;i< counter;i++)
     {
@@ -97,112 +78,8 @@ void QWMDataTableView::bindDelegate()
     }
 }
 
-QRect QWMDataTableView::visualRect(const QModelIndex &index) const{
-    qDebug()<<"VisualRect:"<<index.row()<<","<<index.column();
-    return QTableView::visualRect(index);
-}
 
-QModelIndex QWMDataTableView::indexAt(const QPoint &pos) const
-{
-    return QTableView::indexAt(pos);
-}
-bool QWMDataTableView::edit(const QModelIndex &index, EditTrigger trigger, QEvent *event){
-    return QTableView::edit(index,trigger,event);
-}
-
-void QWMDataTableView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
-{
-    qDebug()<<"dataChanged:["<<topLeft.row()<<","<<topLeft.column()<<"]-["<<bottomRight.row()<<","<<bottomRight.column()<<"],R["<<roles<<"]";
-    return QTableView::dataChanged(topLeft,bottomRight,roles);
-}
-
-void QWMDataTableView::rowsInserted(const QModelIndex &parent, int start, int end)
-{
-    qDebug()<<"rowsInserted:"<<start<<","<<end;
-    return QTableView::rowsInserted(parent,start,end);
-}
-
-void QWMDataTableView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
-{
-    qDebug()<<"rowsAboutToBeRemoved:"<<start<<","<<end;
-    return QTableView::rowsAboutToBeRemoved(parent,start,end);
-}
-
-void QWMDataTableView::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
-{
-    return QTableView::selectionChanged(selected,deselected);
-}
-
-void QWMDataTableView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
-{
-    return QTableView::currentChanged(current,previous);
-}
-
-void QWMDataTableView::updateEditorData()
-{
-    return QTableView::updateEditorData();
-}
-
-void QWMDataTableView::updateEditorGeometries()
-{
-    return QTableView::updateEditorGeometries();
-}
-
-void QWMDataTableView::updateGeometries()
-{
-    return QTableView::updateGeometries();
-}
-
-void QWMDataTableView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint)
-{
-
-//    Q_D(QWMDataTableView);
-    QWMRotatableProxyModel * model=qobject_cast<QWMRotatableProxyModel* >(this->model());
-    QWMRotatableProxyModel::Mode mode= model->mode();
-    QTableView::closeEditor(editor,hint);
-
-
-//       // The EndEditHint part
-//       QItemSelectionModel::SelectionFlags flags = QItemSelectionModel::NoUpdate;
-//       if (selectionMode() != NoSelection)
-//           flags = QItemSelectionModel::ClearAndSelect ;
-//       switch (hint) {
-//       case QAbstractItemDelegate::EditNextItem: {
-//           QModelIndex index =(mode==QWMRotatableProxyModel::H?  moveCursor(MoveNext, Qt::NoModifier): moveCursor(MoveDown, Qt::NoModifier));
-//           if (index.isValid()) {
-////               QPersistentModelIndex persistent(index);
-//               this->selectionModel()->setCurrentIndex(index, flags);
-//               // currentChanged signal would have already started editing
-//               if (index.flags() & Qt::ItemIsEditable
-//                   && (!(editTriggers() & QAbstractItemView::CurrentChanged)))
-//                   QAbstractItemView::edit(index);
-//           } break; }
-//       case QAbstractItemDelegate::EditPreviousItem: {
-//           QModelIndex index = (mode==QWMRotatableProxyModel::H?  moveCursor(MovePrevious, Qt::NoModifier): moveCursor(MoveUp, Qt::NoModifier))
-//           if (index.isValid()) {
-//               this->selectionModel()->setCurrentIndex(index, flags);
-//               // currentChanged signal would have already started editing
-//               if (index.flags() & Qt::ItemIsEditable
-//                   && (!(editTriggers() & QAbstractItemView::CurrentChanged)))
-//                   QAbstractItemView::edit(index);
-//           } break; }
-
-//       default:
-//           break;
-//       }
-}
-
-void QWMDataTableView::commitData(QWidget *editor)
-{
-    return QTableView::commitData(editor);
-}
-
-void QWMDataTableView::on_header_clicked(int section)
-{
-    qDebug()<<"on_header_clicked["<<section<<"]";
-}
-
-void QWMDataTableView::on_mode_change()
+void QWMDataTableView::onModeChange()
 {
     QWMRotatableProxyModel * model=(QWMRotatableProxyModel*)this->model();
     PX(pmodel,this->model());
@@ -238,24 +115,8 @@ void QWMDataTableView::on_mode_change()
     this->resize(this->size()+QSize(1,1));
 }
 
-void QWMDataTableView::rowCountChanged(int oldCount, int newCount)
+void QWMDataTableView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint)
 {
-    QWMRotatableProxyModel * model=(QWMRotatableProxyModel *) this->verticalHeader()->model();
-    if(model!=nullptr){
-        if(model->mode()==QWMRotatableProxyModel::H){
-            emit this->RecordCountChanged(oldCount,newCount);
-        }
-    }
-    QTableView::rowCountChanged(oldCount,newCount);
+    return QRotatableTableView::closeEditor(editor,hint);
 }
 
-void QWMDataTableView::columnCountChanged(int oldCount, int newCount)
-{
-    QWMRotatableProxyModel * model=(QWMRotatableProxyModel *) this->horizontalHeader()->model();
-    if(model!=nullptr){
-        if(model->mode()==QWMRotatableProxyModel::V){
-            emit this->RecordCountChanged(oldCount,newCount);
-        }
-    }
-    QTableView::columnCountChanged(oldCount,newCount);
-}

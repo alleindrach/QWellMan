@@ -35,6 +35,6 @@ void QWMHeaderView::setModel(QAbstractItemModel *model)
 void QWMHeaderView::sectionsInserted(const QModelIndex &parent,
                                    int logicalFirst, int logicalLast)
 {
-    qDebug()<<"sectionsInserted:"<<logicalFirst<<","<<logicalLast;
+//    qDebug()<<"sectionsInserted:"<<logicalFirst<<","<<logicalLast;
     return QHeaderView::sectionsInserted(parent,logicalFirst,logicalLast);
 }

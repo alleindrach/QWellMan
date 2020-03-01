@@ -2739,9 +2739,9 @@ bool QExSortFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex
     bool result= d->filter_data.hasMatch(key);
     if(instanceof<QWMTableModel>(d->model)){
         QWMTableModel * m=(QWMTableModel *)d->model;
-        if(m->tableName()=="wvJobReportSupportVes"){
-            qDebug()<<"key:"<<key<<",reg:"<<d->filter_data.regExp().pattern()<<",result:"<<result;
-        }
+//        if(m->tableName()=="wvJobReportSupportVes"){
+//            qDebug()<<"key:"<<key<<",reg:"<<d->filter_data.regExp().pattern()<<",result:"<<result;
+//        }
     }
 
     return result;

@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QList>
 #include <QFileInfo>
+#include <QListWidgetItem>
 namespace Ui {
 class QWMIconSelector;
 }
@@ -31,10 +32,15 @@ private slots:
     void on_comboBox_currentTextChanged(const QString &arg1);
     void on_item_click(const QModelIndex &);
 
+    void on_listWidget_itemChanged(QListWidgetItem *item);
+
+    void on_listWidget_itemSelectionChanged();
+
 private:
     Ui::QWMIconSelector *ui;
     QList<QFileInfo> _files;
     QString  _defaultDir{QCoreApplication::applicationDirPath()+"/pceicons"};
+    void showIcon(QFileInfo );
 };
 
 #endif // QWMICONSELECTOR_H

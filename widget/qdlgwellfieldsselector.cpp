@@ -23,7 +23,7 @@ QDlgWellFieldsSelector::QDlgWellFieldsSelector(QStringList selected, QWidget *pa
     while(true){
         QString v=q.value(q.record().indexOf("KeyFld")).toString();
         QString c=q.value(q.record().indexOf("CaptionLong")).toString();
-        qDebug()<<"FLD:"<<v<<",c:"<<c<<",selected:"<<selected;
+//        qDebug()<<"FLD:"<<v<<",c:"<<c<<",selected:"<<selected;
         if(selected.contains(v,Qt::CaseInsensitive)){
             QListWidgetItem * item=new QListWidgetItem(c, ui->lvDisplayFields);
             item->setData(DATA_ROLE,q.value("KeyFld").toString());
@@ -56,7 +56,7 @@ void QDlgWellFieldsSelector::on_addBtn_clicked()
 
     foreach( QModelIndex item, selector->selection().indexes()){
         QString value=model->record(item.row()).value("KeyFld").toString();
-        qDebug()<<"item data|"<<value;
+//        qDebug()<<"item data|"<<value;
         if(!_selectedFields.contains(value,Qt::CaseInsensitive)){
             _selectedFields.append(value);
             QListWidgetItem * newItem=new QListWidgetItem(item.data(Qt::DisplayRole).toString(), ui->lvDisplayFields);
@@ -72,6 +72,6 @@ void QDlgWellFieldsSelector::on_delBtn_clicked()
     foreach( QModelIndex item, selector->selection().indexes()){
         _selectedFields.removeOne(item.data(DATA_ROLE).toString());
         ui->lvDisplayFields->model()->removeRow(item.row());
-        qDebug()<<" fields:"<<_selectedFields;
+//        qDebug()<<" fields:"<<_selectedFields;
     }
 }

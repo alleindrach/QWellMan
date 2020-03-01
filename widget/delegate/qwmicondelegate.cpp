@@ -1,6 +1,7 @@
 #include "qwmicondelegate.h"
 #include <QDebug>
 #include <QComboBox>
+#include <QKeyEvent>
 #include "common.h"
 #include "qwmiconselector.h"
 #include "qwmdatatableview.h"
@@ -19,7 +20,7 @@ QWidget *QWMIconDelegate::createEditor(QWidget *parent, const QStyleOptionViewIt
     QWMIconSelector *editor = new QWMIconSelector(parent);
     connect(editor,&QWMIconSelector::rejected,this,&QWMIconDelegate::justCloseEditor);
     connect(editor,&QWMIconSelector::accepted,this,&QWMIconDelegate::commitAndCloseEditor);
-
+//    editor->installEventFilter(this);
     return editor;
 }
 
@@ -29,7 +30,7 @@ void QWMIconDelegate::setEditorData(QWidget *editor, const QModelIndex &index) c
     QString value = index.model()->data(index, Qt::DisplayRole).toString();
     QVariant data = index.data(DATA_ROLE);
 
-    qDebug()<<"text="<<value<<",data="<<data;
+//    qDebug()<<"text="<<value<<",data="<<data;
 
     iconSelector->selectFile(value);
 
@@ -51,7 +52,7 @@ void QWMIconDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionVi
 
     QWMDataTableView * view=(QWMDataTableView *)this->parent();
     QRect rect =view->geometry();
-    qDebug()<<"view:"<<rect;
+//    qDebug()<<"view:"<<rect;
     int widgetWidth=350;//option.rect.width();
     int widgetHeight=350;
     int margin=0;
@@ -73,20 +74,51 @@ void QWMIconDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionVi
     }
     QPoint topleft(left, top);
     editor->setGeometry(QRect(topleft,QSize(widgetWidth,widgetHeight)));
-
 }
 void QWMIconDelegate::commitAndCloseEditor(QWMIconSelector * editor)
 {
-
+    editor->setFocus(Qt::NoFocusReason);
     emit commitData(editor);
-    emit closeEditor(editor);
-
+    emit closeEditor(editor,QAbstractItemDelegate::EditNextItem);
 }
 
 void QWMIconDelegate::justCloseEditor(QWMIconSelector * editor)
 {
-
-    emit closeEditor(editor);
-
+    editor->setFocus(Qt::NoFocusReason);
+    emit closeEditor(editor,QAbstractItemDelegate::RevertModelCache);
 }
+bool QWMIconDelegate::eventFilter(QObject *watched, QEvent *event) {
+//    qDebug()<<"eventFilter Event:W="<<watched->metaObject()->className()<<"/"<<watched->objectName()<<",E="<<event->type();
+//    if(event->type()==QEvent::KeyPress||event->type()==QEvent::KeyRelease){
+//        QKeyEvent *ke=static_cast<QKeyEvent*>(event);
+
+//        if(ke->key()==Qt::Key_Tab){
+//            qDebug()<<"\t KeyPressed:"<<ke->key();
+//            event->accept();
+//            return true;
+//        }
+//    }
+//    if(watched->metaObject()->className()==QWMIconSelector::staticMetaObject.className()){
+
+//        if(event->type()==QEvent::KeyPress){
+//            QKeyEvent *  keyEvent=(QKeyEvent*) event;
+//            qDebug()<<"Key:"<<keyEvent->key();
+//        }
+//    }
+//    if(event->type()==QEvent::FocusIn){
+//        qDebug()<<"FocusIN!";
+//    }
+//    if(event->type()==QEvent::FocusOut){
+//        qDebug()<<"FocusOut!"<<watched->metaObject()->className()<<","<<watched->objectName();
+//        event->ignore();
+//    }
+    return QStyledItemDelegate::eventFilter(watched,event);
+}
+
+bool QWMIconDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index)
+{
+    qDebug()<<"editorEvent:"<<event->type()<<",index["<<index.row()<<","<<index.column()<<"]";
+    return QStyledItemDelegate::editorEvent(event,model,option,index);
+}
+
 
