@@ -30,7 +30,7 @@ public:
     void showProfile(QString profile);
     void showUnitSetting(QString unit);
     void showReferenceDatum(QString datum);
-    void showDataGrid(QWMRotatableProxyModel *  model);
+//    void showDataGrid(QWMRotatableProxyModel *  model);
     QList<QWMRotatableProxyModel*> dirtyTables(QModelIndex index);
     bool saveDirtTables(QModelIndex index,QStringList & errors);
     bool saveAll(QStringList & errors);

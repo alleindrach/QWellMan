@@ -97,7 +97,6 @@ void QWMDataEditor::undo()
 
 void QWMDataEditor::addUndoCommand(QUndoCommand *command)
 {
-    //    bool x=instanceof<QWMFieldEditCommand>(command);
     _undoStack.push(command);
     CHECK_UNDO_STATE;
 
@@ -209,40 +208,6 @@ void QWMDataEditor::showUnitSetting(QString unit)
 void QWMDataEditor::showReferenceDatum(QString datum)
 {
     this->_lblReferenceDatum->setText(datum);
-}
-
-void QWMDataEditor::showDataGrid(QWMRotatableProxyModel *model)
-{
-
-    PX(pmodel,model);
-
-    if(model->mode()==QWMRotatableProxyModel::H){
-        for(int j=0;j<model->columnCount();j++){
-            if(j<model->visibleFieldsCount()){
-                _tbvData->setColumnHidden(j,false);
-            }else
-            {
-                _tbvData->setColumnHidden(j,true);
-            }
-        }
-        for(int i=0;i<model->rowCount();i++){
-            _tbvData->setRowHidden(i,false);
-        }
-    }else{
-        for(int i=0;i<model->rowCount();i++){
-            if(i<model->visibleFieldsCount()){
-                _tbvData->setRowHidden(i,false);
-            }else
-            {
-                _tbvData->setRowHidden(i,true);
-            }
-        }
-        for(int j=0;j<model->columnCount();j++){
-            _tbvData->setColumnHidden(j,false);
-        }
-    }
-    _tbvData->bindDelegate();
-    this->resize(this->size()+QSize(1,1));
 }
 
 QList<QWMRotatableProxyModel *> QWMDataEditor::dirtyTables(QModelIndex index)
@@ -459,16 +424,10 @@ void QWMDataEditor::editTable(const QModelIndex &tableNodeIndex)
         QWMRotatableProxyModel * model=WELL->tableForEdit(tableName,_idWell,parentID);
         QVariant v=QVariant::fromValue(model);
 
-//        if(tableName=="wvJobReportSupportVes")
-//        {
-//            qDebug()<<"editTable:["<<tableName<<"],index["<<tableNodeIndex.row()<<","<<tableNodeIndex.column()<<"]"<<v;
-//        }
         ui->trvTables->model()->setData(tableNodeIndex,v,MODEL_ROLE);
         SX(sourceModel,model);
         PX(proxyModel,model);
-        //        sourceModel->select();
-        //        while(sourceModel->canFetchMore())
-        //            sourceModel->fetchMore();
+
         if(sourceModel->tableName()=="wvJobReport"){
             //qDebug()<<"error"<<proxyModel->filterRegExp();
             QModelIndex index =proxyModel->index(0,0,QModelIndex());
@@ -476,7 +435,6 @@ void QWMDataEditor::editTable(const QModelIndex &tableNodeIndex)
 
 
         this->_tbvData->setModel(model);
-        model->reset();
         disconnect(_tbvData->selectionModel(),&QItemSelectionModel::currentRowChanged,nullptr,nullptr);
         connect(_tbvData->selectionModel(),&QItemSelectionModel::currentRowChanged,this, &QWMDataEditor::on_current_record_changed);
         disconnect(_tbvData->selectionModel(),&QItemSelectionModel::currentColumnChanged,nullptr,nullptr);
@@ -489,16 +447,6 @@ void QWMDataEditor::editTable(const QModelIndex &tableNodeIndex)
 //        qDebug()<<"Table:"<<sourceModel->tableName()<<",Filter:"<<parentID<<",SourceCNT:"<<sourceCount<<",ProxyCNT:"<<proxyCount;
         MDLTable * tableInfo=nodeTableInfo(tableNodeIndex);
         if(proxyModel->rowCount()>0){
-
-            //            if(!selectModel->hasSelection()){
-            //                selectModel->select(model->index(0,0),QItemSelectionModel::SelectCurrent);
-            //                QModelIndex xInd=ui->trvTables->selectionModel()->currentIndex();
-            //                ui->trvTables->model()->setData(tableNodeIndex,QPoint(0,0),SELECT_ROLE);
-            //                if(model->mode()==QWMRotatableProxyModel::H)
-            //                    emit selectModel->currentRowChanged(model->index(0,0), QModelIndex());
-            //                else
-            //                    emit selectModel->currentColumnChanged(model->index(0,0), QModelIndex());
-            //            }
             ui->actionNew->setEnabled(true);
             ui->actionDelete->setEnabled(true);
         }else{
@@ -532,7 +480,6 @@ void QWMDataEditor::editTable(const QModelIndex &tableNodeIndex)
             QItemSelectionModel * selection=_tbvData->selectionModel();
             selection->setCurrentIndex(_tbvData->model()->index(pos.x(),pos.y()),QItemSelectionModel::SelectCurrent);
         }
-        showDataGrid(model);
         if(!sourceModel->isSignalConnected(QMetaMethod::fromSignal(&QWMTableModel::primeInsert))){
             connect(sourceModel,&QWMTableModel::primeInsert,this,&QWMDataEditor::init_record_on_prime_insert);
         }

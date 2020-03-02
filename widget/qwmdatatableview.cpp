@@ -84,34 +84,34 @@ void QWMDataTableView::onModeChange()
     QWMRotatableProxyModel * model=(QWMRotatableProxyModel*)this->model();
     PX(pmodel,this->model());
     SX(smodel,this->model());
-    if(model->mode()==QWMRotatableProxyModel::H){
-        for(int j=0;j<model->columnCount();j++){
-            if(j<pmodel->columnCount()){
-                setColumnHidden(j,false);
-            }else
-            {
-                setColumnHidden(j,true);
-            }
-        }
-        for(int i=0;i<model->rowCount();i++){
-            setRowHidden(i,false);
-        }
-    }else{
-        int columns=model->rowCount();
-        int vis=pmodel->columnCount();
-        qDebug()<<"V:"<<",Total:"<<columns<<",Visible:"<<vis;
-        for(int i=0;i<model->rowCount();i++){
-            if(i<pmodel->columnCount()){
-                setRowHidden(i,false);
-            }else
-            {
-                setRowHidden(i,true);
-            }
-        }
-        for(int j=0;j<model->columnCount();j++){
-            setColumnHidden(j,false);
-        }
-    }
+//    if(model->mode()==QWMRotatableProxyModel::H){
+//        for(int j=0;j<model->columnCount();j++){
+//            if(j<pmodel->columnCount()){
+//                setColumnHidden(j,false);
+//            }else
+//            {
+//                setColumnHidden(j,true);
+//            }
+//        }
+//        for(int i=0;i<model->rowCount();i++){
+//            setRowHidden(i,false);
+//        }
+//    }else{
+//        int columns=model->rowCount();
+//        int vis=pmodel->columnCount();
+//        qDebug()<<"V:"<<",Total:"<<columns<<",Visible:"<<vis;
+//        for(int i=0;i<model->rowCount();i++){
+//            if(i<pmodel->columnCount()){
+//                setRowHidden(i,false);
+//            }else
+//            {
+//                setRowHidden(i,true);
+//            }
+//        }
+//        for(int j=0;j<model->columnCount();j++){
+//            setColumnHidden(j,false);
+//        }
+//    }
     QSettings settings;
     settings.setValue(QString(EDITOR_TABLE_ENTRY_PREFIX).arg(smodel->tableName()),model->mode());
     bindDelegate();
