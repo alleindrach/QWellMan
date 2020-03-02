@@ -22,6 +22,7 @@ SOURCES += \
     dao/udldao.cpp \
     dao/welldao.cpp \
     dto/mdlfield.cpp \
+    dto/mdlfieldlookup.cpp \
     dto/mdltable.cpp \
     dto/mdltablechildren.cpp \
     dto/mdlunit.cpp \
@@ -37,14 +38,17 @@ SOURCES += \
     undo/qwmfieldeditcommand.cpp \
     undo/qwmrecordeditcommand.cpp \
     widget/delegate/comboboxdelegate.cpp \
+    widget/delegate/qwmabstractdelegate.cpp \
     widget/delegate/qwmdatedelegate.cpp \
     widget/delegate/qwmdistinctvaluedelegate.cpp \
     widget/delegate/qwmicondelegate.cpp \
     widget/delegate/qwmliblookupdelegate.cpp \
     widget/delegate/spinboxdelegate.cpp \
+    widget/editor/qwmabstracteditor.cpp \
     widget/editor/qwmdatetimeeditor.cpp \
     widget/editor/qwmiconselector.cpp \
     widget/editor/qwmlibselector.cpp \
+    widget/editor/qwmlibsingleselector.cpp \
     widget/editor/qwmlibtabselector.cpp \
     widget/qdlgwellfieldsselector.cpp \
     widget/qwmdatatableview.cpp \
@@ -59,6 +63,7 @@ HEADERS += \
     dao/welldao.h \
     dto/dto.h \
     dto/mdlfield.h \
+    dto/mdlfieldlookup.h \
     dto/mdltable.h \
     dto/mdltablechildren.h \
     dto/mdlunit.h \
@@ -73,14 +78,17 @@ HEADERS += \
     undo/qwmfieldeditcommand.h \
     undo/qwmrecordeditcommand.h \
     widget/delegate/comboboxdelegate.h \
+    widget/delegate/qwmabstractdelegate.h \
     widget/delegate/qwmdatedelegate.h \
     widget/delegate/qwmdistinctvaluedelegate.h \
     widget/delegate/qwmicondelegate.h \
     widget/delegate/qwmliblookupdelegate.h \
     widget/delegate/spinboxdelegate.h \
+    widget/editor/qwmabstracteditor.h \
     widget/editor/qwmdatetimeeditor.h \
     widget/editor/qwmiconselector.h \
     widget/editor/qwmlibselector.h \
+    widget/editor/qwmlibsingleselector.h \
     widget/editor/qwmlibtabselector.h \
     widget/qdlgwellfieldsselector.h \
     widget/qwmdatatableview.h \
@@ -92,6 +100,7 @@ FORMS += \
     widget/editor/qwmdatetimeeditor.ui \
     widget/editor/qwmiconselector.ui \
     widget/editor/qwmlibselector.ui \
+    widget/editor/qwmlibsingleselector.ui \
     widget/editor/qwmlibtabselector.ui \
     widget/qdlgwellfieldsselector.ui \
 
@@ -119,3 +128,9 @@ INCLUDEPATH += /Users/Allein/Qt/5.14.0//lib/QtGui.framework/Versions/5/Headers/5
 INCLUDEPATH += /Users/Allein/Qt/5.14.0//lib/QtGui.framework/Versions/5/Headers/5.14.0/QtGui
 #INCLUDEPATH += %{Qt:QT_INSTALL_PREFIX}/lib/QtWidgets.framework/Versions/5/Headers/5.14.0/QtWidgets
 DEFINES += QT_MESSAGELOGCONTEXT
+
+CONFIG(debug, debug|release) {
+DEFINES +=  DEBUG
+} else {
+
+}

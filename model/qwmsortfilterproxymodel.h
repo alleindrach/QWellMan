@@ -34,6 +34,7 @@ public:
     void setShowGroup(bool );
     const int realColumn(const int col) const ;
     const int groupedColumn(const int col ) const;
+    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     virtual void setSourceModel(QAbstractItemModel *sourceModel) override;
     QSqlError  lastError() ;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;

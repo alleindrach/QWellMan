@@ -11,6 +11,7 @@
 #include "mdldao.h"
 #include "record.h"
 #include "mdltable.h"
+#include "mdlfieldlookup.h"
 QWMApplication::QWMApplication(int &argc, char **argv):QApplication(argc,argv)
 {
     REGISTER_ALL(Record);
@@ -21,6 +22,7 @@ QWMApplication::QWMApplication(int &argc, char **argv):QApplication(argc,argv)
     REGISTER_ALL(MDLUnitType);
     REGISTER_ALL(MDLUnitTypeSet);
     REGISTER_ALL(MDLUnitConversion);
+    REGISTER_ALL(MDLFieldLookup);
     REGISTER(QWMRotatableProxyModel*);
 //    qRegisterMetaType<Record>("Record");
 //    qRegisterMetaType<MDLTable>("MDLTable");

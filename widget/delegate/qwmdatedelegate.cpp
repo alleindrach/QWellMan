@@ -8,13 +8,13 @@
 #include <QDialogButtonBox>
 #include "qdebug.h"
 QWMDateDelegate::QWMDateDelegate(int mode,QString  format,QObject *parent) :
-    QItemDelegate(parent),m_mode(MODE(mode)),m_format(format)
+    QWMAbstractDelegate(parent),m_mode(MODE(mode)),m_format(format)
 {
 }
 
 QWidget *QWMDateDelegate::createEditor(QWidget *parent,
-                                       const QStyleOptionViewItem &/*option*/,
-                                       const QModelIndex &/*index*/) const
+                                       const QStyleOptionViewItem & option,
+                                       const QModelIndex & index) const
 {
     switch(m_mode){
     case DATE:
@@ -37,15 +37,13 @@ QWidget *QWMDateDelegate::createEditor(QWidget *parent,
         break;
     case DATETIME:
     {
-        //            QDateTimeEdit *editor = new QDateTimeEdit(parent);
-        //            editor->setDisplayFormat(m_format);
-        //            editor->setCalendarPopup(true);
-        //            editor->installEventFilter(const_cast<QWMDateDelegate*>(this));
-
         QWMDateTimeEditor *editor = new QWMDateTimeEditor(QDateTime::currentDateTime(), parent);
-
-        connect(editor,&QWMDateTimeEditor::rejected,this,&QWMDateDelegate::justCloseEditor);
+        editor->setModal(true);
+        connect(editor,&QWMDateTimeEditor::rejected,this,&QWMDateDelegate::closeEditorAndRevert);
         connect(editor,&QWMDateTimeEditor::accepted,this,&QWMDateDelegate::commitAndCloseEditor);
+        QWMRotatableProxyModel  *  model=(QWMRotatableProxyModel*)index.model();
+        QString title=  model->fieldTitle(index);
+        editor->setWindowTitle(title);
 
         return editor;
     }
@@ -81,9 +79,6 @@ void QWMDateDelegate::setEditorData(QWidget *editor,
         QDateTime date =  value.toDateTime();
         QWMDateTimeEditor *edit=static_cast<QWMDateTimeEditor*>(editor);
         edit->setDateTime(date);
-        //            QDateTime date =  value.toDateTime();
-        //            QDateTimeEdit *edit=static_cast<QDateTimeEdit*>(editor);
-        //            edit->setDateTime(date);
         break;
     }
     }
@@ -145,54 +140,29 @@ void QWMDateDelegate::updateEditorGeometry(QWidget *editor,
 {
 
     if(m_mode==DATETIME){
-        QWMDataTableView * view=(QWMDataTableView *)this->parent();
-        QRect rect =view->geometry();
-//        qDebug()<<"view:"<<rect;
-        int widgetWidth=250;
-        int widgetHeight=250;
-        int margin=20;
-        int left;
-        int top;
-        QWMRotatableProxyModel *  model= ( QWMRotatableProxyModel *)index.model();
-        if(option.rect.left()+widgetWidth+margin<  rect.width()){
-            left=option.rect.left();
-        }else{
-            left=rect.width()-widgetWidth-margin;
-        }
-        if(option.rect.top()+widgetHeight+margin<rect.height()){
-            top=option.rect.top()+margin;
-        }else
-        {
-            top=option.rect.top()-widgetHeight-margin;
-            if(top<0)
-                top=0;
-        }
-        if(model->mode()==QWMRotatableProxyModel::H){
-
-            QPoint topleft(left, top);
-            editor->setGeometry(QRect(topleft,QSize(250,250)));
-        }else
-        {
-            QPoint topleft(left,top);
-            editor->setGeometry(QRect(topleft,QSize(250,250)));
-        }
+        return QWMAbstractDelegate::updateEditorGeometry(editor,option,index);
     }else{
         editor->setGeometry(option.rect);
     }
 }
-void QWMDateDelegate::commitAndCloseEditor(QWMDateTimeEditor * editor)
-{
-    //    qDebug()<<"on_treeView_doubleClicked";
 
-    emit commitData(editor);
-    emit closeEditor(editor);
-}
-
-void QWMDateDelegate::justCloseEditor(QWMDateTimeEditor * editor)
+bool QWMDateDelegate::isEditor(QObject *widget)
 {
-    //    qDebug()<<"on_treeView_doubleClicked";
-    //    QDialogButtonBox *btn = qobject_cast<QDialogButtonBox *>(sender());
-    //    QWMDateTimeEditor *  editor=qobject_cast<QWMDateTimeEditor *>(btn->parent());
-    //    emit commitData(editor);
-    emit closeEditor(editor);
+    if(m_mode==DATE){
+        if(instanceof<QDateEdit>(widget))
+            return true;
+        else
+            return false;
+    }else if(m_mode==TIME){
+        if(instanceof<QTimeEdit>(widget))
+            return true;
+        else
+            return false;
+    }else if(m_mode==DATETIME){
+        if(instanceof<QWMDateTimeEditor>(widget))
+            return true;
+        else
+            return false;
+    }
+    return false;
 }

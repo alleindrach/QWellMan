@@ -86,7 +86,7 @@ void QWMDataTableView::onModeChange()
     SX(smodel,this->model());
     if(model->mode()==QWMRotatableProxyModel::H){
         for(int j=0;j<model->columnCount();j++){
-            if(j<model->visibleFieldsCount()){
+            if(j<pmodel->columnCount()){
                 setColumnHidden(j,false);
             }else
             {
@@ -97,8 +97,11 @@ void QWMDataTableView::onModeChange()
             setRowHidden(i,false);
         }
     }else{
+        int columns=model->rowCount();
+        int vis=pmodel->columnCount();
+        qDebug()<<"V:"<<",Total:"<<columns<<",Visible:"<<vis;
         for(int i=0;i<model->rowCount();i++){
-            if(i<model->visibleFieldsCount()){
+            if(i<pmodel->columnCount()){
                 setRowHidden(i,false);
             }else
             {

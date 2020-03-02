@@ -476,6 +476,7 @@ void QWMDataEditor::editTable(const QModelIndex &tableNodeIndex)
 
 
         this->_tbvData->setModel(model);
+        model->reset();
         disconnect(_tbvData->selectionModel(),&QItemSelectionModel::currentRowChanged,nullptr,nullptr);
         connect(_tbvData->selectionModel(),&QItemSelectionModel::currentRowChanged,this, &QWMDataEditor::on_current_record_changed);
         disconnect(_tbvData->selectionModel(),&QItemSelectionModel::currentColumnChanged,nullptr,nullptr);

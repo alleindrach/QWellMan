@@ -240,6 +240,17 @@ const int QWMSortFilterProxyModel::groupedColumn(const int col) const
     return gCol;
 }
 
+int QWMSortFilterProxyModel::columnCount(const QModelIndex &parent) const
+{
+    S1(model);
+    int cols=model->columnCount();
+    if(_showGroup){
+        cols+= _groupIndex.count();
+    }
+    qDebug()<<"QWMSortFilterProxyModel:"<<model->tableName()<<",columnCount="<<cols;
+    return cols;
+}
+
 const QString QWMSortFilterProxyModel::groupTitle(const int col) const
 {
     if(_showGroup){

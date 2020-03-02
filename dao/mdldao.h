@@ -7,6 +7,7 @@
 #include "mdltable.h"
 #include "mdlfield.h"
 #include "mdlunit.h"
+#include "mdlfieldlookup.h"
 class MDLDao : public QObject
 {
     Q_OBJECT
@@ -44,6 +45,8 @@ public:
     QString idField(QString table);
     QStringList fieldGroup(QString table);
     QStringList fieldOfGroup(QString table,QString field);
+    QList<MDLFieldLookup *> fieldLookupinfo(QString table,QString field);
+    QString filedCapl(QString table,QString field);
 signals:
 private:
     QSqlDatabase  _db;

@@ -31,8 +31,8 @@ QVariant QWMTableModel::headerData(int section, Qt::Orientation orientation, int
                 if(fieldInfo->Calculated())
                 {
 
-                }else{
-
+                }else if(fieldInfo->LookupTyp()==MDLDao::Foreign){
+                    cap=fieldInfo->caption();//lookup type=8,<capl>
                 }
                 QString unitType=fieldInfo->KeyUnit();
                 if(!unitType.isNull() && !unitType.isEmpty()){
@@ -113,6 +113,7 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
         if(role==Qt::EditRole || role==Qt::DisplayRole){
             QVariant value= QSqlRelationalTableModel::data(index,Qt::EditRole);
             if(fieldInfo!=nullptr){
+
                 //单位转换
                 if(fieldInfo->PhysicalType()==MDLDao::Boolean)//booelan
                 {
@@ -143,6 +144,11 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
                     }
                 }
                 else{
+                    if(fieldInfo->LookupTyp()==MDLDao::Foreign||fieldInfo->LookupTyp()==MDLDao::List||fieldInfo->LookupTyp()==MDLDao::TabList){
+                        if(role==Qt::DisplayRole){
+                            value=fieldInfo->refValue(value.toString());
+                        }
+                    }
                     QString unitType=fieldInfo->KeyUnit();
                     if(!unitType.isEmpty()){
                         MDLUnitType * baseUnitInfo=MDL->baseUnitKey(unitType);
@@ -239,7 +245,7 @@ Qt::ItemFlags QWMTableModel::flags( const QModelIndex &index ) const
 {
     if(!index.isValid())
         return 0;
-    Qt::ItemFlags flags=Qt::ItemIsEnabled|Qt::ItemIsSelectable|Qt::ItemIsEditable;
+    Qt::ItemFlags flags=Qt::ItemIsEnabled|Qt::ItemIsSelectable;
     if(_readonly)
         return flags;
 
@@ -247,7 +253,7 @@ Qt::ItemFlags QWMTableModel::flags( const QModelIndex &index ) const
     if(index.column()>=record.count()){
         //计算列
         QString  fieldName=_fieldsCalcInOrder[index.column()-record.count()];
-        return  Qt::ItemIsEnabled;
+        return  flags;
     }else{
         QVariant v=QSqlRelationalTableModel::data(index);
         QString fieldName=this->record().fieldName(index.column());
@@ -296,9 +302,11 @@ void QWMTableModel::setVisibleFields( QStringList visibleFieldsList)
     _fieldsInOrderVice.clear();
     QSqlRecord rec=this->record();
     QString idFld=CFG(ID);
-    int idFldInd=rec.indexOf(CFG(ID));
+//    int idFldInd=rec.indexOf(CFG(ID));
+#ifdef _DEBUG
     if(!visibleFieldsList.contains(CFG(ID))&& rec.indexOf(CFG(ID))>=0)
         visibleFieldsList.append(CFG(ID));
+#endif
     for(int i=0;i<visibleFieldsList.length();i++){
         _fieldsInOrder.append(visibleFieldsList[i]);
         _fieldsInOrderVice.insert(visibleFieldsList[i],i);
@@ -341,6 +349,11 @@ int QWMTableModel::visibleFieldsCount()
 int QWMTableModel::fieldsCount()
 {
     return _fieldsInOrder.length();
+}
+
+int QWMTableModel::columnCount(const QModelIndex &parent) const
+{
+    return _visibleFields;
 }
 
 const QString QWMTableModel::fieldInPosByOrder(int pos)

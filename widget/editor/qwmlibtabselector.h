@@ -5,11 +5,12 @@
 #include <QItemSelection>
 #include <QItemSelectionModel>
 #include <qwmlibselector.h>
+#include "qwmabstracteditor.h"
 namespace Ui {
 class QWMLibTabSelector;
 }
 
-class QWMLibTabSelector : public QWidget
+class QWMLibTabSelector : public QWMAbstractEditor
 {
     Q_OBJECT
 public:
@@ -17,6 +18,7 @@ public:
     void  setText(QString text);
     QWMLibSelector * currentWidget();
     virtual void focusInEvent(QFocusEvent *event) override;
+    virtual QList<QWidget *> taborders() override;
 private:
      Ui::QWMLibTabSelector *ui;
      QString _selectedValue;
@@ -24,13 +26,9 @@ private:
      QString _title;
 
 //     int _col;
-signals:
-    void  accepted(QWMLibSelector * );
-    void  rejected(QWMLibSelector * );
 private slots:
-    void on_tab_accepted(QWMLibSelector *);
-    void on_tab_recjected(QWMLibSelector *);
-    void on_tabWidget_tabBarClicked(int index);
+    void on_tab_accepted(QWidget *);
+    void on_tab_recjected(QWidget *);
 
 };
 

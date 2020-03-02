@@ -14,73 +14,45 @@
 #include "QSqlQueryModel"
 #include <QFileSystemModel>
 #include "qwmapplication.h"
-QWMIconSelector::QWMIconSelector(QWidget *parent) : QWidget(parent),ui(new Ui::QWMIconSelector)
+QWMIconSelector::QWMIconSelector( QWidget *parent) : QWMAbstractEditor(parent),ui(new Ui::QWMIconSelector)
 {
     ui->setupUi(this);
 
     connect(ui->btnOK,&QPushButton::clicked,this,&QWMIconSelector::on_btn_clicked);
     connect(ui->btnCancel,&QPushButton::clicked,this,&QWMIconSelector::on_btn_clicked);
-    //    connect(ui->lineEdit,&QLineEdit::returnPressed,this,&QWMIconSelector::on_return_pressed);
     connect(ui->listWidget,&QListWidget::doubleClicked,this,&QWMIconSelector::on_item_doubleclick);
     connect(ui->listWidget,&QListWidget::clicked,this,&QWMIconSelector::on_item_click);
-    ui->comboBox->installEventFilter(this);;
-    ui->listWidget->installEventFilter(this);;
 
     QList<QFileInfo> subFolders=folders();
     ui->comboBox->clear();
     foreach(QFileInfo fileInfo,subFolders){
         ui->comboBox->addItem(fileInfo.completeBaseName(),QVariant::fromValue(fileInfo));
     }
+//    ui->splitter->setStretchFactor(0,1);
+//    ui->splitter->setStretchFactor(1,1);
     emit ui->comboBox->currentTextChanged(ui->comboBox->currentText());
-    //    this->on_comboBox_currentTextChanged(ui->comboBox->currentText());
 }
-
 
 bool QWMIconSelector::eventFilter(QObject *watched, QEvent *event)
 {
-    //    if(IS_KEY_EVENT(event)){
-    //        if(IS_KEY(event,Qt::Key_Escape)){
-    //            emit this->rejected(this);
-    //            return true;
-    //        }
-    //    }
-    if(IS_KEY_EVENT(event)){
-        if(IS_KEY(event,Qt::Key_Tab)||IS_KEY(event,Qt::Key_Backtab)){
-            if(watched==ui->comboBox)
-            {
-                ui->listWidget->setFocus();
-                event->accept();
-                return true;
-            }
-            if(watched==ui->listWidget){
-                ui->comboBox->setFocus();
-                event->accept();
-                return true;
-            }
-            event->accept();
-            return true;
-        }
-        if(IS_KEY(event,Qt::Key_Return)||IS_KEY(event,Qt::Key_Enter)){
-            emit this->accepted(this);
-            event->accept();
-            return true;
-        }
-        if (KEY_MATCHED(event,QKeySequence::Cancel)) {
-            // don't commit data
-            emit this->rejected(this);
-            event->accept();
-            return true;
-        }
-    }
-
+//    if(IS_KEY_EVENT(event)){
+//        if(IS_KEY(event,Qt::Key_Return)||IS_KEY(event,Qt::Key_Enter)){
+//            emit this->accepted(this);
+//            event->accept();
+//            return true;
+//        }
+//    }
+//    bool result = QWMAbstractEditor::eventFilter(watched,event);
+//    return result;
     return false;
 }
 
-void QWMIconSelector::focusInEvent(QFocusEvent *event)
+void QWMIconSelector::showEvent(QShowEvent *event)
 {
-    qDebug()<<"FocusInEvent:"<<event->reason();
-    if(event->reason()!=Qt::NoFocusReason){
-        ui->comboBox->setFocus();
+    if(ui->listWidget->selectionModel()->hasSelection()&& ui->listWidget->selectionModel()->currentIndex().isValid()){
+        QModelIndex index=ui->listWidget->selectionModel()->currentIndex();
+        QFileInfo file=index.data(DATA_ROLE).value<QFileInfo>();
+        showIcon(file);
     }
 }
 
@@ -94,24 +66,6 @@ void QWMIconSelector::on_btn_clicked()
     }
 }
 
-
-
-void QWMIconSelector::on_return_pressed()
-{
-    //    QFileSystemModel  * model=qobject_cast<QFileSystemModel*>(ui->listView->model());
-    //    int qc=model->rowCount();
-    ////    qDebug()<<"RowCount:"<<proxyModel->rowCount();
-    //    if(model->rowCount()>0){
-    //        QModelIndex index=model->index(0,0);
-    //        QItemSelectionModel * selectModel= ui->tableView->selectionModel();
-    //        selectModel->select(index,QItemSelectionModel::SelectCurrent);
-    //        ui->tableView->setFocus();
-    //        //        emit this->accepted(this);
-    //    }
-
-    //    emit this->accepted(this);
-
-}
 
 void QWMIconSelector::on_item_doubleclick(const QModelIndex &)
 {
@@ -185,6 +139,13 @@ QList<QFileInfo> QWMIconSelector::files(QString subFolder)
     return list;
 }
 
+QList<QWidget *> QWMIconSelector::taborders()
+{
+    QList<QWidget*> results;
+    results<<ui->comboBox<<ui->listWidget;
+    return results;
+}
+
 
 void QWMIconSelector::on_comboBox_currentTextChanged(const QString &text)
 {
@@ -206,10 +167,6 @@ void QWMIconSelector::on_comboBox_currentTextChanged(const QString &text)
     }
 }
 
-void QWMIconSelector::on_listWidget_itemChanged(QListWidgetItem *item)
-{
-
-}
 
 void QWMIconSelector::showIcon(QFileInfo file)
 {
@@ -217,9 +174,10 @@ void QWMIconSelector::showIcon(QFileInfo file)
     QPixmap pixmap(file.absoluteFilePath());
     QSize sp=pixmap.size();
     QSize sv=ui->graphicsView->size();
-    float ratio=qMin((sv.width()-20)/sp.width(),(sv.height()-20)/sp.height());
-
-    QGraphicsPixmapItem* item=scene->addPixmap(pixmap.scaledToWidth(sv.width()) );
+    float ratio=qMin(float(sv.width())/float(sp.width()),float(sv.height())/float(sp.height()));
+    ratio*=0.95;
+    QSize scaledSize=QSize(sp.width()*ratio,sp.height()*ratio);
+    QGraphicsPixmapItem* item=scene->addPixmap(pixmap.scaled(scaledSize, Qt::KeepAspectRatio) );
     ui->graphicsView->setScene(scene);
 }
 

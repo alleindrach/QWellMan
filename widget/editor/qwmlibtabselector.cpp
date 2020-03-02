@@ -8,7 +8,8 @@
 #include "libdao.h"
 #include "QSqlQueryModel"
 #include "qwmapplication.h"
-QWMLibTabSelector::QWMLibTabSelector(QString lib,QString lookupFld,QString title,bool editale,QString v,QWidget *parent) : QWidget(parent),ui(new Ui::QWMLibTabSelector),_title(title),_selectedValue(v),_editable(editale)
+QWMLibTabSelector::QWMLibTabSelector(QString lib,QString lookupFld,QString title,bool editale,QString v,QWidget *parent)
+    : QWMAbstractEditor(parent),ui(new Ui::QWMLibTabSelector),_title(title),_selectedValue(v),_editable(editale)
 {
 
     ui->setupUi(this);
@@ -55,18 +56,20 @@ void QWMLibTabSelector::focusInEvent(QFocusEvent *event)
     ui->tabWidget->currentWidget()->setFocus();
 }
 
-
-void QWMLibTabSelector::on_tab_accepted(QWMLibSelector *tab)
+QList<QWidget *> QWMLibTabSelector::taborders()
 {
-    emit accepted(tab);
+    QList<QWidget*> lists;
+    lists<<ui->tabWidget;
+    return lists;
 }
 
-void QWMLibTabSelector::on_tab_recjected(QWMLibSelector * tab)
+
+void QWMLibTabSelector::on_tab_accepted(QWidget *tab)
 {
-    emit rejected(tab);
+    emit accepted(this);
 }
 
-void QWMLibTabSelector::on_tabWidget_tabBarClicked(int index)
+void QWMLibTabSelector::on_tab_recjected(QWidget * tab)
 {
-
+    emit rejected(this);
 }

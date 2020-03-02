@@ -40,6 +40,8 @@ DECL_SQL(select_table_field_count,"select count(1) as cnt from pceMDLTableField 
 DECL_SQL(select_parent_table,"select KeyTbl  from pceMDLTableChildren c where c.KeyTblChild=:table COLLATE NOCASE ")
 DECL_SQL(select_field_groups,"select KeyTbl,GroupName,DisplayOrder   from pceMDLTableFieldGrp g where g.KeyTbl=:table COLLATE NOCASE order by DisplayOrder ")
 DECL_SQL(select_fields_of_group,"select  * from pceMDLTableField where KeyTbl=:table  COLLATE NOCASE and GroupName=:groupName  COLLATE NOCASE order by DisplayOrder ")
+DECL_SQL(select_field_lookup,"select  * from pceMDLTableFieldLookupList where KeyTbl=:table  COLLATE NOCASE and KeyFld=:field  COLLATE NOCASE order by DisplayOrder ")
+
 END_SQL_DECLARATION
 
 
@@ -491,4 +493,22 @@ QStringList MDLDao::fieldOfGroup(QString table, QString group)
         result<<q.value("KeyFld").toString();
     }
     CI(key,result)
+}
+
+QList<MDLFieldLookup *> MDLDao::fieldLookupinfo(QString table, QString field)
+{
+    QString key=QString("fieldLookupinfo.%1.%2").arg(table).arg(field);
+    CS_LIST(key,MDLFieldLookup);
+
+    QSqlQuery q(APP->mdl());
+    q.prepare(SQL(select_field_lookup));
+    q.bindValue(":table",table);
+    q.bindValue(":field",field);
+    q.exec();
+    PRINT_ERROR(q);
+    QList<MDLFieldLookup *> result;
+    while(q.next()){
+        result<<R(q.record(),MDLFieldLookup);
+    }
+    CI(key,result);
 }

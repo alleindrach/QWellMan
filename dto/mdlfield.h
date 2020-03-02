@@ -36,6 +36,10 @@ public:
     AUTO_PROPERTY(QString, Temp_FieldStatus)
     AUTO_PROPERTY(QString, Temp_CalcPriority)
     AUTO_PROPERTY(QString, Temp_CalcDifficulty)
+
+    public :
+    QString caption();
+    QString refValue(QString refId);
     signals:
 
 };

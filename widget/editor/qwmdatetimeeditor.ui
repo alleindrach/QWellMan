@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>QWMDateTimeEditor</class>
- <widget class="QWidget" name="QWMDateTimeEditor">
+ <widget class="QDialog" name="QWMDateTimeEditor">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -12,9 +12,6 @@
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
-  </property>
-  <property name="windowOpacity">
-   <double>0.800000000000000</double>
   </property>
   <property name="autoFillBackground">
    <bool>false</bool>
@@ -49,38 +46,95 @@
      <property name="lineWidth">
       <number>2</number>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout">
+       <widget class="QCalendarWidget" name="calendarWidget">
+        <property name="firstDayOfWeek">
+         <enum>Qt::Monday</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTimeEdit" name="timeEdit">
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="displayFormat">
+         <string>hh:mm</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QCalendarWidget" name="calendarWidget"/>
-        </item>
-        <item>
-         <widget class="QTimeEdit" name="timeEdit">
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
+         <widget class="QPushButton" name="btnReset">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
-          <property name="displayFormat">
-           <string>hh:mm</string>
+          <property name="styleSheet">
+           <string notr="true">color:black;</string>
+          </property>
+          <property name="text">
+           <string>Now</string>
+          </property>
+          <property name="shortcut">
+           <string>Esc</string>
+          </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
+          <property name="default">
+           <bool>false</bool>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QDialogButtonBox" name="buttonBox">
-          <property name="standardButtons">
-           <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::Reset</set>
+         <widget class="QPushButton" name="btnCancel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color:black;</string>
+          </property>
+          <property name="text">
+           <string>Cancel</string>
+          </property>
+          <property name="shortcut">
+           <string>Esc</string>
+          </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
+          <property name="default">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnOK">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color:black;</string>
+          </property>
+          <property name="text">
+           <string>OK</string>
+          </property>
+          <property name="autoDefault">
+           <bool>true</bool>
+          </property>
+          <property name="default">
+           <bool>true</bool>
           </property>
          </widget>
         </item>

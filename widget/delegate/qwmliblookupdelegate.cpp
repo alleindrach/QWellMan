@@ -12,8 +12,10 @@
 #include <QSqlQueryModel>
 #include <QKeyEvent>
 #include "libdao.h"
+#include "qwmlibsingleselector.h"
 #include "qwmlibtabselector.h"
-QWMLibLookupDelegate::QWMLibLookupDelegate(QString lib, QString disp,QString title,bool editable, QObject *parent):QStyledItemDelegate(parent),_title(title),_disp(disp),_lib(lib),_editable(editable)
+QWMLibLookupDelegate::QWMLibLookupDelegate(QString lib, QString disp,QString title,bool editable, QObject *parent):
+    QWMAbstractDelegate(parent),_title(title),_disp(disp),_lib(lib),_editable(editable)
 {
     if(LIB->libLookup(_lib)->record().indexOf(CFG(LibTab))>=0){
         _type=Tab;
@@ -26,40 +28,49 @@ QWidget *QWMLibLookupDelegate::createEditor(QWidget *parent,
 {
 
     if(_type==Plain){
-        QWMLibSelector *editor = new QWMLibSelector(_lib,_disp,_title,_editable,index.data().toString(),parent);
+        QWMLibSingleSelector *editor = new QWMLibSingleSelector(_lib,_disp,_title,_editable,index.data().toString(),parent);
 
-        connect(editor,&QWMLibSelector::rejected,this,&QWMLibLookupDelegate::justCloseEditor);
-        connect(editor,&QWMLibSelector::accepted,this,&QWMLibLookupDelegate::commitAndCloseEditor);
-
+        connect(editor,&QWMLibSingleSelector::rejected,this,&QWMLibLookupDelegate::closeEditorAndRevert);
+        connect(editor,&QWMLibSingleSelector::accepted,this,&QWMLibLookupDelegate::commitAndCloseEditor);
+        editor->setModal(true);
+        EDITOR_TITLE;
         return editor;
     }else{
         QWMLibTabSelector *editor = new QWMLibTabSelector(_lib,_disp,_title,_editable,index.data().toString(),parent);
-        connect(editor,&QWMLibTabSelector::rejected,this,&QWMLibLookupDelegate::justCloseEditor);
+        connect(editor,&QWMLibTabSelector::rejected,this,&QWMLibLookupDelegate::closeEditorAndRevert);
         connect(editor,&QWMLibTabSelector::accepted,this,&QWMLibLookupDelegate::commitAndCloseEditor);
+        editor->setModal(true);
+        EDITOR_TITLE;
         return editor;
     }
 }
 bool QWMLibLookupDelegate::eventFilter(QObject *watched, QEvent *event) {
-//    qDebug()<<"Event:W="<<watched->metaObject()->className()<<"/"<<watched->objectName()<<",E="<<event->type();
-    if(watched->metaObject()->className()==QWMLibSelector::staticMetaObject.className()){
-        if(event->type()==QEvent::FocusIn){
-
-            qDebug()<<"FocusIN!";
-        }
-        if(event->type()==QEvent::KeyPress){
-            QKeyEvent *  keyEvent=(QKeyEvent*) event;
-            qDebug()<<"Key:"<<keyEvent->key();
-        }
-    }
-    return false;
+    return QWMAbstractDelegate::eventFilter(watched,event);
 }
+
+bool QWMLibLookupDelegate::isEditor(QObject *widget)
+{
+    if(_type==Plain){
+        if(instanceof<QWMLibSingleSelector>(widget))
+            return true;
+        else
+            return false;
+    }else
+    {
+        if(instanceof<QWMLibTabSelector>(widget))
+            return true;
+        else
+            return false;
+    }
+}
+
 
 void QWMLibLookupDelegate::setEditorData(QWidget *editor,
                                          const QModelIndex &index) const
 {
     QVariant value=index.data(Qt::EditRole);
     if(_type==Plain){
-        QWMLibSelector *selector=static_cast<QWMLibSelector*>(editor);
+        QWMLibSingleSelector *selector=static_cast<QWMLibSingleSelector*>(editor);
         selector->setText(value.toString());
     }else{
         QWMLibTabSelector *selector=static_cast<QWMLibTabSelector*>(editor);
@@ -71,7 +82,7 @@ void QWMLibLookupDelegate::handleNeighbourField(QWidget *editor,QAbstractItemMod
                                                 const QModelIndex &index,QModelIndex aIndex)const {
     QWMLibSelector *selector=nullptr;
     if(_type==Plain){
-        selector=static_cast<QWMLibSelector*>(editor);
+        selector=static_cast<QWMLibSingleSelector*>(editor)->selector();
     }else{
         selector=static_cast<QWMLibTabSelector*>(editor)->currentWidget();
     }
@@ -103,7 +114,7 @@ void QWMLibLookupDelegate::setModelData(QWidget *editor,QAbstractItemModel *mode
 
     QWMLibSelector *selector=nullptr;
     if(_type==Plain){
-        selector=static_cast<QWMLibSelector*>(editor);
+        selector=static_cast<QWMLibSingleSelector*>(editor)->selector();
     }else{
         selector=static_cast<QWMLibTabSelector*>(editor)->currentWidget();
     }
@@ -135,69 +146,69 @@ void QWMLibLookupDelegate::setModelData(QWidget *editor,QAbstractItemModel *mode
 }
 
 
-void QWMLibLookupDelegate::updateEditorGeometry(QWidget *editor,
-                                                const QStyleOptionViewItem &option,
-                                                const QModelIndex &index) const
-{
+//void QWMLibLookupDelegate::updateEditorGeometry(QWidget *editor,
+//                                                const QStyleOptionViewItem &option,
+//                                                const QModelIndex &index) const
+//{
 
 
-    QWMDataTableView * view=(QWMDataTableView *)this->parent();
-    QRect rect =view->geometry();
-    qDebug()<<"view:"<<rect;
-    int widgetWidth=350;//option.rect.width();
-    int widgetHeight=350;
-    int margin=0;
-    int left;
-    int top;
-    QWMRotatableProxyModel *  model= ( QWMRotatableProxyModel *)index.model();
-    if(option.rect.left()+widgetWidth+margin<  rect.width()){
-        left=option.rect.left();
-    }else{
-        left=rect.width()-widgetWidth-margin;
-    }
-    if(option.rect.top()+widgetHeight+margin<rect.height()){
-        top=option.rect.top()+margin;
-    }else
-    {
-        top=option.rect.top()-widgetHeight-margin;
-        if(top<0)
-            top=0;
-    }
-    if(model->mode()==QWMRotatableProxyModel::H){
+//    QWMDataTableView * view=(QWMDataTableView *)this->parent();
+//    QRect rect =view->geometry();
+//    qDebug()<<"view:"<<rect;
+//    int widgetWidth=350;//option.rect.width();
+//    int widgetHeight=350;
+//    int margin=0;
+//    int left;
+//    int top;
+//    QWMRotatableProxyModel *  model= ( QWMRotatableProxyModel *)index.model();
+//    if(option.rect.left()+widgetWidth+margin<  rect.width()){
+//        left=option.rect.left();
+//    }else{
+//        left=rect.width()-widgetWidth-margin;
+//    }
+//    if(option.rect.top()+widgetHeight+margin<rect.height()){
+//        top=option.rect.top()+margin;
+//    }else
+//    {
+//        top=option.rect.top()-widgetHeight-margin;
+//        if(top<0)
+//            top=0;
+//    }
+//    if(model->mode()==QWMRotatableProxyModel::H){
 
-        QPoint topleft(left, top);
-        editor->setGeometry(QRect(topleft,QSize(widgetWidth,widgetHeight)));
-    }else
-    {
-        QPoint topleft(left,top);
-        editor->setGeometry(QRect(topleft,QSize(widgetWidth,widgetHeight)));
-    }
+//        QPoint topleft(left, top);
+//        editor->setGeometry(QRect(topleft,QSize(widgetWidth,widgetHeight)));
+//    }else
+//    {
+//        QPoint topleft(left,top);
+//        editor->setGeometry(QRect(topleft,QSize(widgetWidth,widgetHeight)));
+//    }
 
-}
-void QWMLibLookupDelegate::commitAndCloseEditor(QWMLibSelector * editor)
-{
-    if(_type==Plain){
-        emit commitData(editor);
-        emit closeEditor(editor);
-    }else{
-        TP(editor,QWMLibTabSelector,tabSelector);
-        if(tabSelector!=nullptr){
-            emit commitData(tabSelector);
-            emit closeEditor(tabSelector);
-        }
-    }
-}
+//}
+//void QWMLibLookupDelegate::commitAndCloseEditor(QWMLibSelector * editor)
+//{
+//    if(_type==Plain){
+//        emit commitData(editor);
+//        emit closeEditor(editor);
+//    }else{
+//        TP(editor,QWMLibTabSelector,tabSelector);
+//        if(tabSelector!=nullptr){
+//            emit commitData(tabSelector);
+//            emit closeEditor(tabSelector);
+//        }
+//    }
+//}
 
-void QWMLibLookupDelegate::justCloseEditor(QWMLibSelector * editor)
-{
-    if(_type==Plain){
-        emit closeEditor(editor);
-    }else
-    {
-        TP(editor,QWMLibTabSelector,tabSelector);
-        if(tabSelector!=nullptr){
-            emit commitData(tabSelector);
-            emit closeEditor(tabSelector);
-        }
-    }
-}
+//void QWMLibLookupDelegate::justCloseEditor(QWMLibSelector * editor)
+//{
+//    if(_type==Plain){
+//        emit closeEditor(editor);
+//    }else
+//    {
+//        TP(editor,QWMLibTabSelector,tabSelector);
+//        if(tabSelector!=nullptr){
+//            emit commitData(tabSelector);
+//            emit closeEditor(tabSelector);
+//        }
+//    }
+//}

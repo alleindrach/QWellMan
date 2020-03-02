@@ -32,6 +32,7 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     QString fieldName(QModelIndex  index);
+    QString fieldTitle(QModelIndex  index);
     QString tableName();
     QModelIndex firstEditableCell() ;
     bool showGroup();

@@ -23,6 +23,7 @@ public:
     virtual bool eventFilter(QObject *watched, QEvent *event) override;
     virtual void showEvent(QShowEvent *event)  override;
     virtual void focusInEvent(QFocusEvent *event) override;
+    QList<QWidget *> taborders() ;
 private:
      Ui::QWMLibSelector *ui;
      QString _selectedValue;

@@ -50,6 +50,8 @@ QString QWMLibSelector::text()
         QModelIndex selected=selection.indexes().first();
         QModelIndex selectedAsCol=proxyModel->index(selected.row(),_col);
         _selectedValue=selectedAsCol.data().toString();
+    }else if(_editable){
+        _selectedValue=ui->lineEdit->text();
     }
     return _selectedValue;
 }
@@ -174,6 +176,9 @@ void QWMLibSelector::on_text_changed(const QString & text)
 {
     QSortFilterProxyModel * proxyModel=(QSortFilterProxyModel*)ui->tableView->model();
     proxyModel->setFilterRegExp(".*"+text+".*");
+    if(_editable){
+
+    }
 
 }
 
@@ -197,4 +202,9 @@ void QWMLibSelector::on_return_pressed()
 void QWMLibSelector::on_item_doubleclick(const QModelIndex &)
 {
     emit this->accepted(this);
+}
+QList<QWidget *> QWMLibSelector::taborders() {
+    QList<QWidget*> results;
+    results<<ui->lineEdit<<ui->tableView;
+    return results;
 }

@@ -26,6 +26,7 @@ DECL_SQL(select_spec_wells,"select  w.* from %1  w  where  not exists(select * f
 DECL_SQL(insert_well_to_catlog,"insert into %1 (%2) values(?)")
 DECL_SQL(delete_well_from_catlog,"delete from %1 where %2=? COLLATE NOCASE")
 DECL_SQL(select_record,"select  w.* from %1  w  where  not exists(select * from %2 d where w.%3=d.%4 COLLATE NOCASE  and w.%3=d.IDRec COLLATE NOCASE) and w.%3=:id COLLATE NOCASE")
+DECL_SQL(select_record2,"select  w.* from %1  w  where  not exists(select * from %2 d where  w.%3=d.IDRec COLLATE NOCASE) and w.%3=:id COLLATE NOCASE")
 DECL_SQL(insert_record,"insert into %1 (%2) values( %3)")
 DECL_SQL(select_well_cnt_in_cat,"select  count(1) as cnt from %1  w  "
                                 "where  not exists(select * from %2 d where w.%3=d.%4 COLLATE NOCASE and w.%3=d.IDRec  COLLATE NOCASE) "
@@ -309,6 +310,24 @@ QString WellDao::recordDes(QString table, QSqlRecord record)
         }
     }
     return rdResult;
+}
+
+QSqlRecord WellDao::refRecord(QString table, QString id)
+{
+    QSqlQuery q(APP->well());
+    q.prepare(SQL(select_record2)
+              .arg(table) //%1 wvWellHeader
+              .arg(CFG(SysRecDelTable)) //%2 wvSysDelRec
+              .arg(CFG(ID)) //%3 IDREC
+            );
+    q.bindValue(":id",id);
+    q.exec();
+    PRINT_ERROR(q);
+    if(q.next())
+        return  q.record();
+    else {
+        return QSqlRecord();
+    }
 }
 
 QAbstractItemModel*  WellDao::wells(int type)

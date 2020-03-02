@@ -22,6 +22,7 @@ public:
     int  fieldPosByOrder(const QString &field);
     int  visibleFieldsCount();
     int  fieldsCount();
+    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     const QString fieldInPosByOrder(int);
     bool isFieldVisible(const QString & field);
     int fieldIndexEx(const QString &fieldName) ;

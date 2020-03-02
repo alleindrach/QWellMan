@@ -147,4 +147,9 @@ if(x!=nullptr && x->metaObject()->className()==tp::staticMetaObject.className())
 #define KEY_MATCHED(event ,seq)\
     (((QKeyEvent*) event)->matches(seq))
 
+#define EDITOR_TITLE \
+    QWMRotatableProxyModel  *  model=(QWMRotatableProxyModel*)index.model();\
+    QString title=  model->fieldTitle(index);\
+    editor->setWindowTitle(title);
+
 #endif // COMMON_H

@@ -1,31 +1,31 @@
 #ifndef QWMDATETIMEDELEGATE_H
 #define QWMDATETIMEDELEGATE_H
 #include <QDateTime>
-#include <QWidget>
+#include <QDialog>
 #include <QAbstractButton>
+#include <qwmabstracteditor.h>
 namespace Ui {
 class QWMDateTimeEditor;
 }
 
-class QWMDateTimeEditor : public QWidget
+class QWMDateTimeEditor : public QWMAbstractEditor
 {
     Q_OBJECT
 public:
     explicit QWMDateTimeEditor(QDateTime date=QDateTime::currentDateTime(), QWidget *parent = nullptr);
+    virtual bool eventFilter(QObject *watched, QEvent *event) override;
     void setDateTime(QDateTime value);
     QDateTime dateTime();
-    virtual void focusInEvent(QFocusEvent *event);
-    virtual void focusOutEvent(QFocusEvent *event);
+    virtual QList<QWidget *> taborders() override;
 signals:
     void  accepted(QWMDateTimeEditor * );
     void  rejected(QWMDateTimeEditor * );
 private:
-     Ui::QWMDateTimeEditor *ui;
-//     QDateTime _date;
+    Ui::QWMDateTimeEditor *ui;
+    //     QDateTime _date;
 private slots:
     void resetToNow();
-    void on_btn_clicked(QAbstractButton *button);
-
+    void on_btn_clicked();
 };
 
 #endif // QWMDATETIMEDELEGATE_H

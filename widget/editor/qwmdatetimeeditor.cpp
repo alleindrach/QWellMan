@@ -2,14 +2,52 @@
 #include "ui_qwmdatetimeeditor.h"
 #include "QDialogButtonBox"
 #include "qwmdatedelegate.h"
-QWMDateTimeEditor::QWMDateTimeEditor(QDateTime date,QWidget *parent) : QWidget(parent),ui(new Ui::QWMDateTimeEditor)
+#include "common.h"
+#include "QKeyEvent"
+QWMDateTimeEditor::QWMDateTimeEditor(QDateTime date,QWidget *parent) : QWMAbstractEditor(parent),ui(new Ui::QWMDateTimeEditor)
 {
     ui->setupUi(this);
     ui->calendarWidget->setSelectedDate(date.date());
     ui->timeEdit->setDateTime(date);
+    connect(ui->btnOK,&QPushButton::clicked,this,&QWMDateTimeEditor::on_btn_clicked);
+    connect(ui->btnCancel,&QPushButton::clicked,this,&QWMDateTimeEditor::on_btn_clicked);
+    connect(ui->btnReset,&QPushButton::clicked,this,&QWMDateTimeEditor::on_btn_clicked);
+    ui->calendarWidget->installEventFilter(this);
+    ui->btnOK->setDefault(true);
+    //    ui->
+//    installEventFilters();
+}
 
-    connect(ui->buttonBox,&QDialogButtonBox::clicked,this,&QWMDateTimeEditor::on_btn_clicked);
-//    ui->
+bool QWMDateTimeEditor::eventFilter(QObject *watched, QEvent *event)
+{
+    QList<QWidget *> ws=taborders();
+    if(IS_KEY_EVENT(event)){
+        if(IS_KEY(event,Qt::Key_Tab)||IS_KEY(event,Qt::Key_Backtab)){
+            int index=ws.indexOf((QWidget*)watched);
+            int next=(index+1)%ws.size();
+            int prev=(index+ws.size()-1)%ws.size();
+            if(index>=0){
+                if(IS_KEY(event,Qt::Key_Tab))
+                    ws[next]->setFocus();
+                else
+                    ws[prev]->setFocus();
+            }
+            event->accept();
+            return true;
+        }
+        if(IS_KEY(event,Qt::Key_Return)||IS_KEY(event,Qt::Key_Enter)){
+            emit this->accepted(this);
+            event->accept();
+            return true;
+        }
+        if (KEY_MATCHED(event,QKeySequence::Cancel)) {
+            // don't commit data
+            emit this->rejected(this);
+            event->accept();
+            return true;
+        }
+    }
+    return false;
 }
 void  QWMDateTimeEditor::resetToNow(){
     QDateTime date=QDateTime::currentDateTime();
@@ -30,23 +68,22 @@ QDateTime QWMDateTimeEditor::dateTime()
     return result;
 }
 
-void QWMDateTimeEditor::focusInEvent(QFocusEvent *event)
+void QWMDateTimeEditor::on_btn_clicked()
 {
-    return QWidget::focusInEvent(event);
-}
-
-void QWMDateTimeEditor::focusOutEvent(QFocusEvent *event)
-{
-    return QWidget::focusOutEvent(event);
-}
-void QWMDateTimeEditor::on_btn_clicked(QAbstractButton *button)
-{
-    if(ui->buttonBox->buttonRole(button)==QDialogButtonBox::ResetRole)
+    QPushButton * button=qobject_cast<QPushButton*>(sender());
+    if(button->objectName()=="btnReset")
     {
         resetToNow();
-    }else if(ui->buttonBox->buttonRole(button)==QDialogButtonBox::AcceptRole){
+    }else if(button->objectName()=="btnOK"){
         emit this->accepted(this);
-    }else if(ui->buttonBox->buttonRole(button)==QDialogButtonBox::RejectRole){
+    }else if(button->objectName()=="btnCancel"){
         emit this->rejected(this);
     }
 }
+QList<QWidget *> QWMDateTimeEditor::taborders()
+{
+    QList<QWidget*> results;
+    results<<ui->calendarWidget<<ui->timeEdit<<ui->btnReset<<ui->btnCancel<<ui->btnOK;
+    return results;
+}
+
