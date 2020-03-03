@@ -13,13 +13,15 @@
 #include "qwmheaderview.h"
 #include <QSettings>
 #include "qwmicondelegate.h"
+#include "qwmcomboboxdelegate.h"
+
 #define CLEAR_DELEGATES(w) \
-for(int i=0;i<w->model()->columnCount();i++){ \
+    for(int i=0;i<w->model()->columnCount();i++){ \
     w->setItemDelegateForColumn(i,nullptr);\
-}\
-for(int i=0;i<w->model()->rowCount();i++){\
+    }\
+    for(int i=0;i<w->model()->rowCount();i++){\
     w->setItemDelegateForRow(i,nullptr);\
-}
+    }
 
 QWMDataTableView::QWMDataTableView(QWidget *parent):QRotatableTableView(parent)
 {
@@ -37,11 +39,11 @@ void QWMDataTableView::bindDelegate()
     if(model->mode()==QWMRotatableProxyModel::H){
         func =& QWMDataTableView::setItemDelegateForColumn;
         counter=model->columnCount();
-//        connect(this->horizontalHeader(),&QHeaderView::sectionDoubleClicked,this,&QWMDataTableView::on_header_clicked);
+        //        connect(this->horizontalHeader(),&QHeaderView::sectionDoubleClicked,this,&QWMDataTableView::on_header_clicked);
     }else{
         func = & QWMDataTableView::setItemDelegateForRow;
         counter=model->rowCount();
-//        connect(this->verticalHeader(),&QHeaderView::sectionDoubleClicked,this,&QWMDataTableView::on_header_clicked);
+        //        connect(this->verticalHeader(),&QHeaderView::sectionDoubleClicked,this,&QWMDataTableView::on_header_clicked);
     }
     for(int i=0;i< counter;i++)
     {
@@ -73,9 +75,27 @@ void QWMDataTableView::bindDelegate()
             }
             else if(fieldInfo->LookupTyp()==MDLDao::Icon){
                 (this->*func)(i,new QWMIconDelegate(this));
+            }else if(fieldInfo->LookupTyp()==MDLDao::List){
+                QList<MDLFieldLookup *> fls=MDL->fieldLookupinfo(fieldInfo->KeyTbl(),fieldInfo->KeyFld());
+                QList<QPair<QString,QVariant>> options{{tr("<空白>"),""}};
+                foreach(MDLFieldLookup * l,fls){
+                    if(!l->TableKey())
+                    {
+                        QPair<QString,QVariant> p(l->LookupItem(),l->LookupItem());
+                        options<<p;
+                    }
+                }
+                (this->*func)(i,new QWMComboBoxDelegate(options,true,this));
             }
         }
     }
+}
+
+void QWMDataTableView::setModel(QAbstractItemModel *model)
+{
+    QRotatableTableView::setModel(model);
+    QWMRotatableProxyModel * rmodel=(QWMRotatableProxyModel*)this->model();
+    rmodel->reset();
 }
 
 
@@ -84,34 +104,34 @@ void QWMDataTableView::onModeChange()
     QWMRotatableProxyModel * model=(QWMRotatableProxyModel*)this->model();
     PX(pmodel,this->model());
     SX(smodel,this->model());
-//    if(model->mode()==QWMRotatableProxyModel::H){
-//        for(int j=0;j<model->columnCount();j++){
-//            if(j<pmodel->columnCount()){
-//                setColumnHidden(j,false);
-//            }else
-//            {
-//                setColumnHidden(j,true);
-//            }
-//        }
-//        for(int i=0;i<model->rowCount();i++){
-//            setRowHidden(i,false);
-//        }
-//    }else{
-//        int columns=model->rowCount();
-//        int vis=pmodel->columnCount();
-//        qDebug()<<"V:"<<",Total:"<<columns<<",Visible:"<<vis;
-//        for(int i=0;i<model->rowCount();i++){
-//            if(i<pmodel->columnCount()){
-//                setRowHidden(i,false);
-//            }else
-//            {
-//                setRowHidden(i,true);
-//            }
-//        }
-//        for(int j=0;j<model->columnCount();j++){
-//            setColumnHidden(j,false);
-//        }
-//    }
+    //    if(model->mode()==QWMRotatableProxyModel::H){
+    //        for(int j=0;j<model->columnCount();j++){
+    //            if(j<pmodel->columnCount()){
+    //                setColumnHidden(j,false);
+    //            }else
+    //            {
+    //                setColumnHidden(j,true);
+    //            }
+    //        }
+    //        for(int i=0;i<model->rowCount();i++){
+    //            setRowHidden(i,false);
+    //        }
+    //    }else{
+    //        int columns=model->rowCount();
+    //        int vis=pmodel->columnCount();
+    //        qDebug()<<"V:"<<",Total:"<<columns<<",Visible:"<<vis;
+    //        for(int i=0;i<model->rowCount();i++){
+    //            if(i<pmodel->columnCount()){
+    //                setRowHidden(i,false);
+    //            }else
+    //            {
+    //                setRowHidden(i,true);
+    //            }
+    //        }
+    //        for(int j=0;j<model->columnCount();j++){
+    //            setColumnHidden(j,false);
+    //        }
+    //    }
     QSettings settings;
     settings.setValue(QString(EDITOR_TABLE_ENTRY_PREFIX).arg(smodel->tableName()),model->mode());
     bindDelegate();

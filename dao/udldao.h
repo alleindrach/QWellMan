@@ -7,6 +7,7 @@
 #include <QSqlQueryModel>
 #include <QPair>
 #include "mdltable.h"
+#include "udltableproperty.h"
 class UDLDao : public QObject
 {
     Q_OBJECT
@@ -23,6 +24,7 @@ public:
     QStringList fieldsHidden(QString profile,QString tablename);
     QStringList fieldsVisibleInOrder(QString profile, QString table);
     QStringList fieldsVisibleInOrderByGroup(QString profile,QString table,QString group);
+    UDLTableProperty * tableProperty(QString table);
 signals:
 private:
     QSqlDatabase  _db;

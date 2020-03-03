@@ -512,3 +512,4 @@ QList<MDLFieldLookup *> MDLDao::fieldLookupinfo(QString table, QString field)
     }
     CI(key,result);
 }
+

@@ -33,6 +33,7 @@ public:
     QSqlRecord refRecord(QString table, QString id);
     void initRecord(QSqlRecord &,QString IDWell=QString(),QString parentID=QString() );
     QStringList distinctValue(QString table,QString field);
+
 signals:
 private:
     QSqlDatabase  _db;

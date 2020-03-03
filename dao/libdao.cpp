@@ -74,5 +74,9 @@ QSqlQueryModel *LIBDao::libLookup(QString table, QString tab)
     CS(key,QSqlQueryModel *);
     QSqlQueryModel* model=new QSqlQueryModel(this);
     model->setQuery(SQL(select_table_by_tab).arg(table).arg(tab),APP->lib());
+    QSqlRecord rec=model->record();
+    for(int i=0;i<rec.count();i++){
+        model->setHeaderData(i,Qt::Horizontal,rec.fieldName(i),FIELD_ROLE);
+    }
     CI(key,model)
 }

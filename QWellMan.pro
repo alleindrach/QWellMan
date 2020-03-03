@@ -27,6 +27,7 @@ SOURCES += \
     dto/mdltablechildren.cpp \
     dto/mdlunit.cpp \
     dto/record.cpp \
+    dto/udltableproperty.cpp \
     main.cpp \
     model/qt/qexsortfilterproxymodel.cpp \
     model/qwmrotatableproxymodel.cpp \
@@ -37,8 +38,8 @@ SOURCES += \
     ui/qwmdataeditor.cpp \
     undo/qwmfieldeditcommand.cpp \
     undo/qwmrecordeditcommand.cpp \
-    widget/delegate/comboboxdelegate.cpp \
     widget/delegate/qwmabstractdelegate.cpp \
+    widget/delegate/qwmcomboboxdelegate.cpp \
     widget/delegate/qwmdatedelegate.cpp \
     widget/delegate/qwmdistinctvaluedelegate.cpp \
     widget/delegate/qwmicondelegate.cpp \
@@ -68,6 +69,7 @@ HEADERS += \
     dto/mdltablechildren.h \
     dto/mdlunit.h \
     dto/record.h \
+    dto/udltableproperty.h \
     model/qt/qexsortfilterproxymodel.h \
     model/qwmrotatableproxymodel.h \
     model/qwmsortfilterproxymodel.h \
@@ -77,8 +79,8 @@ HEADERS += \
     ui/qwmdataeditor.h \
     undo/qwmfieldeditcommand.h \
     undo/qwmrecordeditcommand.h \
-    widget/delegate/comboboxdelegate.h \
     widget/delegate/qwmabstractdelegate.h \
+    widget/delegate/qwmcomboboxdelegate.h \
     widget/delegate/qwmdatedelegate.h \
     widget/delegate/qwmdistinctvaluedelegate.h \
     widget/delegate/qwmicondelegate.h \

@@ -15,6 +15,8 @@ class QWMLibTabSelector : public QWMAbstractEditor
     Q_OBJECT
 public:
     explicit QWMLibTabSelector(QString lib,QString lookupFld,QString title,bool editable=false,QString v=QString(), QWidget *parent = nullptr);
+    explicit QWMLibTabSelector(QStringList lib,QString lookupFld,QString title,bool editable=false,QString v=QString(), QWidget *parent = nullptr);
+
     void  setText(QString text);
     QWMLibSelector * currentWidget();
     virtual void focusInEvent(QFocusEvent *event) override;
@@ -24,8 +26,6 @@ private:
      QString _selectedValue;
      bool _editable{false};
      QString _title;
-
-//     int _col;
 private slots:
     void on_tab_accepted(QWidget *);
     void on_tab_recjected(QWidget *);

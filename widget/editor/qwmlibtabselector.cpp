@@ -16,20 +16,7 @@ QWMLibTabSelector::QWMLibTabSelector(QString lib,QString lookupFld,QString title
     QStringList tabs=LIB->libTabs(lib);
     foreach(QString tab ,tabs){
         QSqlQueryModel * model=LIB->libLookup(lib,tab);
-
-        QWMLibSelector * selector=new  QWMLibSelector(lib,lookupFld,title,model,_editable,v,this);
-
-        //        QHBoxLayout * horizontalLayout = new QHBoxLayout(this);
-        //        //                horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-        //        horizontalLayout->setContentsMargins(0, 4, 0, 4);
-        //        QFrame* frame = new QFrame(this);
-        //        //                frame->setObjectName(QString::fromUtf8("frame"));
-        //        frame->setFrameShape(QFrame::StyledPanel);
-        //        frame->setFrameShadow(QFrame::Raised);
-        //        QHBoxLayout* horizontalLayout_2 = new QHBoxLayout(frame);
-        //        //                horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
-        //        horizontalLayout_2->setContentsMargins(4, -1, 4, -1);
-        //        horizontalLayout_2->addWidget(selector);
+        QWMLibSelector * selector=new  QWMLibSelector(lib,lookupFld,title,model,QStringList() ,_editable,v,this);
         ui->tabWidget->addTab(selector,tab);
         connect(selector,&QWMLibSelector::accepted,this,&QWMLibTabSelector::on_tab_accepted);
         connect(selector,&QWMLibSelector::rejected,this,&QWMLibTabSelector::on_tab_recjected);

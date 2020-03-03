@@ -13,11 +13,15 @@ QWMLibSelector::QWMLibSelector(QString lib,QString lookupFld,QString title,bool 
 {
     ui->setupUi(this);
     QSqlQueryModel*  model=LIB->libLookup(lib);
+    QSqlRecord record=model->record();
+    for(int i=0;i<record.count();i++){
+        model->setHeaderData(i,Qt::Horizontal,record.fieldName(i),FIELD_ROLE);
+    }
     init(model);
 }
 
-QWMLibSelector::QWMLibSelector(QString lib, QString lookupFld,QString title, QSqlQueryModel* model, bool editable, QString v, QWidget *parent):
-    QWidget(parent),ui(new Ui::QWMLibSelector),_lookupFld(lookupFld),_selectedValue(v),_editable(editable),_title(title)
+QWMLibSelector::QWMLibSelector(QString lib, QString lookupFld,QString title, QAbstractItemModel* model,QStringList visibleFields, bool editable, QString v, QWidget *parent):
+    QWidget(parent),ui(new Ui::QWMLibSelector),_lookupFld(lookupFld),_selectedValue(v),_editable(editable),_title(title),_visibleFlds(visibleFields)
 {
 
     ui->setupUi(this);
@@ -56,7 +60,7 @@ QString QWMLibSelector::text()
     return _selectedValue;
 }
 
-void QWMLibSelector::init(QSqlQueryModel * model)
+void QWMLibSelector::init(QAbstractItemModel * model)
 {
 
 
@@ -76,10 +80,17 @@ void QWMLibSelector::init(QSqlQueryModel * model)
 
     ui->tableView->verticalHeader()->setDefaultSectionSize(12);
     for(int i=0;i<model->columnCount();i++){
-        if(LIBDao::hiddenFields.contains(model->record().fieldName(i))){
+        QString fieldName=model->headerData(i,Qt::Horizontal,FIELD_ROLE).toString();
+        if(LIBDao::hiddenFields.contains(fieldName)){
             ui->tableView->setColumnHidden(i,true);
         }else{
-            if(_lookupFld.compare(model->record().fieldName(i),Qt::CaseInsensitive)==0){
+
+            if(!_visibleFlds.isEmpty()){
+                if(!_visibleFlds.contains(fieldName)){
+                    ui->tableView->setColumnHidden(i,true);
+                }
+            }
+            if(_lookupFld.compare(fieldName,Qt::CaseInsensitive)==0){
                 ui->tableView->setColumnHidden(i,false);
                 //                proxyModel->setFilterKeyColumn(i);
                 proxyModel->setFilterRole(Qt::DisplayRole);
@@ -88,8 +99,8 @@ void QWMLibSelector::init(QSqlQueryModel * model)
                 proxyModel->setHeaderData(i,Qt::Horizontal,_title,Qt::EditRole);
             }
             else{
-                proxyModel->setHeaderData(i,Qt::Horizontal,model->record().fieldName(i),Qt::DisplayRole);
-                proxyModel->setHeaderData(i,Qt::Horizontal,model->record().fieldName(i),Qt::EditRole);
+                proxyModel->setHeaderData(i,Qt::Horizontal,fieldName,Qt::DisplayRole);
+                proxyModel->setHeaderData(i,Qt::Horizontal,fieldName,Qt::EditRole);
             }
         }
     }

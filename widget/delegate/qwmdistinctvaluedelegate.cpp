@@ -1,5 +1,5 @@
 #include "qwmdistinctvaluedelegate.h"
-#include "comboboxdelegate.h"
+#include "qwmcomboboxdelegate.h"
 #include <QComboBox>
 #include <QtDebug>
 #include <QApplication>

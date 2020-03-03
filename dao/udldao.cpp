@@ -51,6 +51,8 @@ DECL_SQL(select_table_visible_fields_in_order,"select * from pceListTblFld f whe
                                               "and hd.KeyTbl=f.KeyTbl COLLATE  NOCASE "
                                               "and hd.KeyFld=f.KeyFLd COLLATE  NOCASE "
                                               ")  order by f.DisplayOrder")
+DECL_SQL(select_table_property,"select  * from pceUDLGenTblProp p    where p.KeyTbl=:table")
+
 END_SQL_DECLARATION
 
 void outputMessage(QtMsgType type, const QMessageLogContext &context, const QString &msg);
@@ -223,4 +225,21 @@ QStringList UDLDao::fieldsVisibleInOrderByGroup(QString profile, QString table, 
     }
     CI(key,result);
 
+}
+
+UDLTableProperty *UDLDao::tableProperty(QString table)
+{
+    QString key=QString("tableProperty.%1").arg(table);
+    CS(key,UDLTableProperty*);
+
+    UDLTableProperty * result=nullptr;
+    QSqlQuery q(APP->udl());
+    q.prepare(SQL(select_table_property));
+    q.bindValue(":table",table);
+    q.exec();
+    PRINT_ERROR(q);
+    if(q.next()){
+        result=R(q.record(),UDLTableProperty);
+    }
+    CI(key,result);
 }

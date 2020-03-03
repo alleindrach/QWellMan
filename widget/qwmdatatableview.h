@@ -11,6 +11,7 @@ class QWMDataTableView : public QRotatableTableView
 public:
     QWMDataTableView(QWidget *parent = nullptr);
     virtual void bindDelegate() override;
+    virtual void setModel(QAbstractItemModel *model) override;
 
 protected Q_SLOTS:
     virtual void onModeChange() override;

@@ -2,10 +2,10 @@
 #define DTO_H
 
 #define AUTO_PROPERTY(TYPE, NAME) \
-    Q_PROPERTY(TYPE NAME READ NAME WRITE NAME NOTIFY NAME ## Changed ) \
+    Q_PROPERTY(TYPE NAME READ NAME WRITE set##NAME NOTIFY NAME ## Changed ) \
     public: \
        TYPE NAME() const { return m_ ## NAME ; } \
-       void NAME(TYPE value) { \
+       void set##NAME(TYPE value) { \
           if (m_ ## NAME == value)  return; \
           m_ ## NAME = value; \
           emit NAME ## Changed(value); \
@@ -14,6 +14,17 @@
     private: \
        TYPE m_ ## NAME;
 
+#define AUTO_WRITE_PROPERTY(TYPE, NAME) \
+    Q_PROPERTY(TYPE NAME READ NAME WRITE set##NAME NOTIFY NAME ## Changed ) \
+    public: \
+       void set##NAME(TYPE value) { \
+          if (m_ ## NAME == value)  return; \
+          m_ ## NAME = value; \
+          emit NAME ## Changed(value); \
+        } \
+       Q_SIGNAL void NAME ## Changed(TYPE value);\
+    private: \
+       TYPE m_ ## NAME;
 
 #define DECLARE(x)  \
     Q_DECLARE_METATYPE(x)  \
