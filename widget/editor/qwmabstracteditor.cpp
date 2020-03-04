@@ -56,7 +56,8 @@ bool QWMAbstractEditor::eventFilter(QObject *watched, QEvent *event)
 void QWMAbstractEditor::focusInEvent(QFocusEvent *event)
 {
     if(event->reason()!=Qt::NoFocusReason){
-        this->taborders()[0]->setFocus();
+        if(taborders().size()>0)
+            this->taborders()[0]->setFocus();
     }
 }
 

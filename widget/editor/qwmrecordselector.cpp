@@ -19,32 +19,57 @@ QWMRecordSelector::QWMRecordSelector(QStringList  tables,QString idwell,QString 
     QWidget(parent),ui(new Ui::QWMRecordSelector),_title(title),_tables(tables),_idWell(idwell)
 {
     ui->setupUi(this);
-//    QSqlQueryModel*  model=LIB->libLookup(lib);
-//    QSqlRecord record=model->record();
-//    for(int i=0;i<record.count();i++){
-//        model->setHeaderData(i,Qt::Horizontal,record.fieldName(i),FIELD_ROLE);
-//    }
+    //    QSqlQueryModel*  model=LIB->libLookup(lib);
+    //    QSqlRecord record=model->record();
+    //    for(int i=0;i<record.count();i++){
+    //        model->setHeaderData(i,Qt::Horizontal,record.fieldName(i),FIELD_ROLE);
+    //    }
     init();
 }
 
+QWMRecordSelector::QWMRecordSelector(QString idwell,QString title,QWidget *parent ) :
+    QWidget(parent),ui(new Ui::QWMRecordSelector),_title(title),_idWell(idwell){
+    ui->setupUi(this);
+    init();
+}
 
+void QWMRecordSelector::loadTables(QStringList tables)
+{
+    QStandardItemModel * model=qobject_cast<QStandardItemModel *> (ui->treeView->model());
+    model->clear();
+    _tables=tables;
+    foreach(QString table,_tables){
+        loadTable(table,model);
+    }
+
+    ui->treeView->expandAll();
+}
 void QWMRecordSelector::setText(QString text)
 {
     _selectedValue=text;
-    QStandardItemModel * model = qobject_cast<QStandardItemModel*>( ui->treeView->model());
-    QModelIndexList matched = model->match(model->index(0,0),PK_VALUE_ROLE,text,1,Qt::MatchExactly|Qt::MatchRecursive);
-    if(!matched.isEmpty()){
-        QItemSelectionModel* sel = ui->treeView->selectionModel();
-        sel->setCurrentIndex(matched.first(),QItemSelectionModel::SelectCurrent);
+    if(!_selectedValue.isNull()&&!_selectedValue.isEmpty()){
+        QStringList parts=_selectedValue.split(".",Qt::SkipEmptyParts);
+        if(parts.size()==2){
+            QStandardItemModel * model = qobject_cast<QStandardItemModel*>( ui->treeView->model());
+            QModelIndexList matched = model->match(model->index(0,0),PK_VALUE_ROLE,parts[1],1,Qt::MatchExactly|Qt::MatchRecursive);
+            if(!matched.isEmpty()){
+                QItemSelectionModel* sel = ui->treeView->selectionModel();
+                sel->setCurrentIndex(matched.first(),QItemSelectionModel::SelectCurrent);
+            }
+        }
     }
 }
 
 QString QWMRecordSelector::text()
 {
-    QModelIndex curIndex=ui->treeView->currentIndex();
-    if(curIndex.isValid() && curIndex.data(CAT_ROLE)==QWMApplication::RECORD){
-        QString  v = curIndex.data(PK_VALUE_ROLE).toString();
-        return v;
+    QItemSelectionModel* sel = ui->treeView->selectionModel();
+    if(sel->hasSelection()){
+        QModelIndex curIndex=ui->treeView->currentIndex();
+        if(curIndex.isValid() && curIndex.data(CAT_ROLE)==QWMApplication::RECORD){
+            QString id = curIndex.data(PK_VALUE_ROLE).toString();
+            QString tbl=curIndex.data(FIELD_ROLE).toString();
+            return QString("%1.%2").arg(tbl,id);
+        }
     }
     return _selectedValue;
 }
@@ -69,12 +94,13 @@ void QWMRecordSelector::loadTable(QString childtable,QStandardItemModel* tv)
     QStandardItem*  tableItem=new QStandardItem();
     MDLTable * tableInfo=MDL->tableInfo(table);
     QString des=tableInfo->CaptionLongP();
-//    des+=tr("(无数据)");
+    //    des+=tr("(无数据)");
     tableItem->setText(des); //设置第1列的文字
     //        item->setText(MainWindow::colItemType,"type=itTopItem");  //设置第2列的文字
     tableItem->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
     tableItem->setData(QWMApplication::NA,CAT_ROLE); //设置节点第1列的Qt::UserRole的Data
     tableItem->setData(QString(),PK_VALUE_ROLE); //设置节点第1列的Qt::UserRole的Data
+    tableItem->setData(tableInfo->KeyTbl(),FIELD_ROLE); //设置节点第1列的Qt::UserRole的Data
     tableItem->setToolTip(QString("[%1]").arg(table));
     tv->appendRow(tableItem);
 
@@ -88,6 +114,7 @@ void QWMRecordSelector::loadTable(QString childtable,QStandardItemModel* tv)
         dataTableItem->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable );
         dataTableItem->setData(QWMApplication::RECORD,CAT_ROLE);
         dataTableItem->setData(pk,PK_VALUE_ROLE);
+        dataTableItem->setData(tableInfo->KeyTbl(),FIELD_ROLE); //设置节点第1列的Qt::UserRole的Data
         dataTableItem->setToolTip(QString("[%1]").arg(table));
         tableItem->appendRow(dataTableItem);
         loadChildTable(dataTableItem,stack);
@@ -112,11 +139,12 @@ void QWMRecordSelector::loadChildTable(QStandardItem *parent,QStack<QString> tra
     QStandardItem*  tableItem=new QStandardItem();
     MDLTable * tableInfo=MDL->tableInfo(table);
     QString des=tableInfo->CaptionLongP();
-//    des+=tr("(无数据)");
+    //    des+=tr("(无数据)");
     tableItem->setText(des); //设置第1列的文字
     tableItem->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
     tableItem->setData(QWMApplication::NA,CAT_ROLE); //设置节点第1列的Qt::UserRole的Data
     tableItem->setData(QString(),PK_VALUE_ROLE); //设置节点第1列的Qt::UserRole的Data
+    tableItem->setData(tableInfo->KeyTbl(),FIELD_ROLE); //设置节点第1列的Qt::UserRole的Data
     tableItem->setToolTip(QString("[%1]").arg(table));
     parent->appendRow(tableItem);
 
@@ -130,6 +158,7 @@ void QWMRecordSelector::loadChildTable(QStandardItem *parent,QStack<QString> tra
         dataTableItem->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
         dataTableItem->setData(QWMApplication::RECORD,CAT_ROLE); //设置节点第1列的Qt::UserRole的Data
         dataTableItem->setData(pk,PK_VALUE_ROLE); //设置节点第1列的Qt::UserRole的Data
+        dataTableItem->setData(tableInfo->KeyTbl(),FIELD_ROLE); //设置节点第1列的Qt::UserRole的Data
         dataTableItem->setToolTip(QString("[%1]").arg(table));
         tableItem->appendRow(dataTableItem);
         if(!trace.empty())
@@ -147,7 +176,7 @@ void QWMRecordSelector::init()
 {
     connect(ui->treeView,&QTableView::doubleClicked,this,&QWMRecordSelector::on_item_doubleclick);
     ui->treeView->installEventFilter(this);;
-//    QSortFilterProxyModel * proxyModel=new QSortFilterProxyModel(this);
+    //    QSortFilterProxyModel * proxyModel=new QSortFilterProxyModel(this);
     QStandardItemModel * model=new QStandardItemModel(this);
     foreach(QString table,_tables){
         loadTable(table,model);
@@ -157,7 +186,7 @@ void QWMRecordSelector::init()
 }
 
 
- QItemSelectionModel* QWMRecordSelector::selectionModel()
+QItemSelectionModel* QWMRecordSelector::selectionModel()
 {
     return ui->treeView->selectionModel();
 }
@@ -172,7 +201,7 @@ bool QWMRecordSelector::eventFilter(QObject *watched, QEvent *event)
         }
     }
     if( event->type()==QEvent::KeyPress ){
-//        qDebug()<<"TableView:"<<event->type();
+        //        qDebug()<<"TableView:"<<event->type();
         QKeyEvent * keyEvent=(QKeyEvent*) event;
         if(keyEvent->key()==Qt::Key_Return){
             emit this->accepted(this);

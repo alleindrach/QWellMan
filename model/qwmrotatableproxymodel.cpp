@@ -211,6 +211,24 @@ QString QWMRotatableProxyModel::fieldTitle(QModelIndex index)
     QVariant fieldInfo= model->headerData(preProxyIndex.column(),Qt::Horizontal,Qt::DisplayRole);
     return fieldInfo.toString();
 }
+
+QModelIndex QWMRotatableProxyModel::indexOfSameRecord(QModelIndex index, QString fieldName)
+{
+    P(pmodel);
+    S(smodel);
+    QModelIndex pindex=this->mapToSource(index);
+    QModelIndex sindex=pmodel->mapToSource(pindex);
+
+    int col=smodel->record().indexOf(fieldName);
+    if(col>=0){
+        QModelIndex saindex=smodel->index(sindex.row(),col);
+        QModelIndex paindex=pmodel->mapFromSource(saindex);
+        QModelIndex taindex=this->mapFromSource(paindex);
+        return taindex;
+    }
+
+    return QModelIndex();
+}
 QString QWMRotatableProxyModel::tableName()
 {
     S(model);

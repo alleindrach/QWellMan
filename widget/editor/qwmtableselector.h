@@ -1,5 +1,5 @@
-#ifndef QWMRECORDSELECTOR_H
-#define QWMRECORDSELECTOR_H
+#ifndef QWMTABLESELECTOR_H
+#define QWMTABLESELECTOR_H
 #include <QWidget>
 #include <QAbstractButton>
 #include <QItemSelection>
@@ -10,15 +10,13 @@
 #include <QStandardItemModel>
 #include <QTreeView>
 namespace Ui {
-class QWMRecordSelector;
+class QWMTableSelector;
 }
-class QWMRecordSelector : public QWidget
+class QWMTableSelector : public QWidget
 {
     Q_OBJECT
 public:
-    explicit QWMRecordSelector(QStringList tables,QString idwell,QString title,QWidget *parent = nullptr);
-    explicit QWMRecordSelector(QString idwell,QString title,QWidget *parent = nullptr);
-    void  loadTables(QStringList tables);
+    explicit QWMTableSelector(QString title,QWidget *parent = nullptr);
     void  setText(QString text);
     QString text();
     QItemSelectionModel * selectionModel();
@@ -26,19 +24,14 @@ public:
     QList<QWidget *> taborders()  ;
 private:
     void init();
-    Ui::QWMRecordSelector *ui;
+    Ui::QWMTableSelector *ui;
     QString _selectedValue;
     QString _title;
-    QStringList _tables;
-    QString _idWell;
-    void  loadTable(QString table,QStandardItemModel * tvModel);
-    void  loadChildTable(QStandardItem* parent,QStack<QString> trace);
+
 signals:
     void  accepted(QWidget * );
     void  rejected(QWidget * );
 private slots:
     void on_item_doubleclick(const QModelIndex &index);
 };
-
-
-#endif // QWMRECORDSELECTOR_H
+#endif // QWMTABLESELECTOR_H

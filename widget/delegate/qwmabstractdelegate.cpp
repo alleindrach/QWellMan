@@ -94,47 +94,12 @@ bool QWMAbstractDelegate::eventFilter(QObject *watched, QEvent *event) {
         event->accept();
         return true;
     }
-//    if(event->type()==QEvent::FocusOut){
-//        if(isEditor(watched)){
-//            closeEditorAndRevert(dynamic_cast<QWidget*>( watched));
 
-//            event->accept();
-//            return true;
-//        }
-//    }
-    //        if (KEY_MATCHED(event,QKeySequence::Cancel)) {
-    //            // don't commit data
-    //            emit this->rejected(this);
-    //            event->accept();
-    //            return true;
-    //        }
-    //    }
-
-
-    //    qDebug()<<"eventFilter Event:W="<<watched->metaObject()->className()<<"/"<<watched->objectName()<<",E="<<event->type();
-    //    if(event->type()==QEvent::KeyPress||event->type()==QEvent::KeyRelease){
-    //        QKeyEvent *ke=static_cast<QKeyEvent*>(event);
-
-    //        if(ke->key()==Qt::Key_Tab){
-    //            qDebug()<<"\t KeyPressed:"<<ke->key();
-    //            event->accept();
-    //            return true;
-    //        }
-    //    }
-    //    if(watched->metaObject()->className()==QWMIconSelector::staticMetaObject.className()){
-
-    //        if(event->type()==QEvent::KeyPress){
-    //            QKeyEvent *  keyEvent=(QKeyEvent*) event;
-    //            qDebug()<<"Key:"<<keyEvent->key();
-    //        }
-    //    }
-    //    if(event->type()==QEvent::FocusIn){
-    //        qDebug()<<"FocusIN!";
-    //    }
-    //    if(event->type()==QEvent::FocusOut){
-    //        qDebug()<<"FocusOut!"<<watched->metaObject()->className()<<","<<watched->objectName();
-    //        event->ignore();
-    //    }
+    if(event->type()==QEvent::FocusOut){
+//        closeEditorAndRevert(dynamic_cast<QWidget*>( watched));
+        event->accept();
+        return true;
+    }
     return QStyledItemDelegate::eventFilter(watched,event);
 }
 

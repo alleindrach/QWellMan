@@ -14,7 +14,8 @@ struct Modifier{
 class QWMFieldEditCommand : public QUndoCommand
 {
 public:
-    explicit QWMFieldEditCommand(QWMTableModel * model,QList<Modifier> changelist, QUndoCommand *parent = nullptr);
+    enum Type{SingleField,LinkedFields};
+    explicit QWMFieldEditCommand(QWMTableModel * model,QList<Modifier> changelist,Type typ=SingleField, QUndoCommand *parent = nullptr);
     ~QWMFieldEditCommand();
     virtual void undo() override;
     virtual void redo() override;
@@ -25,6 +26,7 @@ public slots:
 private:
     QWMTableModel * _model;
     QList<Modifier> _changlist;
+    Type _type{SingleField};
 
 };
 

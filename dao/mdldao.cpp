@@ -8,6 +8,8 @@
 #include "QDebug"
 #include <QSqlField>
 #include <QtCore/qmath.h>
+#include "udldao.h"
+#include "welldao.h"
 //
 QHash<QString ,QVariant> MDLDao::_cache={};
 
@@ -123,6 +125,7 @@ void MDLDao::readConfig(QHash<QString,QString>&  config){
     config.insert("SysMU","sysModUser");
     config.insert("SysLD","sysLockDate");
     config.insert("LibTab","sysTab");
+    config.insert("TblKeyParent","TblKeyParent");
     return ;
 
 }
@@ -453,6 +456,22 @@ QList<MDLTable*> MDLDao::childTables(QString table,QStringList hidden, QString p
     CI(key,result)
 }
 
+QList<MDLTable *> MDLDao::topTables(QStringList hidden, QString profile)
+{
+    QString key=QString("topTables.%1").arg(profile);
+    CS_LIST(key,MDLTable);
+
+    QSqlQuery q(APP->mdl());
+    QStringList critieal=hidden.replaceInStrings(QRegExp("^(\\w)"), "'\\1")
+            .replaceInStrings(QRegExp("(\\w)$"), "\\1'");
+    q.prepare(SQL(select_child_tables).arg(critieal.join(",")));
+    q.exec();
+    PRINT_ERROR(q);
+    QList<MDLTable*> result;
+    result=Q(q,MDLTable);
+    CI(key,result)
+}
+
 QString MDLDao::idField(QString table)
 {
     if(table.compare(CFG(KeyTblMain),Qt::CaseInsensitive)==0){
@@ -513,3 +532,73 @@ QList<MDLFieldLookup *> MDLDao::fieldLookupinfo(QString table, QString field)
     CI(key,result);
 }
 
+void MDLDao::loadChildTable(QStandardItem * parent,bool showGroup)
+{
+    QString strTblKey=parent->data(TABLE_NAME_ROLE).toString();
+    QList<MDLTable *> childTables=UDL->childTables(strTblKey,APP->profile());
+    foreach(MDLTable * table,childTables){
+        QString strChildTblKey=table->KeyTbl();
+        QString strChildTblName=table->CaptionLongP();
+        QStandardItem*  tableItem=new QStandardItem(); //新建节点时设定类型为 itTopItem
+        if(showGroup)
+            tableItem->setIcon(APP->icons()["data@4x"]); //设置第1列的图标
+        tableItem->setText(strChildTblName); //设置第1列的文字
+        tableItem->setFlags(Qt::ItemIsEnabled |Qt::ItemIsSelectable);
+        tableItem->setData(QWMApplication::TABLE,CAT_ROLE); //设置节点第1列的Qt::UserRole的Data
+        tableItem->setData(strChildTblKey,TABLE_NAME_ROLE); //设置节点第1列的Qt::UserRole的Data
+        tableItem->setData(strChildTblName,TEXT_ROLE); //设置节点第1列的Qt::UserRole的Data
+        tableItem->setData(QString(),RECORD_DES_ROLE);
+        tableItem->setData(QString(),PK_VALUE_ROLE);
+        tableItem->setToolTip(QString("[%1] %2").arg(table->KeyTbl()).arg(table->Help()));
+        parent->appendRow(tableItem);
+        loadChildTable(tableItem,showGroup);
+    }
+}
+
+QStandardItemModel * MDLDao::loadDataTree(bool showGroup,QObject * /*parent*/)
+{
+    //    QString key=QString("fieldLookupinfo.%1.%2").arg(table).arg(field);
+    //    CS_LIST(key,MDLFieldLookup);
+
+    QStandardItemModel * model=new QStandardItemModel(this);
+    QStringList groups=UDL->tableGroup(APP->profile());
+     QStandardItem*  item;
+    foreach(QString group ,groups){
+        if(showGroup){
+            item=new QStandardItem(); //新建节点时设定类型为 itTopItem
+            item->setIcon(APP->icons()["folder-open@4x"]); //设置第1列的图标
+
+            item->setText(group); //设置第1列的文字
+            item->setFlags(Qt::ItemIsEnabled |Qt::ItemIsSelectable);
+            item->setData(CAT_ROLE,QWMApplication::GROUP); //设置节点第1列的Qt::UserRole的Data
+            model->appendRow(item);//添加顶层节点
+        }
+        QList<MDLTable*> tables=UDL->tablesOfGroup(group,APP->profile());
+        foreach(MDLTable * table ,tables){
+            QString text=table->CaptionLongP();
+            QString key=table->KeyTbl();
+            QStandardItem*  tableItem=new QStandardItem(); //新建节点时设定类型为 itTopItem
+            if(showGroup)
+                tableItem->setIcon(APP->icons()["data@4x"]); //设置第1列的图标
+
+            tableItem->setText(text); //设置第1列的文字
+            //        item->setText(MainWindow::colItemType,"type=itTopItem");  //设置第2列的文字
+            tableItem->setFlags(Qt::ItemIsEnabled |Qt::ItemIsSelectable);
+            tableItem->setData(QWMApplication::TABLE,CAT_ROLE); //设置节点第1列的Qt::UserRole的Data
+            tableItem->setData(key,TABLE_NAME_ROLE);
+            tableItem->setData(text,TEXT_ROLE);
+            tableItem->setData(QString(),RECORD_DES_ROLE);
+            tableItem->setData(QString(),PK_VALUE_ROLE);
+            tableItem->setToolTip(QString("[%1] %2").arg(table->KeyTbl()).arg(table->Help()));
+            if(showGroup){
+                item->appendRow(tableItem);
+            }else{
+                model->appendRow(tableItem);
+            }
+
+            loadChildTable(tableItem,showGroup);
+        }
+
+    }
+    return model;
+}

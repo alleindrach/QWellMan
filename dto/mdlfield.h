@@ -40,6 +40,7 @@ public:
     public :
     QString caption();
     QString refValue(QString refId);
+    QString lookupTable(QSqlRecord  rec=QSqlRecord());
     signals:
 
 };

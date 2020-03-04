@@ -9,6 +9,7 @@
 #include "mdlunit.h"
 #include "mdlfieldlookup.h"
 #include "mdltablechildren.h"
+#include "qstandarditemmodel.h"
 class MDLDao : public QObject
 {
     Q_OBJECT
@@ -43,14 +44,17 @@ public:
     MDLTable * tableInfo(QString Table);
     MDLField * fieldInfo(QString table,QString field);
     QList<MDLTable*>  childTables(QString table,QStringList hidden,QString profile=QString());
+    QList<MDLTable*>  topTables(QStringList hidden,QString profile=QString());
     QString idField(QString table);
     QStringList fieldGroup(QString table);
     QStringList fieldOfGroup(QString table,QString field);
     QList<MDLFieldLookup *> fieldLookupinfo(QString table,QString field);
     QString filedCapl(QString table,QString field);
+    QStandardItemModel * loadDataTree(bool showGroup,QObject * parent);
 
 signals:
 private:
+    void loadChildTable(QStandardItem * parent,bool showGroup);
     QSqlDatabase  _db;
     static  QHash<QString,QString> _sql;
     static MDLDao* _instance;

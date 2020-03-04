@@ -10,7 +10,7 @@ class QWMRefLookupDelegate : public QWMAbstractDelegate
 {
     Q_OBJECT
 public:
-    enum TYPE{ Plain,Tab,SigleStepRecord,MultiStepRecord};
+    enum TYPE{ Plain,Tab,SigleStepRecord,TwoStepRecord};
     Q_ENUM(TYPE);
     Q_INVOKABLE   QWMRefLookupDelegate(QString lib,QString disp,QString title,bool editable=false,QObject * parent=nullptr);
     Q_INVOKABLE   QWMRefLookupDelegate(QStringList tables,QString title,QString  idwell,TYPE typ=SigleStepRecord, QObject * parent=nullptr);
@@ -18,9 +18,7 @@ public:
     void setEditorData(QWidget *editor, const QModelIndex &index) const override;
     void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
 //    void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
-    void handleNeighbourField(QWidget *editor,QAbstractItemModel *model,
-                              const QModelIndex &index,QModelIndex aIndex) const ;
-    virtual bool eventFilter(QObject *watched, QEvent *event) override;
+       virtual bool eventFilter(QObject *watched, QEvent *event) override;
     virtual bool isEditor(QObject  * widget ) override;
 private :
     QString _lib;
@@ -30,6 +28,9 @@ private :
     QString _idwell;
     TYPE _type{Plain};
     bool _editable{false};
+    void handleNeighbourField(QWidget *editor,QAbstractItemModel *model,
+                              const QModelIndex &index,QModelIndex aIndex, QList<QPair<QString,QVariant>>&) const ;
+
 };
 
 #endif // QWMLIBLOOKUPDELEGATE_H

@@ -279,6 +279,10 @@ QString WellDao::recordDes(QString table, QSqlRecord record)
             }else{
                 if(!var.contains(".unit")){
                     QVariant value=record.value(record.indexOf(var));
+                    MDLField * fieldInfo=MDL->fieldInfo(table,var);
+                    if(fieldInfo!=nullptr){
+                        value=fieldInfo->refValue(value.toString());
+                    }
                     cachedValue.insert(var,value);
                     cachedTransferedValue.insert(var,value);
                     //                    rdResult.replace("<"+var+">",value);

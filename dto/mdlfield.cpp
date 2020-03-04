@@ -27,41 +27,63 @@ QString MDLField::refValue(QString refId){
     }
     return refId;
 }
+
+QString MDLField::lookupTable(QSqlRecord  rec)
+{
+    if(this->LookupTyp()==MDLDao::Foreign){//12+8
+        if(IS_SPEC_REF_FIELD(this)){
+            //由实际记录的TblKeyParent指定
+            if(!rec.isEmpty()){
+                QString fn=SPEC_REF_TABLE_FLD;
+                if( !rec.value(SPEC_REF_TABLE_FLD).isValid() && !rec.value(SPEC_REF_TABLE_FLD).isNull() )
+                    return rec.value(SPEC_REF_TABLE_FLD).toString();
+            }
+        }else{
+            QList<MDLFieldLookup *> fl=MDL->fieldLookupinfo(this->KeyTbl(),this->KeyFld());
+            foreach(MDLFieldLookup * fli,fl){
+                if(fli->TableKey()){
+                    return fli->LookupItem();
+                }
+            }
+        }
+    }
+    return QString();
+}
 QString MDLField::caption()
 {
-      QString rd=CaptionLong();
+    QString rd=CaptionLong();
 
-      QString rdResult=rd;
-      QHash<QString,QVariant> cachedValue;
-      if(!rd.isNull()&&!rd.isEmpty()){
-          QRegExp pat("<([\\w\.]*)>");
-          int count = 0;
-          int pos = 0;
-          while ((pos = pat.indexIn(rd, pos)) != -1) {
-              ++count;
-              QString var=pat.cap(1);
-              if(!cachedValue.contains(var)){
-                  if(var.compare("capl",Qt::CaseInsensitive)==0){
-                      QList<MDLFieldLookup *> fl=MDL->fieldLookupinfo(this->KeyTbl(),this->KeyFld());
-                      if(!fl.isEmpty()){
-                          MDLFieldLookup *fli=fl.first();
-                          MDLTable * refTable=MDL->tableInfo(fli->LookupItem());
-                          if(refTable!=nullptr){
-                              QString value=refTable->CaptionLongS();
-                              cachedValue.insert(var,value);
-//                              cachedTransferedValue.insert(var,value);
-                          }
-                      }
-                  }
-              }
-              pos += pat.matchedLength();
-          }
-          foreach(QString key,cachedValue.keys()){
-              QVariant value=cachedValue[key];
-              rdResult.replace("<"+key+">",value.toString());
-          }
-      }
-      return rdResult;
+    QString rdResult=rd;
+    QHash<QString,QVariant> cachedValue;
+    if(!rd.isNull()&&!rd.isEmpty()){
+        QRegExp pat("<([\\w\.]*)>");
+        int count = 0;
+        int pos = 0;
+        while ((pos = pat.indexIn(rd, pos)) != -1) {
+            ++count;
+            QString var=pat.cap(1);
+            if(!cachedValue.contains(var)){
+                if(var.compare("capl",Qt::CaseInsensitive)==0){
+                    QList<MDLFieldLookup *> fl=MDL->fieldLookupinfo(this->KeyTbl(),this->KeyFld());
+                    if(!fl.isEmpty()){
+                        MDLFieldLookup *fli=fl.first();
+                        MDLTable * refTable=MDL->tableInfo(fli->LookupItem());
+                        if(refTable!=nullptr){
+                            QString value=refTable->CaptionLongS();
+                            cachedValue.insert(var,value);
+                            //                              cachedTransferedValue.insert(var,value);
+                        }
+                    }
+                }
+            }
+            pos += pat.matchedLength();
+        }
+        foreach(QString key,cachedValue.keys()){
+            QVariant value=cachedValue[key];
+            rdResult.replace("<"+key+">",value.toString());
+        }
+    }
+    return rdResult;
 }
 
 

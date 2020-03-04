@@ -11,6 +11,10 @@ class QWMAbstractEditor : public QDialog
 {
     Q_OBJECT
 public:
+    template<typename Base, typename T>
+    inline bool instanceof(const T *ptr) {
+        return dynamic_cast<const Base*>(ptr) != nullptr;
+    }
     explicit QWMAbstractEditor( QWidget *parent = nullptr);
     virtual bool eventFilter(QObject *watched, QEvent *event) override;
     virtual void focusInEvent(QFocusEvent *event) override;

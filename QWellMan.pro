@@ -53,6 +53,8 @@ SOURCES += \
     widget/editor/qwmlibtabselector.cpp \
     widget/editor/qwmrecordselector.cpp \
     widget/editor/qwmrecordsinglestepselector.cpp \
+    widget/editor/qwmrecordtwostepselector.cpp \
+    widget/editor/qwmtableselector.cpp \
     widget/qdlgwellfieldsselector.cpp \
     widget/qwmdatatableview.cpp \
     widget/qwmheaderview.cpp
@@ -96,6 +98,8 @@ HEADERS += \
     widget/editor/qwmlibtabselector.h \
     widget/editor/qwmrecordselector.h \
     widget/editor/qwmrecordsinglestepselector.h \
+    widget/editor/qwmrecordtwostepselector.h \
+    widget/editor/qwmtableselector.h \
     widget/qdlgwellfieldsselector.h \
     widget/qwmdatatableview.h \
     widget/qwmheaderview.h
@@ -110,6 +114,8 @@ FORMS += \
     widget/editor/qwmlibtabselector.ui \
     widget/editor/qwmrecordselector.ui \
     widget/editor/qwmrecordsinglestepselector.ui \
+    widget/editor/qwmrecordtowstepselector.ui \
+    widget/editor/qwmtableselector.ui \
     widget/qdlgwellfieldsselector.ui \
 
 # Default rules for deployment.

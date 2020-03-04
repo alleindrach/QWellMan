@@ -24,8 +24,6 @@ public:
     void addUndoCommand(QUndoCommand * command);
     QUndoStack& undoStack();
     void loadDataTree();
-    void loadChildTable(QStandardItem *);
-
     void showStatus(QString status);
     void showProfile(QString profile);
     void showUnitSetting(QString unit);

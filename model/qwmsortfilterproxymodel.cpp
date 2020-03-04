@@ -366,6 +366,26 @@ bool QWMSortFilterProxyModel::setData(const QModelIndex &item, const QVariant &v
         list.append(m);
         QWMFieldEditCommand * command=new QWMFieldEditCommand(model,list);
         DOC->addUndoCommand(command);
+    }else if(role==LINKED_FIELDS){
+        QModelIndex sourceIndex=mapToSource(item);
+        Modifier m;
+        m.col=sourceIndex.column();
+        m.row=sourceIndex.row();
+        QList<QPair<QString,QVariant>> newValue=value.value<QList<QPair<QString,QVariant>>>();
+        QList<QPair<QString,QVariant>> oldValue;
+        for(int i=0;i<newValue.size();i++){
+            QString fieldName=newValue[i].first;
+            int col=model->record().indexOf(fieldName);
+            QModelIndex aIndex=model->index(m.row,col);
+            QVariant oldv=model->data(aIndex,Qt::EditRole);
+            oldValue.append(QPair<QString,QVariant>(fieldName,oldv));
+        }
+        m.newValue=value;
+        m.oldValue=QVariant::fromValue(oldValue);
+        QList<Modifier> list;
+        list.append(m);
+        QWMFieldEditCommand * command=new QWMFieldEditCommand(model,list,QWMFieldEditCommand::LinkedFields);
+        DOC->addUndoCommand(command);
     }else
     {
         return QExSortFilterProxyModel::setData(item,value,role);

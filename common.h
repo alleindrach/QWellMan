@@ -39,6 +39,7 @@
 #define MODEL_ROLE  (Qt::UserRole+160)
 #define SELECT_ROLE (Qt::UserRole+170)
 #define CHILD_TABLE_NAME_ROLE (Qt::UserRole+180)
+#define LINKED_FIELDS (Qt::UserRole+190)
 #define BEGIN_SQL_DECLARATION(typ) \
     QHash<QString,QString> typ::_sql={
 
@@ -170,5 +171,8 @@ if(x!=nullptr && x->metaObject()->className()==tp::staticMetaObject.className())
     QString title=  model->fieldTitle(index);\
     editor->setWindowTitle(title);
 
+#define IS_SPEC_REF_FIELD(fieldInfo)\
+    (fieldInfo->KeyFld().compare(CFG(ParentID),Qt::CaseInsensitive)==0)
 
+#define SPEC_REF_TABLE_FLD CFG(TblKeyParent)
 #endif // COMMON_H

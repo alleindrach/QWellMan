@@ -111,48 +111,10 @@ void QWMDataEditor::redo()
 
 void QWMDataEditor::loadDataTree()
 {
-    QStringList groups=UDL->tableGroup(APP->profile());
-
-    //初始化Tree
-    //QTreeWidgetItem *item; //节点
-    QString dataStr=""; // Item的Data 存储的string
-    //    ui->trvTables->clear();//清除目录树所有节点
-    QIcon icon;
     QSqlRecord wellRec=WELL->well(_idWell);
     QString wellTitle=WELL->recordDes(CFG(KeyTblMain),wellRec);
-    QStandardItemModel * model=new QStandardItemModel(ui->trvTables);
     this->setWindowTitle(wellTitle);
-    foreach(QString group ,groups){
-        QStandardItem*  item=new QStandardItem(); //新建节点时设定类型为 itTopItem
-        item->setIcon(APP->icons()["folder-open@4x"]); //设置第1列的图标
-
-        item->setText(group); //设置第1列的文字
-        //        item->setText(MainWindow::colItemType,"type=itTopItem");  //设置第2列的文字
-        item->setFlags(Qt::ItemIsEnabled );
-        item->setData(CAT_ROLE,QWMApplication::GROUP); //设置节点第1列的Qt::UserRole的Data
-        model->appendRow(item);//添加顶层节点
-        QList<MDLTable*> tables=UDL->tablesOfGroup(group,APP->profile());
-        foreach(MDLTable * table ,tables){
-            QString text=table->CaptionLongP();
-            QString key=table->KeyTbl();
-            QStandardItem*  tableItem=new QStandardItem(); //新建节点时设定类型为 itTopItem
-            tableItem->setIcon(APP->icons()["data@4x"]); //设置第1列的图标
-
-            tableItem->setText(text); //设置第1列的文字
-            //        item->setText(MainWindow::colItemType,"type=itTopItem");  //设置第2列的文字
-            tableItem->setFlags(Qt::ItemIsEnabled );
-            tableItem->setData(QWMApplication::TABLE,CAT_ROLE); //设置节点第1列的Qt::UserRole的Data
-            tableItem->setData(key,TABLE_NAME_ROLE);
-            tableItem->setData(text,TEXT_ROLE);
-            tableItem->setData(QString(),RECORD_DES_ROLE);
-            tableItem->setData(QString(),PK_VALUE_ROLE);
-            tableItem->setToolTip(QString("[%1] %2").arg(table->KeyTbl()).arg(table->Help()));
-            item->appendRow(tableItem);
-
-            loadChildTable(tableItem);
-        }
-
-    }
+    QStandardItemModel * model= MDL->loadDataTree(true,this);
     ui->trvTables->setModel(model);
     ui->trvTables->expandAll();
     QItemSelectionModel * selectModel= ui->trvTables->selectionModel();
@@ -162,34 +124,8 @@ void QWMDataEditor::loadDataTree()
         selectModel->setCurrentIndex(matchedList.first(),QItemSelectionModel::SelectCurrent);
         editTable(matchedList.first());
     }
-
 }
 
-void QWMDataEditor::loadChildTable(QStandardItem * parent)
-{
-    QString strTblKey=parent->data(TABLE_NAME_ROLE).toString();
-    QStandardItemModel * model=parent->model();
-    QList<MDLTable *> childTables=UDL->childTables(strTblKey,APP->profile());
-    foreach(MDLTable * table,childTables){
-        QString strChildTblKey=table->KeyTbl();
-        QString strChildTblName=table->CaptionLongP();
-        QStandardItem*  tableItem=new QStandardItem(); //新建节点时设定类型为 itTopItem
-        tableItem->setIcon(APP->icons()["data@4x"]); //设置第1列的图标
-
-        tableItem->setText(strChildTblName); //设置第1列的文字
-        //        item->setText(MainWindow::colItemType,"type=itTopItem");  //设置第2列的文字
-        tableItem->setFlags(Qt::ItemIsEnabled );
-        tableItem->setData(QWMApplication::TABLE,CAT_ROLE); //设置节点第1列的Qt::UserRole的Data
-        tableItem->setData(strChildTblKey,TABLE_NAME_ROLE); //设置节点第1列的Qt::UserRole的Data
-        tableItem->setData(strChildTblName,TEXT_ROLE); //设置节点第1列的Qt::UserRole的Data
-        tableItem->setData(QString(),RECORD_DES_ROLE);
-        tableItem->setData(QString(),PK_VALUE_ROLE);
-        tableItem->setToolTip(QString("[%1] %2").arg(table->KeyTbl()).arg(table->Help()));
-        parent->appendRow(tableItem);
-        loadChildTable(tableItem);
-    }
-
-}
 void QWMDataEditor::showStatus(QString status)
 {
     this->_lblStatus->setText(status);

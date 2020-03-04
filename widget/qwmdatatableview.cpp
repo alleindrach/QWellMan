@@ -104,7 +104,7 @@ void QWMDataTableView::bindDelegate()
                 (this->*func)(i,new QWMComboBoxDelegate(options,true,this));
             }else if (fieldInfo->LookupTyp()==MDLDao::Foreign){
                 QList<MDLFieldLookup *> fls=MDL->fieldLookupinfo(fieldInfo->KeyTbl(),fieldInfo->KeyFld());
-//                QList<QPair<QString,QVariant>> options{{tr("<空白>"),""}};
+                //                QList<QPair<QString,QVariant>> options{{tr("<空白>"),""}};
                 QStringList tables;
 
                 foreach(MDLFieldLookup * l,fls){
@@ -114,7 +114,12 @@ void QWMDataTableView::bindDelegate()
                     }
                 }
                 TP(this,QWMDataEditor,parentDoc);
-                (this->*func)(i,new QWMRefLookupDelegate(tables,fieldInfo->caption(),parentDoc->idWell(),QWMRefLookupDelegate::SigleStepRecord,this));
+                if(IS_SPEC_REF_FIELD(fieldInfo)){
+                    (this->*func)(i,new QWMRefLookupDelegate(tables,fieldInfo->caption(),parentDoc->idWell(),QWMRefLookupDelegate::TwoStepRecord,this));
+                }else{
+                    (this->*func)(i,new QWMRefLookupDelegate(tables,fieldInfo->caption(),parentDoc->idWell(),QWMRefLookupDelegate::SigleStepRecord,this));
+
+                }
             }
         }
     }
