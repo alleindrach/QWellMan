@@ -72,14 +72,14 @@ void QWMRecordTwoStepSelector::nav2RecordSelector()
         QWMRecordSelector * recordSelector=qobject_cast<QWMRecordSelector*>(ui->stackedWidget->widget(1));
         recordSelector->loadTables(QStringList(table));
         ui->stackedWidget->setCurrentIndex(1);
-        ui->btnNav->setText(tr("Next"));
+        ui->btnNav->setText(tr("Prev"));
     }
 }
 
 void QWMRecordTwoStepSelector::nav2TableSelector()
 {
     ui->stackedWidget->setCurrentIndex(0);
-    ui->btnNav->setText(tr("Prev"));
+    ui->btnNav->setText(tr("Next"));
 }
 
 void QWMRecordTwoStepSelector::setText(QString text)
