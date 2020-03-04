@@ -146,7 +146,7 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
                 else{
                     if(fieldInfo->LookupTyp()==MDLDao::Foreign||fieldInfo->LookupTyp()==MDLDao::List||fieldInfo->LookupTyp()==MDLDao::TabList){
                         if(role==Qt::DisplayRole){
-                            value=fieldInfo->refValue(value.toString());
+                            value=fieldInfo->refValue(value.toString(),this->record(index.row()));
                         }
                     }
                     QString unitType=fieldInfo->KeyUnit();
@@ -309,15 +309,15 @@ void QWMTableModel::setVisibleFields( QStringList visibleFieldsList)
 #endif
     for(int i=0;i<visibleFieldsList.length();i++){
         _fieldsInOrder.append(visibleFieldsList[i]);
-        _fieldsInOrderVice.insert(visibleFieldsList[i],i);
+        _fieldsInOrderVice.insert(visibleFieldsList[i].toLower(),i);
     }
     _visibleFields=visibleFieldsList.length();
 
     int recn=rec.count();
     for(int i=0;i<recn;i++){
         QString fn=rec.fieldName(i);
-        if(!_fieldsInOrderVice.contains(fn)){
-            _fieldsInOrderVice.insert(fn,_fieldsInOrder.length());
+        if(!_fieldsInOrderVice.contains(fn.toLower())){
+            _fieldsInOrderVice.insert(fn.toLower(),_fieldsInOrder.length());
             _fieldsInOrder.append(fn);
         }
     }
@@ -335,8 +335,8 @@ void QWMTableModel::mergeVisibleFields( QStringList lst)
 
 int QWMTableModel::fieldPosByOrder(const QString &field)
 {
-    if(_fieldsInOrderVice.contains(field))
-        return _fieldsInOrderVice[field];
+    if(_fieldsInOrderVice.contains(field.toLower()))
+        return _fieldsInOrderVice[field.toLower()];
     else
         return -1;
 }
@@ -368,7 +368,7 @@ const QString QWMTableModel::fieldInPosByOrder(int pos)
 
 bool QWMTableModel::isFieldVisible(const QString &field)
 {
-    if( _fieldsInOrderVice[field]<_visibleFields)
+    if( _fieldsInOrderVice[field.toLower()]<_visibleFields)
         return true;
     else
         return false;
@@ -378,14 +378,14 @@ int QWMTableModel::fieldIndexEx(const QString &fieldName)
 {
     int result=fieldIndex(fieldName);
     if(result<0){
-        if(!_fieldsCalcMap.contains(fieldName)){
+        if(!_fieldsCalcMap.contains(fieldName.toLower())){
             MDLField * fieldInfo=MDL->fieldInfo(this->tableName(),fieldName);
             if(fieldInfo!=nullptr&& fieldInfo->Calculated()==true){
-                _fieldsCalcMap.insert(fieldName,this->record().count()+_fieldsCalcMap.size());
+                _fieldsCalcMap.insert(fieldName.toLower(),this->record().count()+_fieldsCalcMap.size());
                 _fieldsCalcInOrder.append(fieldName);
             }
         }
-        result=_fieldsCalcMap[fieldName];
+        result=_fieldsCalcMap[fieldName.toLower()];
     }
     return result;
 }

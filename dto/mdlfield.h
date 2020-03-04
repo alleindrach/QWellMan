@@ -39,7 +39,7 @@ public:
 
     public :
     QString caption();
-    QString refValue(QString refId);
+    QString refValue(QString refId,QSqlRecord rec=QSqlRecord());
     QString lookupTable(QSqlRecord  rec=QSqlRecord());
     signals:
 

@@ -123,11 +123,13 @@ if(q.lastError().isValid()) qDebug()<<" Query["<<q.lastQuery()<<"] Error["<<q.la
 
 #define PK_VALUE(pk,record) \
     QString pk; \
-    if(record.indexOf(CFG(ID))>0){ \
+    if(!record.isEmpty()) {\
+    if(record.indexOf(CFG(ID))>=0){ \
         pk=record.value(CFG(ID)).toString(); \
     }else \
     { \
         pk=record.value(CFG(IDWell)).toString(); \
+    }  \
     }
 
 #define PK_FLD(pkf,record) \

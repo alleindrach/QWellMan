@@ -12,8 +12,16 @@ MDLField::MDLField(QObject *parent) : Record(parent)
 //如果当前字段查找方式=11，则直接从main.pceMDLTableFieldLookupList读取LookupItem作为可选项，不需要翻译
 //如果当前字段查找方式=12,则首先从lookupItem对应的表中，查找 对应的记录（idrec=当前记录值），显示对应表的RecordDes，如果 找不到 ，则按照11方式
 
-QString MDLField::refValue(QString refId){
-    if(this->LookupTyp()==MDLDao::Foreign||this->LookupTyp()==MDLDao::TabList){//12+8
+QString MDLField::refValue(QString refId,QSqlRecord rec){
+    if(this->LookupTyp()==MDLDao::Foreign&& IS_SPEC_REF_FIELD(this)){
+        QString refTableName=rec.value(SPEC_REF_TABLE_FLD).toString();
+        QSqlRecord rec=WELL->refRecord(refTableName,refId);
+        if(!rec.isEmpty()){
+            QString des=WELL->recordDes(refTableName,rec);
+            return des;
+        }
+    }
+    else if(this->LookupTyp()==MDLDao::Foreign||this->LookupTyp()==MDLDao::TabList){//12+8
         QList<MDLFieldLookup *> fl=MDL->fieldLookupinfo(this->KeyTbl(),this->KeyFld());
         foreach(MDLFieldLookup * fli,fl){
             if(fli->TableKey()){
