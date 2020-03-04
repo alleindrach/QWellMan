@@ -18,7 +18,9 @@ QWMComboBoxDelegate::~QWMComboBoxDelegate()
 QWidget *QWMComboBoxDelegate::createEditor(QWidget *parent , const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QComboBox *editor = new QComboBox(parent);
-
+    QFont font=editor->font();
+    font.setPixelSize(10);
+    editor->setFont(font);
     for(int i=0;i<m_options.size();i++){
         QPair<QString,QVariant> opt=m_options[i];
         editor->addItem(opt.first,opt.second);

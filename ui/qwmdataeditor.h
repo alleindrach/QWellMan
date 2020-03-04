@@ -36,6 +36,7 @@ public:
     bool saveAll(QStringList & errors);
     bool isDirty();
     bool isCurrentTableDirty();
+    QString inline const idWell(){return _idWell;};
 protected:
     virtual void closeEvent(QCloseEvent *event);
     QString nodeParentID(const QModelIndex &index,QString & lastError);

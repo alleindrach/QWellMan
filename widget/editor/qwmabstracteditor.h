@@ -18,6 +18,8 @@ public:
     void installEventFilters();
     void focusNext();
     void focusPrev();
+    virtual void on_btn_clicked();
+    virtual QSize sizeHint();
 signals:
     void  accepted(QWidget * );
     void  rejected(QWidget * );
@@ -25,6 +27,7 @@ private slots:
 
 protected:
 //    virtual void showEvent(QShowEvent *event);
+
 private:
 
     QWMAbstractDelegate * _delegate{nullptr};

@@ -38,6 +38,7 @@
 #define PK_VALUE_ROLE (Qt::UserRole+150)
 #define MODEL_ROLE  (Qt::UserRole+160)
 #define SELECT_ROLE (Qt::UserRole+170)
+#define CHILD_TABLE_NAME_ROLE (Qt::UserRole+180)
 #define BEGIN_SQL_DECLARATION(typ) \
     QHash<QString,QString> typ::_sql={
 
@@ -48,7 +49,7 @@
 #define SQL(name) (_sql[#name])
 #define PRINT_ERROR(q) \
 if(q.lastError().isValid()) qDebug()<<" Query["<<q.lastQuery()<<"] Error["<<q.lastError().text()<<"],bind["<< q.boundValues()<<"]"<<endl<<flush;\
-   // else qDebug()<<" Query["<<q.lastQuery()<<"]"<<",bind["<< q.boundValues()<<"]"<<endl<<flush;
+    else qDebug()<<" Query["<<q.lastQuery()<<"]"<<",bind["<< q.boundValues()<<"]"<<endl<<flush;
 
 #define CFG(x) APP->config()[#x]
 #define MDL (MDLDao::instance())
@@ -127,6 +128,23 @@ if(q.lastError().isValid()) qDebug()<<" Query["<<q.lastQuery()<<"] Error["<<q.la
     { \
         pk=record.value(CFG(IDWell)).toString(); \
     }
+
+#define PK_FLD(pkf,record) \
+    if(record.indexOf(CFG(ID))>=0){\
+        pkf=CFG(ID); \
+    }     \
+    else { \
+        pkf=CFG(IDWell); \
+    }
+
+#define PARENT_ID_FLD(pkf,record) \
+    if(record.indexOf(CFG(ParentID))>=0){\
+        pkf=CFG(ParentID); \
+    }     \
+    else { \
+        pkf=CFG(IDWell); \
+    }
+
 #define TP(t,tp,tpx) \
 QObject * x=t;\
      tp *  tpx=nullptr;\
@@ -151,5 +169,6 @@ if(x!=nullptr && x->metaObject()->className()==tp::staticMetaObject.className())
     QWMRotatableProxyModel  *  model=(QWMRotatableProxyModel*)index.model();\
     QString title=  model->fieldTitle(index);\
     editor->setWindowTitle(title);
+
 
 #endif // COMMON_H

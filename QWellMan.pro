@@ -43,7 +43,7 @@ SOURCES += \
     widget/delegate/qwmdatedelegate.cpp \
     widget/delegate/qwmdistinctvaluedelegate.cpp \
     widget/delegate/qwmicondelegate.cpp \
-    widget/delegate/qwmliblookupdelegate.cpp \
+    widget/delegate/qwmreflookupdelegate.cpp \
     widget/delegate/spinboxdelegate.cpp \
     widget/editor/qwmabstracteditor.cpp \
     widget/editor/qwmdatetimeeditor.cpp \
@@ -51,6 +51,8 @@ SOURCES += \
     widget/editor/qwmlibselector.cpp \
     widget/editor/qwmlibsingleselector.cpp \
     widget/editor/qwmlibtabselector.cpp \
+    widget/editor/qwmrecordselector.cpp \
+    widget/editor/qwmrecordsinglestepselector.cpp \
     widget/qdlgwellfieldsselector.cpp \
     widget/qwmdatatableview.cpp \
     widget/qwmheaderview.cpp
@@ -84,7 +86,7 @@ HEADERS += \
     widget/delegate/qwmdatedelegate.h \
     widget/delegate/qwmdistinctvaluedelegate.h \
     widget/delegate/qwmicondelegate.h \
-    widget/delegate/qwmliblookupdelegate.h \
+    widget/delegate/qwmreflookupdelegate.h \
     widget/delegate/spinboxdelegate.h \
     widget/editor/qwmabstracteditor.h \
     widget/editor/qwmdatetimeeditor.h \
@@ -92,6 +94,8 @@ HEADERS += \
     widget/editor/qwmlibselector.h \
     widget/editor/qwmlibsingleselector.h \
     widget/editor/qwmlibtabselector.h \
+    widget/editor/qwmrecordselector.h \
+    widget/editor/qwmrecordsinglestepselector.h \
     widget/qdlgwellfieldsselector.h \
     widget/qwmdatatableview.h \
     widget/qwmheaderview.h
@@ -104,6 +108,8 @@ FORMS += \
     widget/editor/qwmlibselector.ui \
     widget/editor/qwmlibsingleselector.ui \
     widget/editor/qwmlibtabselector.ui \
+    widget/editor/qwmrecordselector.ui \
+    widget/editor/qwmrecordsinglestepselector.ui \
     widget/qdlgwellfieldsselector.ui \
 
 # Default rules for deployment.

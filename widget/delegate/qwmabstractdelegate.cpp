@@ -19,13 +19,13 @@ QWMAbstractDelegate::~QWMAbstractDelegate()
 
 void QWMAbstractDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-
+    QWMAbstractEditor  * absEditor=qobject_cast<QWMAbstractEditor*>(editor);
 
     QWidget * view=editor->parentWidget();
     //    QRect visualRect=view->visualRect(index);
     QRect rect =view->geometry();
-    int widgetWidth=350;//option.rect.width();
-    int widgetHeight=350;
+    int widgetWidth=absEditor->sizeHint().width();//option.rect.width();
+    int widgetHeight=absEditor->sizeHint().height();
     int margin=0;
 
     int left=(rect.width()-widgetWidth)/2;
@@ -43,7 +43,7 @@ void QWMAbstractDelegate::commitAndCloseEditor(QWidget * editor)
 {
     editor->setFocus(Qt::NoFocusReason);//必须，否则tab位置不对
     emit commitData(editor);
-    emit closeEditor(editor,QAbstractItemDelegate::EditNextItem);
+    emit closeEditor(editor,QAbstractItemDelegate::NoHint);
 }
 
 void QWMAbstractDelegate::closeEditorAndRevert(QWidget *editor)

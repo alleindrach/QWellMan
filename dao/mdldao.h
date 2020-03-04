@@ -8,6 +8,7 @@
 #include "mdlfield.h"
 #include "mdlunit.h"
 #include "mdlfieldlookup.h"
+#include "mdltablechildren.h"
 class MDLDao : public QObject
 {
     Q_OBJECT

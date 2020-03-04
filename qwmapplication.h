@@ -39,7 +39,7 @@ public:
     void setWellDisplayList(QStringList list);
     QWMMain * mainWindow();
     void setMainWindow(QWMMain * v);
-    enum Catalog{ RECENT,ALL,FAVORITE,QUERY,QUICK_QUERY,GROUP,TABLE};
+    enum Catalog{ RECENT,ALL,FAVORITE,QUERY,QUICK_QUERY,GROUP,TABLE,RECORD,NA};
     Q_ENUM(Catalog)
 
 signals:

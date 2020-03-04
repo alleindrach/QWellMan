@@ -27,6 +27,7 @@ DECL_SQL(insert_well_to_catlog,"insert into %1 (%2) values(?)")
 DECL_SQL(delete_well_from_catlog,"delete from %1 where %2=? COLLATE NOCASE")
 DECL_SQL(select_record,"select  w.* from %1  w  where  not exists(select * from %2 d where w.%3=d.%4 COLLATE NOCASE  and w.%3=d.IDRec COLLATE NOCASE) and w.%3=:id COLLATE NOCASE")
 DECL_SQL(select_record2,"select  w.* from %1  w  where  not exists(select * from %2 d where  w.%3=d.IDRec COLLATE NOCASE) and w.%3=:id COLLATE NOCASE")
+DECL_SQL(select_records,"select  w.* from %1  w  where  not exists(select * from %2 d where  w.%3=d.IDRec COLLATE NOCASE) %4  order by %5")
 DECL_SQL(insert_record,"insert into %1 (%2) values( %3)")
 DECL_SQL(select_well_cnt_in_cat,"select  count(1) as cnt from %1  w  "
                                 "where  not exists(select * from %2 d where w.%3=d.%4 COLLATE NOCASE and w.%3=d.IDRec  COLLATE NOCASE) "
@@ -35,6 +36,8 @@ DECL_SQL(select_is_deleted,"select  count(1) as cnt from %1  w  "
                            "where   w.%2=:idwell  COLLATE NOCASE and w.%3=:idrec COLLATE NOCASE")
 DECL_SQL(select_distinct_value,"select  distinct %2 as fv from %1  w  where fv is not null"
                                " order by fv ")
+DECL_SQL(select_a_record ,"select * from %1 limit 1")
+
 END_SQL_DECLARATION
 
 WellDao::WellDao(QSqlDatabase &db,QObject *parent) : QObject(parent),_db(db)
@@ -87,7 +90,7 @@ QWMRotatableProxyModel *WellDao::table(QString tablename)
 
     QWMSortFilterProxyModel * proxy=new QWMSortFilterProxyModel(model);
     proxy->setSourceModel(model);
-//    proxy->setShowGroup(true);
+    //    proxy->setShowGroup(true);
     QSettings settings;
     int mode= settings.value(QString(EDITOR_TABLE_ENTRY_PREFIX).arg(tablename),QWMRotatableProxyModel::V).toInt();
     proxy->setShowGroup(mode==QWMRotatableProxyModel::V);
@@ -129,7 +132,7 @@ QWMRotatableProxyModel *WellDao::tableForEdit(const QString tablename,const QStr
     }
     processTable(sourceModel);
     CI(key,model);
-//    return model;
+    //    return model;
 }
 
 QSqlRecord WellDao::well(QString idWell)
@@ -319,7 +322,7 @@ QSqlRecord WellDao::refRecord(QString table, QString id)
               .arg(table) //%1 wvWellHeader
               .arg(CFG(SysRecDelTable)) //%2 wvSysDelRec
               .arg(CFG(ID)) //%3 IDREC
-            );
+              );
     q.bindValue(":id",id);
     q.exec();
     PRINT_ERROR(q);
@@ -371,7 +374,8 @@ void WellDao::initRecord(QSqlRecord & record,QString idWell,QString parentID){
     //初始化记录
     // record:空白记录
     //    idWell：为null时，说明此记录是在well还没有创建时进行的初始化，需要新建一个uuid，如果有值，且记录无idrec字段，说明和well是1：1的，需要赋值给idWell。
-    //    parentID:父表的id
+    //    parentID:父表的id，如果parentID为空，则IDRecParent=IDRec
+
     int idIndex=record.indexOf(CFG(ID));
     QUuid id=QUuid::createUuid();
     QString strID=UUIDToString(id);
@@ -414,5 +418,54 @@ QStringList WellDao::distinctValue(QString table,QString field){
     }
     return result;
     //    CI(key,result);
+}
+
+QSqlQuery WellDao::records(QString table,QString idWell,QString parentID)
+{
+    MDLTable * tableInfo=MDL->tableInfo(table);
+    QSqlRecord record=aRecord(table);
+    QString parentFld=CFG(IDWell);
+    QString idFld=CFG(ID);
+    PARENT_ID_FLD(parentFld,record);
+    PK_FLD(idFld,record);
+    QString additionalCri;
+//    DECL_SQL(select_records,"select  w.* from %1  w  where  not exists(select * from %2 d where  w.%3=d.IDRec COLLATE NOCASE) %4  order by %5")
+    if(parentID.isNull() && parentFld==CFG(ParentID)){
+//        顶级记录，如果有IDRecParent，则应该=IDRec， w.IDwell=：idwell and  w.IDRec=w.IDRecParent
+        additionalCri=QString(" and w.%1='%2' COLLATE NOCASE and  w.%3=w.%4  COLLATE NOCASE ").arg(CFG(IDWell)).arg(idWell).arg(CFG(ID)).arg(CFG(ParentID));
+
+    }else if(parentID.isNull() && parentFld==CFG(IDWell)){
+//顶级记录，无IDRecParent,w.IDWell=:idwell
+        additionalCri=QString(" and w.%1='%2' COLLATE NOCASE  ").arg(CFG(IDWell)).arg(idWell);
+
+    }else if(!parentID.isNull() && parentFld==CFG(ParentID)){
+        //子记录，同时要满足IDWell和IDRecPARENT ,w.IDwell=:idWell and w.IDRecParent=parentID
+        additionalCri=QString(" and w.%1='%2' COLLATE NOCASE and  w.%3='%4'  COLLATE NOCASE ").arg(CFG(IDWell)).arg(idWell).arg(CFG(ParentID)).arg(parentID);
+    }else if(!parentID.isNull() && parentFld==CFG(IDWell)){
+        //子记录，无IDRecPARENT ,w.IDwell=:idWell
+         additionalCri=QString(" and w.%1='%2' COLLATE NOCASE  ").arg(CFG(IDWell)).arg(idWell);
+    }
+
+    QSqlQueryModel* model=new QSqlQueryModel(this);
+//    DECL_SQL(select_records,"select  w.* from %1  w  where  not exists(select * from %2 d where  w.%3=d.IDRec COLLATE NOCASE) and w.%4=:parentID  COLLATE NOCASE %6  order by %5")
+    QSqlQuery q(APP->well());
+    q.prepare(SQL(select_records)
+              .arg(table) //%1 wvWellHeader
+              .arg(CFG(SysRecDelTable)) //%2 wvSysDelRec
+              .arg(idFld) //%3 IDREC
+              .arg(additionalCri) //%4 idrecparent/idwell
+              .arg(tableInfo->SQLOrderBy())// order by
+              );
+    q.bindValue(":parentID",parentID);
+    q.exec();
+    PRINT_ERROR(q);
+    return q;
+}
+
+QSqlRecord WellDao::aRecord(QString table)
+{
+    QSqlQuery q(SQL(select_a_record).arg(table),APP->well());
+    q.exec();
+    return q.record();
 }
 

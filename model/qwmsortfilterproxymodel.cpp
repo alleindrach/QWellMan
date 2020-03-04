@@ -247,7 +247,7 @@ int QWMSortFilterProxyModel::columnCount(const QModelIndex &parent) const
     if(_showGroup){
         cols+= _groupIndex.count();
     }
-    qDebug()<<"QWMSortFilterProxyModel:"<<model->tableName()<<",columnCount="<<cols;
+//    qDebug()<<"QWMSortFilterProxyModel:"<<model->tableName()<<",columnCount="<<cols;
     return cols;
 }
 

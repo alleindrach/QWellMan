@@ -79,5 +79,19 @@ void QWMAbstractEditor::focusPrev()
 
 }
 
+void QWMAbstractEditor::on_btn_clicked()
+{
+    if(sender()->objectName()=="btnOK"){
+        emit this->accepted(this);
+    }
+    if(sender()->objectName()=="btnCancel"){
+        emit this->rejected(this);
+    }
+}
+
+QSize QWMAbstractEditor::sizeHint()
+{
+    return QSize(350,350);
+}
 
 
