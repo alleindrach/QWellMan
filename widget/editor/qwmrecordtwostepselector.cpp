@@ -67,7 +67,7 @@ void QWMRecordTwoStepSelector::on_btn_clicked()
 void QWMRecordTwoStepSelector::nav2RecordSelector()
 {
     QWMTableSelector* tableSelector= qobject_cast<QWMTableSelector*> (ui->stackedWidget->widget(0));
-    if(!tableSelector->text().isNull()){
+    if(!tableSelector->text().isNull()&&!tableSelector->text().isEmpty()){
         QString table=tableSelector->text();
         QWMRecordSelector * recordSelector=qobject_cast<QWMRecordSelector*>(ui->stackedWidget->widget(1));
         recordSelector->loadTables(QStringList(table));
