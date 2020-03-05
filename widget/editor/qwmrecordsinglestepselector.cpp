@@ -52,7 +52,8 @@ QList<QWidget *> QWMRecordSingleStepSelector::taborders()
 
 QSize QWMRecordSingleStepSelector::sizeHint()
 {
-    return QSize(350,250);
+    return QWMAbstractEditor::sizeHint();
+//    return QSize(350,250);
 }
 void QWMRecordSingleStepSelector::on_tab_accepted(QWidget */*sel*/)
 {

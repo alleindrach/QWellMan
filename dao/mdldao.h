@@ -51,7 +51,8 @@ public:
     QList<MDLFieldLookup *> fieldLookupinfo(QString table,QString field);
     QString filedCapl(QString table,QString field);
     QStandardItemModel * loadDataTree(bool showGroup,QObject * parent);
-
+    MDLField * fieldByLookup(QString table,QString lib,QString libfld);
+    QStringList lookupFields(QString table,QString lib);
 signals:
 private:
     void loadChildTable(QStandardItem * parent,bool showGroup);

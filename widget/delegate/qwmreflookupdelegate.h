@@ -10,9 +10,9 @@ class QWMRefLookupDelegate : public QWMAbstractDelegate
 {
     Q_OBJECT
 public:
-    enum TYPE{ Plain,Tab,SigleStepRecord,TwoStepRecord};
+    enum TYPE{ Plain,Tab,BiTab,SigleStepRecord,TwoStepRecord};
     Q_ENUM(TYPE);
-    Q_INVOKABLE   QWMRefLookupDelegate(QString lib,QString disp,QString title,bool editable=false,QObject * parent=nullptr);
+    Q_INVOKABLE   QWMRefLookupDelegate(QString table,QString lib,QString disp,QString title,bool editable=false,QObject * parent=nullptr);
     Q_INVOKABLE   QWMRefLookupDelegate(QStringList tables,QString title,QString  idwell,TYPE typ=SigleStepRecord, QObject * parent=nullptr);
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
     void setEditorData(QWidget *editor, const QModelIndex &index) const override;
@@ -26,6 +26,7 @@ private :
     QString _title;
     QStringList _tables;
     QString _idwell;
+    QString _table;
     TYPE _type{Plain};
     bool _editable{false};
     void handleNeighbourField(QWidget *editor,QAbstractItemModel *model,

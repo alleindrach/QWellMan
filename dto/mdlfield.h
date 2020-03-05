@@ -40,6 +40,8 @@ public:
     public :
     QString caption();
     QString refValue(QString refId,QSqlRecord rec=QSqlRecord());
+    QVariant displayValue(QVariant v);
+    QVariant baseValue(QVariant v);
     QString lookupTable(QSqlRecord  rec=QSqlRecord());
     signals:
 

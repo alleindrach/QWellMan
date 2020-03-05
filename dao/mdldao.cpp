@@ -10,6 +10,7 @@
 #include <QtCore/qmath.h>
 #include "udldao.h"
 #include "welldao.h"
+#include "utility.h"
 //
 QHash<QString ,QVariant> MDLDao::_cache={};
 
@@ -43,7 +44,8 @@ DECL_SQL(select_parent_table,"select KeyTbl  from pceMDLTableChildren c where c.
 DECL_SQL(select_field_groups,"select KeyTbl,GroupName,DisplayOrder   from pceMDLTableFieldGrp g where g.KeyTbl=:table COLLATE NOCASE order by DisplayOrder ")
 DECL_SQL(select_fields_of_group,"select  * from pceMDLTableField where KeyTbl=:table  COLLATE NOCASE and GroupName=:groupName  COLLATE NOCASE order by DisplayOrder ")
 DECL_SQL(select_field_lookup,"select  * from pceMDLTableFieldLookupList where KeyTbl=:table  COLLATE NOCASE and KeyFld=:field  COLLATE NOCASE order by DisplayOrder ")
-
+DECL_SQL(select_field_by_lookup,"select f.* from pceMDLTableField f where f.LookupTableName=:lib COLLATE NOCASE and f.LookupFieldName=:fld COLLATE NOCASE  and f.KeyTbl=:table COLLATE NOCASE")
+DECL_SQL(select_fields_by_lookup_lib,"select f.* from pceMDLTableField f where f.LookupTableName=:lib COLLATE NOCASE  and f.KeyTbl=:table COLLATE NOCASE  order by DisplayOrder")
 END_SQL_DECLARATION
 
 
@@ -317,17 +319,18 @@ QVariant MDLDao::unitBase2User(QString baseUnitKey,QString userUnitKey, QVariant
 {
     if(baseUnitKey==userUnitKey)
         return v;
-    if(v.type()==QMetaType::QString)
-        return v;
-    if(v.type()==QMetaType::Double||v.type()==QMetaType::Int||v.type()==QMetaType::Float||v.type()==QMetaType::Long){
+    if(Utility::isNumber(v)){
+        //    if(v.type()==QVariant::Double||v.type()==QVariant::Int||v.type()==QMetaType::Long){
         MDLUnitConversion * rec=unitConversion(baseUnitKey,userUnitKey);
         if(rec!=nullptr){
             double factor=rec->Factor();
             double exponent=rec->Exponent();
             double offset=rec->Offset();
-            double result=qPow(v.toDouble()*factor,exponent)+offset;
+            double result=qPow(v.toDouble()-offset,exponent)/factor;
+
             return result;
         }
+        //    }
     }
     return v;
 }
@@ -337,13 +340,13 @@ QVariant MDLDao::unitUser2Base(QString baseUnitKey,QString userUnitKey, QVariant
 
     if(baseUnitKey==userUnitKey)
         return v;
-    if(v.type()==QMetaType::Double||v.type()==QMetaType::Int||v.type()==QMetaType::Float||v.type()==QMetaType::Long){
+    if(Utility::isNumber(v)){
         MDLUnitConversion* rec=unitConversion(baseUnitKey,userUnitKey);
         if(rec!=nullptr){
             double factor=rec->Factor();
             double exponent=rec->Exponent();
             double offset=rec->Offset();
-            double result=qPow(v.toDouble()-offset,-exponent)/factor;
+            double result=qPow(v.toDouble()*factor,-exponent)+offset;
             return result;
         }
     }
@@ -562,7 +565,7 @@ QStandardItemModel * MDLDao::loadDataTree(bool showGroup,QObject * /*parent*/)
 
     QStandardItemModel * model=new QStandardItemModel(this);
     QStringList groups=UDL->tableGroup(APP->profile());
-     QStandardItem*  item;
+    QStandardItem*  item;
     foreach(QString group ,groups){
         if(showGroup){
             item=new QStandardItem(); //新建节点时设定类型为 itTopItem
@@ -601,4 +604,40 @@ QStandardItemModel * MDLDao::loadDataTree(bool showGroup,QObject * /*parent*/)
 
     }
     return model;
+}
+
+MDLField *MDLDao::fieldByLookup(QString table,QString lib, QString fld)
+{
+    QString key=QString("fieldByLookup.%1.%2.%3").arg(table).arg(lib).arg(fld);
+    CS(key,MDLField*);
+
+    QSqlQuery q(APP->mdl());
+    q.prepare(SQL(select_field_by_lookup));
+    q.bindValue(":table",table);
+    q.bindValue(":lib",lib);
+    q.bindValue(":fld",fld);
+    q.exec();
+    PRINT_ERROR(q);
+    MDLField * result=nullptr;
+    if(q.next()){
+        result=R(q.record(),MDLField);
+    }
+    CI(key,result);
+}
+
+QStringList MDLDao::lookupFields(QString table, QString lib)
+{
+    QString key=QString("lookupFields.%1.%2").arg(table).arg(lib);
+    CS(key,QStringList);
+    QStringList result;
+    QSqlQuery q(APP->mdl());
+    q.prepare(SQL(select_fields_by_lookup_lib));
+    q.bindValue(":table",table);
+    q.bindValue(":lib",lib);
+    q.exec();
+    PRINT_ERROR(q);
+    while(q.next()){
+        result<<q.value("LookupFieldName").toString();
+    }
+    CI(key,result)
 }

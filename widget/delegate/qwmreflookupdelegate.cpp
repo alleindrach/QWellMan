@@ -12,17 +12,21 @@
 #include <QSqlQueryModel>
 #include <QKeyEvent>
 #include "libdao.h"
+#include "udldao.h"
 #include "qwmlibsingleselector.h"
 #include "qwmlibtabselector.h"
 #include "qwmrecordsinglestepselector.h"
 #include "qwmrecordtwostepselector.h"
-QWMRefLookupDelegate::QWMRefLookupDelegate(QString lib, QString disp,QString title,bool editable, QObject *parent):
-    QWMAbstractDelegate(parent),_lib(lib),_disp(disp),_title(title),_editable(editable){
-    if(LIB->libLookup(_lib)->record().indexOf(CFG(LibTab))>=0){
+QWMRefLookupDelegate::QWMRefLookupDelegate(QString table,QString lib, QString disp,QString title,bool editable, QObject *parent):
+    QWMAbstractDelegate(parent),_table(table),_lib(lib),_disp(disp),_title(title),_editable(editable){
+    //    QString group=UDL->lookupGroup(APP->profile(),_table);
+    //    if(!group.isNull()&&!group.isEmpty()){
+    //        _type=BiTab;//双tab
+    //    }else
+    if(LIB->libLookupAsStruct(_lib)->record().indexOf(CFG(LibTab))>=0){
         _type=Tab;
     }
 }
-
 QWMRefLookupDelegate::QWMRefLookupDelegate(QStringList tables, QString title,QString idwell,TYPE typ, QObject *parent):
     QWMAbstractDelegate(parent),_tables(tables),_title(title),_idwell(idwell),_type(typ){
 
@@ -32,7 +36,7 @@ QWidget *QWMRefLookupDelegate::createEditor(QWidget *parent,
                                             const QStyleOptionViewItem &/*option*/,
                                             const QModelIndex &index) const{
     if(_type==Plain){
-        QWMLibSingleSelector *editor = new QWMLibSingleSelector(_lib,_disp,_title,_editable,index.data().toString(),parent);
+        QWMLibSingleSelector *editor = new QWMLibSingleSelector(_table,_lib,_disp,_title,_editable,index.data().toString(),parent);
 
         connect(editor,&QWMLibSingleSelector::rejected,this,&QWMRefLookupDelegate::closeEditorAndRevert);
         connect(editor,&QWMLibSingleSelector::accepted,this,&QWMRefLookupDelegate::commitAndCloseEditor);
@@ -40,10 +44,12 @@ QWidget *QWMRefLookupDelegate::createEditor(QWidget *parent,
         EDITOR_TITLE;
         return editor;
     }else if(_type==Tab){
-        QWMLibTabSelector *editor = new QWMLibTabSelector(_lib,_disp,_title,_editable,index.data().toString(),parent);
+        TIMESTAMP(QWMRefLookupDelegateC);
+        QWMLibTabSelector *editor = new QWMLibTabSelector(_table,_lib,_disp,_title,_editable,index.data().toString(),parent);
         connect(editor,&QWMLibTabSelector::rejected,this,&QWMRefLookupDelegate::closeEditorAndRevert);
         connect(editor,&QWMLibTabSelector::accepted,this,&QWMRefLookupDelegate::commitAndCloseEditor);
         editor->setModal(true);
+        TIMESTAMP(QWMRefLookupDelegateE);
         EDITOR_TITLE;
         return editor;
     }else if(_type==SigleStepRecord){
@@ -151,7 +157,7 @@ void QWMRefLookupDelegate::handleNeighbourField(QWidget *editor,QAbstractItemMod
             QString field=rModel->fieldName(index);
             MDLField * fieldInfo=MDL->fieldInfo(sourceModel->tableName(),field);
             int row=selected.row();
-            if(fieldInfo->LookupTyp() ==nfieldInfo->LookupTyp() &&
+            if(/*fieldInfo->LookupTyp() ==nfieldInfo->LookupTyp() &&*/
                     fieldInfo->LookupTableName()==nfieldInfo->LookupTableName()){
                 QSortFilterProxyModel * pm=(QSortFilterProxyModel*)selector->selectionModel()->model();
                 QSqlQueryModel * sm=(QSqlQueryModel * )pm->sourceModel();
@@ -177,34 +183,55 @@ void QWMRefLookupDelegate::setModelData(QWidget *editor,QAbstractItemModel *mode
             selector=static_cast<QWMLibSingleSelector*>(editor)->selector();
         }else if(_type==Tab){
             selector=static_cast<QWMLibTabSelector*>(editor)->currentWidget();
-        }
-        QWMRotatableProxyModel * rModel=(QWMRotatableProxyModel*) model;
-        QString nv=selector->text();
-        QString ov=index.data().toString();
-        if(nv!=ov && !nv.isNull()) {
-            QList<QPair<QString,QVariant>> spv;
-            spv.append(QPair<QString,QVariant>(rModel->fieldName(index),nv));
 
-            if(selector->selectionModel()->hasSelection()&&!selector->selectionModel()->selection().isEmpty()){
-                //如果上下各一个的有关联字段，填充之
-                if(rModel->mode()==QWMRotatableProxyModel::H){
-                    for(int i=0;i<rModel->columnCount();i++){
-                        if(i!=index.column()){
-                            QModelIndex aIndex=rModel->index(index.row(),i);
-                            handleNeighbourField(editor,model,index,aIndex,spv);
-                        }
-                    }
-                }else{
-                    for(int i=0;i<rModel->rowCount();i++){
-                        if(i!=index.row()){
-                            QModelIndex aIndex=rModel->index(i,index.column());
-                            handleNeighbourField(editor,model,index,aIndex,spv);
-                        }
-                    }
+        }
+//        if(static_cast<QWMLibTabSelector*>(editor)->type()==QWMLibTabSelector::B){
+            QSqlRecord selectRecord=selector->selectedRecord();
+            QWMRotatableProxyModel * rModel=(QWMRotatableProxyModel*) model;
+            if(selectRecord.isEmpty()){
+                return;
+            }
+            QList<QPair<QString,QVariant>> spv;
+            for(int i=0;i<selectRecord.count();i++){
+                QString baseTable=this->_table;
+                QString libTable=this->_lib;
+                QString libField=selectRecord.fieldName(i);
+                MDLField * baseFieldInfo=MDL->fieldByLookup(this->_table, this->_lib,libField);
+                if(baseFieldInfo!=nullptr){
+                    QModelIndex aIndex=rModel->indexOfSameRecord(index,baseFieldInfo->KeyFld());
+                    spv.append(QPair<QString,QVariant>(baseFieldInfo->KeyFld(),selectRecord.value(i)));
                 }
             }
-            model->setData(index,QVariant::fromValue(spv),LINKED_FIELDS);
-        }
+            rModel->setData(index,QVariant::fromValue(spv),LINKED_FIELDS);
+//        }else{
+//            QWMRotatableProxyModel * rModel=(QWMRotatableProxyModel*) model;
+//            QString nv=selector->text();
+//            QString ov=index.data().toString();
+//            if(nv!=ov && !nv.isNull()) {
+//                QList<QPair<QString,QVariant>> spv;
+//                spv.append(QPair<QString,QVariant>(rModel->fieldName(index),nv));
+
+//                if(selector->selectionModel()->hasSelection()&&!selector->selectionModel()->selection().isEmpty()){
+//                    //如果上下各一个的有关联字段，填充之
+//                    if(rModel->mode()==QWMRotatableProxyModel::H){
+//                        for(int i=0;i<rModel->columnCount();i++){
+//                            if(i!=index.column()){
+//                                QModelIndex aIndex=rModel->index(index.row(),i);
+//                                handleNeighbourField(editor,model,index,aIndex,spv);
+//                            }
+//                        }
+//                    }else{
+//                        for(int i=0;i<rModel->rowCount();i++){
+//                            if(i!=index.row()){
+//                                QModelIndex aIndex=rModel->index(i,index.column());
+//                                handleNeighbourField(editor,model,index,aIndex,spv);
+//                            }
+//                        }
+//                    }
+//                }
+//                model->setData(index,QVariant::fromValue(spv),LINKED_FIELDS);
+//            }
+//        }
     }else if(_type==SigleStepRecord){
         QWMRecordSingleStepSelector * selector=static_cast<QWMRecordSingleStepSelector*>(editor);
         QString v=selector->text();

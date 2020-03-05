@@ -1,6 +1,7 @@
 #ifndef COMMON_H
 #define COMMON_H
-
+#include <QDebug>
+#include <QTime>
 #define CLOSEDB(db)   \
     if(db.isValid() && db.isOpen() && db.isOpenError()){ \
     db.close(); \
@@ -24,6 +25,8 @@
 #define REFERENCE_DATUM_ENTRY "reference_datum"
 #define REFERENCE_DATUM_DEFAULT "elvorigkb"
 #define WELL_DISPLAY_FIELDS_ENTRY "well_display_fields"
+#define EDITOR_SIZE_ENTRY "editor_size"
+#define EDITOR_POS_ENTRY "editor_pos"
 
 #define MDL_TABLE(x) "pce"#x
 #define LIB_TABLE(x)  "lib"#x
@@ -40,6 +43,7 @@
 #define SELECT_ROLE (Qt::UserRole+170)
 #define CHILD_TABLE_NAME_ROLE (Qt::UserRole+180)
 #define LINKED_FIELDS (Qt::UserRole+190)
+#define BASE_UNIT_VALUE (Qt::UserRole+210)
 #define BEGIN_SQL_DECLARATION(typ) \
     QHash<QString,QString> typ::_sql={
 
@@ -50,7 +54,7 @@
 #define SQL(name) (_sql[#name])
 #define PRINT_ERROR(q) \
 if(q.lastError().isValid()) qDebug()<<" Query["<<q.lastQuery()<<"] Error["<<q.lastError().text()<<"],bind["<< q.boundValues()<<"]"<<endl<<flush;\
-    else qDebug()<<" Query["<<q.lastQuery()<<"]"<<",bind["<< q.boundValues()<<"]"<<endl<<flush;
+//    else qDebug()<<" Query["<<q.lastQuery()<<"]"<<",bind["<< q.boundValues()<<"]"<<endl<<flush;
 
 #define CFG(x) APP->config()[#x]
 #define MDL (MDLDao::instance())
@@ -177,4 +181,8 @@ if(x!=nullptr && x->metaObject()->className()==tp::staticMetaObject.className())
     (fieldInfo->KeyFld().compare(CFG(ParentID),Qt::CaseInsensitive)==0)
 
 #define SPEC_REF_TABLE_FLD CFG(TblKeyParent)
+
+#define USER_PROPERTY "UserProperty"
+#define TIMESTAMP(tag) \
+    qDebug()<<"==="<< QTime::currentTime().toString("HH:mm:ss.zzz")<<"==="<<__FILE__<<"|"<<__LINE__<< "|"<<#tag<<"  ";
 #endif // COMMON_H

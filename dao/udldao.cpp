@@ -52,6 +52,11 @@ DECL_SQL(select_table_visible_fields_in_order,"select * from pceListTblFld f whe
                                               "and hd.KeyFld=f.KeyFLd COLLATE  NOCASE "
                                               ")  order by f.DisplayOrder")
 DECL_SQL(select_table_property,"select  * from pceUDLGenTblProp p    where p.KeyTbl=:table")
+DECL_SQL(select_table_lookup_group,"select KeyGroup from pceUDLSetLib l ,pceUDLSetLibGroup g ,pceUDLProfile p"
+                                   " where p.KeyProfile=:profile and p.KeySetLib=l.KeySet and l.KeySet=g.KeySet and g.TblApp=:table COLLATE  NOCASE ")
+DECL_SQL(select_libs_of_lookup_group,"select  * from pceUDLSetLibGroup g   where g.KeyGroup=:group COLLATE  NOCASE  order by DisplayOrder")
+DECL_SQL(select_tabs_of_lookup_lib,"select  * from pceUDLSetLibTab t   where t.KeySet=:set COLLATE  NOCASE and t.KeyTbl=:table  COLLATE  NOCASE  order by DisplayOrder")
+DECL_SQL(select_fields_of_lookup_tab,"select  * from pceUDLSetLibTabField f   where f.KeySet=:set COLLATE  NOCASE and f.KeyTbl=:lib  COLLATE  NOCASE and f.KeyTab=:tab  COLLATE  NOCASE  order by DisplayOrder")
 
 END_SQL_DECLARATION
 
@@ -100,7 +105,7 @@ QStringList UDLDao::tableGroup(QString profile)
     CS(key,QStringList);
 
     bool isDefult=profile.compare(QString(DEFAULT_PROFILE),Qt::CaseInsensitive)==0;
-//    qDebug()<<"Profile"<<isDefult<< endl<<flush;
+    //    qDebug()<<"Profile"<<isDefult<< endl<<flush;
 
     if(profile.isNull()||profile.isEmpty()||isDefult){
         return MDL->tableGroup();
@@ -122,7 +127,7 @@ QList<MDLTable*> UDLDao::tablesOfGroup(QString group, QString profile)
 {
 
     bool isDefult=profile.compare(QString(DEFAULT_PROFILE),Qt::CaseInsensitive)==0;
-//    qDebug()<<"Profile"<<isDefult;
+    //    qDebug()<<"Profile"<<isDefult;
     if(profile.isNull()||profile.isEmpty()||isDefult){
         return MDL->tablesOfGroup(group);
     }else{
@@ -242,4 +247,69 @@ UDLTableProperty *UDLDao::tableProperty(QString table)
         result=R(q.record(),UDLTableProperty);
     }
     CI(key,result);
+}
+
+QString UDLDao::lookupGroup(QString profile, QString table)
+{
+    QString key=QString("lookupGroup.%1.%2").arg(profile).arg(table);
+    CS(key,QString);
+
+    QString result;
+    QSqlQuery q(APP->udl());
+    q.prepare(SQL(select_table_lookup_group));
+    q.bindValue(":profile",profile);
+    q.bindValue(":table",table);
+    q.exec();
+    PRINT_ERROR(q);
+    while(q.next()){
+        result=QS(q,KeyGroup);
+        break;
+    }
+    CI(key,result);
+}
+
+QList<UDLLibGroup *> UDLDao::lookupTables(QString group)
+{
+    QString key=QString("lookupTables.%1").arg(group);
+    CS_LIST(key,UDLLibGroup);
+    QList<UDLLibGroup *> result;
+    QSqlQuery q(APP->udl());
+    q.prepare(SQL(select_libs_of_lookup_group));
+    q.bindValue(":group",group);
+    q.exec();
+    PRINT_ERROR(q);
+    auto r=Record::fromSqlQuery<UDLLibGroup>(UDLLibGroup::staticMetaObject.className(),q,this);
+    CI(key,r);
+}
+
+
+QList<UDLLibTab *> UDLDao::lookupTableTabs(QString set,QString lib)
+{
+    QString key=QString("lookupTableTabs.%1.%2").arg(set).arg(lib);
+    CS_LIST(key,UDLLibTab);
+    QList<UDLLibTab *> result;
+    QSqlQuery q(APP->udl());
+    q.prepare(SQL(select_tabs_of_lookup_lib));
+    q.bindValue(":set",set);
+    q.bindValue(":table",lib);
+    q.exec();
+    PRINT_ERROR(q);
+    auto r=Record::fromSqlQuery<UDLLibTab>(UDLLibTab::staticMetaObject.className(),q,this);
+    CI(key,r);
+}
+
+QList<UDLLibTabField *> UDLDao::lookupTableFieldsOfTab(QString set, QString lib, QString tab)
+{
+    QString key=QString("lookupTableFieldsOfTab.%1.%2.%3").arg(set).arg(lib).arg(tab);
+    CS_LIST(key,UDLLibTabField);
+    QList<UDLLibTabField *> result;
+    QSqlQuery q(APP->udl());
+    q.prepare(SQL(select_fields_of_lookup_tab));
+    q.bindValue(":set",set);
+    q.bindValue(":lib",lib);
+    q.bindValue(":tab",tab);
+    q.exec();
+    PRINT_ERROR(q);
+    auto r=Record::fromSqlQuery<UDLLibTabField>(UDLLibTabField::staticMetaObject.className(),q,this);
+    CI(key,r);
 }

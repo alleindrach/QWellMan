@@ -27,7 +27,7 @@ signals:
 //    void  accepted(QWMIconSelector * );
 //    void  rejected(QWMIconSelector * );
 private slots:
-    void on_btn_clicked();
+    void on_btn_clicked() override;
     void on_item_doubleclick(const QModelIndex &index);
     void on_comboBox_currentTextChanged(const QString &arg1);
     void on_item_click(const QModelIndex &);

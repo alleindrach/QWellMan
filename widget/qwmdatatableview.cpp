@@ -65,10 +65,10 @@ void QWMDataTableView::bindDelegate()
                     (this->*func)(i,new QWMDateDelegate(QWMDateDelegate::TIME,"HH:mm:ss",this));
                 }
             }else if( fieldInfo->LookupTyp()==MDLDao::LibEdit){
-                (this->*func)(i,new QWMRefLookupDelegate(fieldInfo->LookupTableName(),fieldInfo->LookupFieldName(),fieldInfo->CaptionLong(),true,this));
+                (this->*func)(i,new QWMRefLookupDelegate(tableName, fieldInfo->LookupTableName(),fieldInfo->LookupFieldName(),fieldInfo->CaptionLong(),true,this));
             }
             else if(fieldInfo->LookupTyp()==MDLDao::LibOnly){
-                (this->*func)(i,new QWMRefLookupDelegate(fieldInfo->LookupTableName(),fieldInfo->LookupFieldName(),fieldInfo->CaptionLong(),false,this));
+                (this->*func)(i,new QWMRefLookupDelegate(tableName, fieldInfo->LookupTableName(),fieldInfo->LookupFieldName(),fieldInfo->CaptionLong(),false,this));
             }
             else if(fieldInfo->LookupTyp()==MDLDao::DBDistinctValues){
                 (this->*func)(i,new QWMDistinctValueDelegate(tableName,fieldName,this));
@@ -97,7 +97,7 @@ void QWMDataTableView::bindDelegate()
                     }else {
                         QString tableName=l->LookupItem();
                         QString caption=MDL->tableInfo(tableName)->CaptionLongP();
-                        QPair<QString,QVariant> p(caption,caption);
+                        QPair<QString,QVariant> p(caption,tableName);
                         options<<p;
                     }
                 }

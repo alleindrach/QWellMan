@@ -113,8 +113,6 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
         if(role==Qt::EditRole || role==Qt::DisplayRole){
             QVariant value= QSqlRelationalTableModel::data(index,Qt::EditRole);
             if(fieldInfo!=nullptr){
-
-                //单位转换
                 if(fieldInfo->PhysicalType()==MDLDao::Boolean)//booelan
                 {
                     bool b=value.toBool();
@@ -149,21 +147,12 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
                             value=fieldInfo->refValue(value.toString(),this->record(index.row()));
                         }
                     }
-                    QString unitType=fieldInfo->KeyUnit();
-                    if(!unitType.isEmpty()){
-                        MDLUnitType * baseUnitInfo=MDL->baseUnitKey(unitType);
-                        if(baseUnitInfo!=nullptr)
-                        {
-                            QString baseUnit=baseUnitInfo->BaseUnits();
-                            QString baseUnitFormat=baseUnitInfo->BaseFormat();
-                            MDLUnitTypeSet * userUnitInfo=MDL->userUnitKey(APP->unit(),unitType);
-                            if(userUnitInfo!=nullptr){
-                                QString userUnit=userUnitInfo->UserUnits();
-                                QString userUnitFormat=userUnitInfo->UserFormat();
-                                value=MDL->unitBase2User(baseUnit,userUnit,value);
-                            }
-                        }
+                    if(fieldName=="SzODNom"){
+                        qDebug()<<"SzDrift";
                     }
+                    //单位转换
+                    if(Utility::isNumber(value))
+                        value=fieldInfo->displayValue(value);
                 }
                 return value;
             }
@@ -215,28 +204,15 @@ bool QWMTableModel::setData(const QModelIndex &index, const QVariant &value, int
             role=Qt::EditRole;//转换为EditRole，否则无效
         }
         else if(fieldInfo!=nullptr && Utility::isNumber(v)){
-
-            QString unitType=fieldInfo->KeyUnit();
-            if(!unitType.isEmpty()){
-                MDLUnitType * baseUnitInfo=MDL->baseUnitKey(unitType);
-                if(baseUnitInfo!=nullptr)
-                {
-                    QString baseUnit=baseUnitInfo->BaseUnits();
-                    QString baseUnitFormat=baseUnitInfo->BaseFormat();
-                    MDLUnitTypeSet* userUnitInfo=MDL->userUnitKey(APP->unit(),unitType);
-                    if(userUnitInfo!=nullptr){
-                        QString userUnit=userUnitInfo->UserUnits();
-                        QString userUnitFormat=userUnitInfo->UserFormat();
-                        v=MDL->unitUser2Base(baseUnit,userUnit,v);
-                    }
-                }
+            if(role==Qt::EditRole){
+                v=fieldInfo->baseValue(v);
+            }
+            else if(role==BASE_UNIT_VALUE){
+                role=Qt::EditRole;
             }
         }
-
-
         bool success= QSqlRelationalTableModel::setData(index, v,  role);
         return success;
-
     }
 }
 

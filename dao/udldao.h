@@ -8,6 +8,9 @@
 #include <QPair>
 #include "mdltable.h"
 #include "udltableproperty.h"
+#include "udllibgroup.h"
+#include "udllibtab.h"
+#include "udllibtabfield.h"
 class UDLDao : public QObject
 {
     Q_OBJECT
@@ -25,6 +28,10 @@ public:
     QStringList fieldsVisibleInOrder(QString profile, QString table);
     QStringList fieldsVisibleInOrderByGroup(QString profile,QString table,QString group);
     UDLTableProperty * tableProperty(QString table);
+    QString lookupGroup(QString profile,QString table);
+    QList<UDLLibGroup*> lookupTables(QString group);
+    QList<UDLLibTab *> lookupTableTabs(QString set,QString lib);
+    QList<UDLLibTabField*> lookupTableFieldsOfTab(QString set,QString lib,QString tab);
 signals:
 private:
     QSqlDatabase  _db;

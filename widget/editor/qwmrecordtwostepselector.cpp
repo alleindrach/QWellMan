@@ -115,7 +115,8 @@ QList<QWidget *> QWMRecordTwoStepSelector::taborders()
 
 QSize QWMRecordTwoStepSelector::sizeHint()
 {
-    return QSize(450,350);
+    return QWMAbstractEditor::sizeHint();
+//    return QSize(450,350);
 }
 void QWMRecordTwoStepSelector::on_tab_accepted(QWidget *sel)
 {

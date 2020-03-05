@@ -43,7 +43,7 @@ public:
     void revert() override;
     int  visibleFieldsCount();
     bool isFieldVisible(const QString & field);
-    virtual void setSourceModel(QAbstractItemModel *sourceModel);
+    virtual void setSourceModel(QAbstractItemModel *sourceModel)  override;
     Mode mode();
     void setMode(Mode m);
     void reset();

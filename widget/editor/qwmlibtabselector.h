@@ -13,19 +13,27 @@ class QWMLibTabSelector;
 class QWMLibTabSelector : public QWMAbstractEditor
 {
     Q_OBJECT
+
 public:
-    explicit QWMLibTabSelector(QString lib,QString lookupFld,QString title,bool editable=false,QString v=QString(), QWidget *parent = nullptr);
+    enum Type{S,B};
+    //    explicit QWMLibTabSelector(QString lib,QString lookupFld,QString title,bool editable=false,QString v=QString(), QWidget *parent = nullptr);
+    explicit QWMLibTabSelector(QString table,QString lib,QString lookupFld,QString title,bool editable=false,QString v=QString(), QWidget *parent = nullptr);
     explicit QWMLibTabSelector(QStringList lib,QString lookupFld,QString title,bool editable=false,QString v=QString(), QWidget *parent = nullptr);
 
     void  setText(QString text);
     QWMLibSelector * currentWidget();
     virtual void focusInEvent(QFocusEvent *event) override;
+    virtual QSqlRecord selectedRecord();
     virtual QList<QWidget *> taborders() override;
+    virtual QSize sizeHint();
+    inline Type type(){return _type;};
 private:
-     Ui::QWMLibTabSelector *ui;
-     QString _selectedValue;
-     bool _editable{false};
-     QString _title;
+    Ui::QWMLibTabSelector *ui;
+    QString _selectedValue;
+    bool _editable{false};
+    QString _title;
+    QString _table;
+    Type _type;
 private slots:
     void on_tab_accepted(QWidget *);
     void on_tab_recjected(QWidget *);

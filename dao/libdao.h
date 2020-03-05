@@ -18,8 +18,9 @@ public:
 //    QStringList libLookup(QString table,QString displayFld);
     QStringList libTabs(QString table);
 
-    QSqlQueryModel * libLookup(QString table);
-    QSqlQueryModel * libLookup(QString table,QString tab);
+    QSqlQueryModel * libLookupAsStruct(QString table);
+//    QSqlQueryModel * libLookup(QString table,QString tab);
+    QSqlQueryModel * libLookup(QString table,QString lib,QString tab,QStringList fields);
     static QVector<QString> hiddenFields;
 signals:
 private:

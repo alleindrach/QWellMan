@@ -25,7 +25,7 @@ private:
     //     QDateTime _date;
 private slots:
     void resetToNow();
-    void on_btn_clicked();
+    virtual void on_btn_clicked() override;
 };
 
 #endif // QWMDATETIMEDELEGATE_H

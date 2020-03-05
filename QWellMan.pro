@@ -16,6 +16,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    aux/qwmuserdata.cpp \
     aux/utility.cpp \
     dao/libdao.cpp \
     dao/mdldao.cpp \
@@ -27,9 +28,13 @@ SOURCES += \
     dto/mdltablechildren.cpp \
     dto/mdlunit.cpp \
     dto/record.cpp \
+    dto/udllibgroup.cpp \
+    dto/udllibtab.cpp \
+    dto/udllibtabfield.cpp \
     dto/udltableproperty.cpp \
     main.cpp \
     model/qt/qexsortfilterproxymodel.cpp \
+    model/qwmlibquerymodel.cpp \
     model/qwmrotatableproxymodel.cpp \
     model/qwmsortfilterproxymodel.cpp \
     model/qwmtablemodel.cpp \
@@ -60,6 +65,7 @@ SOURCES += \
     widget/qwmheaderview.cpp
 
 HEADERS += \
+    aux/qwmuserdata.h \
     aux/utility.h \
     common.h \
     dao/libdao.h \
@@ -73,8 +79,12 @@ HEADERS += \
     dto/mdltablechildren.h \
     dto/mdlunit.h \
     dto/record.h \
+    dto/udllibgroup.h \
+    dto/udllibtab.h \
+    dto/udllibtabfield.h \
     dto/udltableproperty.h \
     model/qt/qexsortfilterproxymodel.h \
+    model/qwmlibquerymodel.h \
     model/qwmrotatableproxymodel.h \
     model/qwmsortfilterproxymodel.h \
     model/qwmtablemodel.h \

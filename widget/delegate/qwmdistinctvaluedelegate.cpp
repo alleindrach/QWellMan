@@ -38,6 +38,7 @@ void QWMDistinctValueDelegate::setEditorData(QWidget *editor, const QModelIndex 
     int idx = cb->findData(value);
     if (idx > -1 ) {
         cb->setCurrentIndex(idx);
+        return;
     }
     cb->setEditText(value);
 }

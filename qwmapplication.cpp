@@ -13,6 +13,9 @@
 #include "mdltable.h"
 #include "mdlfieldlookup.h"
 #include "udltableproperty.h"
+#include "udllibgroup.h"
+#include "udllibtab.h"
+#include "udllibtabfield.h"
 QWMApplication::QWMApplication(int &argc, char **argv):QApplication(argc,argv)
 {
     REGISTER_ALL(Record);
@@ -25,6 +28,9 @@ QWMApplication::QWMApplication(int &argc, char **argv):QApplication(argc,argv)
     REGISTER_ALL(MDLUnitConversion);
     REGISTER_ALL(MDLFieldLookup);
     REGISTER_ALL(UDLTableProperty);
+    REGISTER_ALL(UDLLibGroup);
+    REGISTER_ALL(UDLLibTab);
+    REGISTER_ALL(UDLLibTabField);
     REGISTER(QWMRotatableProxyModel*);
 //    qRegisterMetaType<Record>("Record");
 //    qRegisterMetaType<MDLTable>("MDLTable");

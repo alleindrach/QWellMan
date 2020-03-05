@@ -12,16 +12,16 @@
 #include "qwmapplication.h"
 #include "ui_qwmlibsingleselector.h"
 
-QWMLibSingleSelector::QWMLibSingleSelector(QString lib,QString lookupFld,QString title,bool editable,QString v,QWidget *parent)
+QWMLibSingleSelector::QWMLibSingleSelector(QString table,QString lib,QString lookupFld,QString title,bool editable,QString v,QWidget *parent)
     : QWMAbstractEditor(parent),ui(new Ui::QWMLibSingleSelector) ,
-      _lookupFld(lookupFld),_title(title),_selectedValue(v),_editable(editable)
+      _lookupFld(lookupFld),_title(title),_selectedValue(v),_editable(editable),_table(table)
 {
     ui->setupUi(this);
     QHBoxLayout* horizontalLayout = new QHBoxLayout(this);
     horizontalLayout->setMargin(0);
     this->setStyleSheet("background-color:rgb(150,150,150);");
     horizontalLayout->setObjectName("horizontalLayout");
-    _selector=new QWMLibSelector(lib,lookupFld,title,editable,v,parent);
+    _selector=new QWMLibSelector(table,lib,lookupFld,title,editable,v,parent);
     horizontalLayout->addWidget(_selector);
     connect(_selector,&QWMLibSelector::accepted,this,&QWMLibSingleSelector::on_tab_accepted);
     connect(_selector,&QWMLibSelector::rejected,this,&QWMLibSingleSelector::on_tab_recjected);
@@ -43,16 +43,21 @@ const QItemSelectionModel* QWMLibSingleSelector::selectionModel()
     return _selector->selectionModel();
 }
 
+QSqlRecord QWMLibSingleSelector::selectedRecord()
+{
+    return _selector->selectedRecord();
+}
+
 QList<QWidget *> QWMLibSingleSelector::taborders()
 {
     return _selector->taborders();
 }
-void QWMLibSingleSelector::on_tab_accepted(QWidget *sel)
+void QWMLibSingleSelector::on_tab_accepted(QWidget */*sel*/)
 {
     emit accepted(this);
 }
 
-void QWMLibSingleSelector::on_tab_recjected(QWidget * sel)
+void QWMLibSingleSelector::on_tab_recjected(QWidget * /*sel*/)
 {
     emit rejected(this);
 }

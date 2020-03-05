@@ -43,6 +43,11 @@ QString Utility::format(QString fmtstr,QVariant v){
 bool Utility::isNumber(QVariant v)
 {
     bool isNumber=false;
+    if(v.isNull())
+        return false;
+    if(v.toString().isNull()||v.toString().trimmed().isEmpty()){
+        return false;
+    }
     QRegExp re("[-+]?[0-9]*(\\.)?[0-9]*");  // a digit (\d), zero or more times (*)
     if (re.exactMatch(v.toString()))
         isNumber=true;

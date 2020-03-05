@@ -14,8 +14,12 @@ class QWMLibSelector : public QWidget
 {
     Q_OBJECT
 public:
-    explicit QWMLibSelector(QString lib,QString lookupFld,QString title,bool editable=false,QString v=QString(), QWidget *parent = nullptr);
-    explicit QWMLibSelector(QString lib,QString lookupFld,QString title,QAbstractItemModel * model,QStringList visibleFields=QStringList(),bool editable=false,QString v=QString(), QWidget *parent = nullptr);
+    template<typename Base, typename T>
+    inline bool instanceof(const T *ptr) {
+        return dynamic_cast<const Base*>(ptr) != nullptr;
+    }
+    explicit QWMLibSelector(QString table,QString lib,QString lookupFld,QString title,bool editable=false,QString v=QString(), QWidget *parent = nullptr);
+    explicit QWMLibSelector(QString table,QString lib,QString lookupFld,QString title,QAbstractItemModel * model,QStringList visibleFields=QStringList(),bool editable=false,QString v=QString(), QWidget *parent = nullptr);
     void  setText(QString text);
     QString text();
     void init(QAbstractItemModel * model);
@@ -23,6 +27,10 @@ public:
     virtual bool eventFilter(QObject *watched, QEvent *event) override;
     virtual void showEvent(QShowEvent *event)  override;
     virtual void focusInEvent(QFocusEvent *event) override;
+    virtual QSqlRecord selectedRecord();
+    inline QString libName(){
+        return _refLibName;
+    }
     QList<QWidget *> taborders() ;
 private:
      Ui::QWMLibSelector *ui;
@@ -32,6 +40,8 @@ private:
      QString _lookupFld;
      QStringList _visibleFlds;
      int _col;
+     QString _refLibName;
+     QString _table;
 signals:
     void  accepted(QWMLibSelector * );
     void  rejected(QWMLibSelector * );

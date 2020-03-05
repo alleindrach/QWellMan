@@ -13,8 +13,8 @@ class QWMSortFilterProxyModel : public QExSortFilterProxyModel
 
 public:
     explicit QWMSortFilterProxyModel(QObject *parent = nullptr);
-    Q_INVOKABLE virtual QModelIndex mapToSource(const QModelIndex &proxyIndex) const ;
-    Q_INVOKABLE virtual QModelIndex mapFromSource(const QModelIndex &sourceIndex) const ;
+    Q_INVOKABLE virtual QModelIndex mapToSource(const QModelIndex &proxyIndex) const override;
+    Q_INVOKABLE virtual QModelIndex mapFromSource(const QModelIndex &sourceIndex) const override;
     bool insertRecord(int row, const QSqlRecord &record);
     bool insertRecordDirect(int row, const QSqlRecord &record);
     bool removeRecord(int row);

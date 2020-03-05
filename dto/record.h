@@ -24,7 +24,7 @@ public:
         int typeID=QMetaType::type((clazz+"*").toUtf8().data());
         if(typeID==0)
         {
-            qFatal(QString("["+clazz+"*] 未注册！").toStdString().c_str());
+            qFatal(QString(tr("[%1*] 未注册！")).arg(clazz).toStdString().c_str());
         }
         const QMetaObject *metaObject = QMetaType::metaObjectForType(
                     typeID);

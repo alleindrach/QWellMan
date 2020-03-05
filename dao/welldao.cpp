@@ -112,7 +112,6 @@ QWMRotatableProxyModel *WellDao::tableForEdit(const QString tablename,const QStr
     SX(sourceModel,model);
     //如果有parentid，则根据IDRecParent字段进行过滤
     QSqlRecord record=sourceModel->record();
-    int recn=record.count();
     proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     if(!parentID.isNull() && !parentID.isEmpty()){
 
@@ -204,7 +203,7 @@ bool WellDao::isDeletedWell(QString idwell)
 }
 int WellDao::addRecord(QString table, QString parentId)
 {
-
+    return 0;
 }
 
 int WellDao::addRecentWell(QString idWell)

@@ -36,7 +36,7 @@ protected:
 private:
     void editWell(QString idWell);
     void showWellGrid(QWMSortFilterProxyModel *  model);
-    virtual bool eventFilter(QObject *watched, QEvent *event);
+    virtual bool eventFilter(QObject *watched, QEvent *event) override;
 private slots:
 
     void init_record_on_prime_insert(int row, QSqlRecord &record);

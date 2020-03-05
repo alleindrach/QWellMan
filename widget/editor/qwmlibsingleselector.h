@@ -15,10 +15,11 @@ class QWMLibSingleSelector : public QWMAbstractEditor
 {
     Q_OBJECT
 public:
-    explicit QWMLibSingleSelector(QString lib,QString lookupFld,QString title,bool editable=false,QString v=QString(), QWidget *parent = nullptr);
+    explicit QWMLibSingleSelector(QString table,QString lib,QString lookupFld,QString title,bool editable=false,QString v=QString(), QWidget *parent = nullptr);
     void  setText(QString text);
     QString text();
     const QItemSelectionModel* selectionModel();
+    virtual QSqlRecord selectedRecord();
     virtual QList<QWidget *> taborders() override;
     inline QWMLibSelector *selector(){
         return _selector;
@@ -29,6 +30,7 @@ private:
      bool _editable{false};
      QString _title;
      QString _lookupFld;
+     QString _table;
      int _col;
 
      QWMLibSelector * _selector;

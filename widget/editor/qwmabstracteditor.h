@@ -24,6 +24,7 @@ public:
     void focusPrev();
     virtual void on_btn_clicked();
     virtual QSize sizeHint();
+    void resizeEvent(QResizeEvent *) override;
 signals:
     void  accepted(QWidget * );
     void  rejected(QWidget * );

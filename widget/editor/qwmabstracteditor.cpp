@@ -12,6 +12,7 @@
 #include "libdao.h"
 #include "QSqlQueryModel"
 #include "qwmapplication.h"
+#include <QSettings>
 QWMAbstractEditor::QWMAbstractEditor( QWidget *parent) : QDialog(parent)
 {
     //    this->on_comboBox_currentTextChanged(ui->comboBox->currentText());
@@ -92,7 +93,21 @@ void QWMAbstractEditor::on_btn_clicked()
 
 QSize QWMAbstractEditor::sizeHint()
 {
-    return QSize(350,350);
+    //    return QSize(350,350);
+    QSettings settings;
+    QString objectName=this->metaObject()->className();
+    QString entry=QString("%1.%2").arg(EDITOR_SIZE_ENTRY,objectName);
+    QSize size= settings.value(entry,QSize(350,350)).value<QSize>();
+    return  size;
+}
+
+void QWMAbstractEditor::resizeEvent(QResizeEvent *)
+{
+    QSettings settings;
+    QString objectName=this->metaObject()->className();
+    QString entry=QString("%1.%2").arg(EDITOR_SIZE_ENTRY,objectName);
+    QSize size=this->size();
+    settings.setValue(entry,size);
 }
 
 

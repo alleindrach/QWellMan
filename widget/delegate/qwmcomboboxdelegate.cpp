@@ -33,12 +33,12 @@ QWidget *QWMComboBoxDelegate::createEditor(QWidget *parent , const QStyleOptionV
 void QWMComboBoxDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
     QComboBox *cb = static_cast<QComboBox*>(editor);
-    QString value = index.model()->data(index, Qt::DisplayRole).toString();
-    QVariant data = index.data(DATA_ROLE);
+    QString value = index.model()->data(index, Qt::EditRole).toString();
+//    QVariant data = index.data(DATA_ROLE);
 
 //    qDebug()<<"text="<<value<<",data="<<data;
 
-    int idx = cb->findData(data);
+    int idx = cb->findData(value);
     if (idx > -1 ) {
         cb->setCurrentIndex(idx);
     }
@@ -49,7 +49,7 @@ void QWMComboBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *mode
     QComboBox *cb = static_cast<QComboBox*>(editor);
     QString displayData = cb->currentText();
     QVariant value = cb->currentData();
-    QVariant oldValue=index.data(DATA_ROLE);
+    QVariant oldValue=index.data(Qt::EditRole).toString();
     if(oldValue!=value){
         model->setData(index, value);
     }
