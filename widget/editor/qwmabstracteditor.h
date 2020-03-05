@@ -6,7 +6,8 @@
 #include <QFileInfo>
 #include <QListWidgetItem>
 #include "qwmabstractdelegate.h"
-
+#include "common.h"
+#include "qwmapplication.h"
 class QWMAbstractEditor : public QDialog
 {
     Q_OBJECT
@@ -16,6 +17,9 @@ public:
         return dynamic_cast<const Base*>(ptr) != nullptr;
     }
     explicit QWMAbstractEditor( QWidget *parent = nullptr);
+    ~QWMAbstractEditor(){
+        APP->removeCachedEditor(this->key());
+    }
     virtual bool eventFilter(QObject *watched, QEvent *event) override;
     virtual void focusInEvent(QFocusEvent *event) override;
     virtual QList<QWidget *> taborders()=0;
@@ -37,7 +41,7 @@ signals:
 private slots:
 
 protected:
-//    virtual void showEvent(QShowEvent *event);
+    //    virtual void showEvent(QShowEvent *event);
 
 private:
     QString _key{QString()};

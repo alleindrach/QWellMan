@@ -22,11 +22,9 @@ public:
     //    explicit QWMLibTabSelector(QString lib,QString lookupFld,QString title,bool editable=false,QString v=QString(), QWidget *parent = nullptr);
     explicit QWMLibTabSelector(QString table,QString lib,QString lookupFld,QString title,bool editable=false,QString v=QString(), QWidget *parent = nullptr);
     explicit QWMLibTabSelector(QStringList lib,QString lookupFld,QString title,bool editable=false,QString v=QString(), QWidget *parent = nullptr);
-    ~QWMLibTabSelector(){
-
-        qDebug()<<"destory QWMLibTabSelector";
-        APP->removeCachedEditor(this->key());
-    }
+//    ~QWMLibTabSelector(){
+//        qDebug()<<"destory QWMLibTabSelector";
+//    }
     void  setText(QString text);
     QWMLibSelector * currentWidget();
     virtual void focusInEvent(QFocusEvent *event) override;
