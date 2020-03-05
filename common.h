@@ -7,6 +7,7 @@
     db.close(); \
     }
 #define APP ((QWMApplication *) (QCoreApplication::instance()))
+
 #define DOC (((QWMMain *)(((QWMApplication *) (QCoreApplication::instance()))->mainWindow()))->currentEditor())
 
 #define MDLDB_PATH_SETTING_ENTRY "mdl_path"

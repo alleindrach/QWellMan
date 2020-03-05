@@ -25,6 +25,12 @@ public:
     virtual void on_btn_clicked();
     virtual QSize sizeHint();
     void resizeEvent(QResizeEvent *) override;
+    inline void setKey(QString value){
+        _key=value;
+    }
+    inline QString key(){
+        return _key;
+    }
 signals:
     void  accepted(QWidget * );
     void  rejected(QWidget * );
@@ -34,7 +40,7 @@ protected:
 //    virtual void showEvent(QShowEvent *event);
 
 private:
-
+    QString _key{QString()};
     QWMAbstractDelegate * _delegate{nullptr};
     friend class QWMAbstractDelegate;
 };

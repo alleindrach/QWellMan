@@ -82,6 +82,7 @@ private:
     QLabel * _lblUnit;
     QLabel * _lblReferenceDatum ;
     QLabel * _lblMessage;
+
     QString _TableStyle="/*tablewidget 样式*/ \
             QTableView { \
             font-size:10px ;\

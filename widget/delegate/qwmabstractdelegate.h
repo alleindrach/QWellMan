@@ -18,6 +18,11 @@ public:
     inline bool instanceof(const T *ptr) {
         return dynamic_cast<const Base*>(ptr) != nullptr;
     }
+
+    template<typename Base, typename T>
+    inline bool instanceof(const T *ptr) const {
+        return dynamic_cast<const Base*>(ptr) != nullptr;
+    }
     virtual QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override=0;
     virtual void setEditorData(QWidget *editor, const QModelIndex &index) const override =0;
     virtual void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override =0;

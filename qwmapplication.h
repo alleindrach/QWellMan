@@ -68,6 +68,38 @@ private :
     QString _datumPreference;
     QStringList  _wellDisplayFields;
     QWMMain * _mainWnd;
+    QHash<QString ,QWidget *> _editor_cache;
+public :
+
+    QWidget * getCachedEditor(QString key){
+        if(_editor_cache.contains(key))
+            return _editor_cache[key];
+        else
+            return nullptr;
+    }
+    bool editorCached(QString key){
+        if(_editor_cache.contains(key))
+        {
+            return true;
+        }
+        return false;
+    }
+    bool cachEditor(QString key,QWidget * widget){
+        if(!_editor_cache.contains(key))
+        {
+            _editor_cache.insert(key,widget);
+            return true;
+        }
+        return false;
+    }
+    bool removeCachedEditor(QString key){
+        if(_editor_cache.contains(key))
+        {
+            _editor_cache.remove(key);
+            return true;
+        }
+        return false;
+    }
 
 };
 
