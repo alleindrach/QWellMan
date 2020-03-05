@@ -203,8 +203,8 @@ bool QWMTableModel::setData(const QModelIndex &index, const QVariant &value, int
             v=QVariant::fromValue(Qt::Checked==value);
             role=Qt::EditRole;//转换为EditRole，否则无效
         }
-        else if(fieldInfo!=nullptr && Utility::isNumber(v)){
-            if(role==Qt::EditRole){
+        else if(fieldInfo!=nullptr ){
+            if(role==Qt::EditRole && Utility::isNumber(v)){
                 v=fieldInfo->baseValue(v);
             }
             else if(role==BASE_UNIT_VALUE){
