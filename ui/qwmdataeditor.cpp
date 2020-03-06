@@ -435,6 +435,14 @@ void QWMDataEditor::editTable(const QModelIndex &tableNodeIndex)
             ui->actionSave->setEnabled(false);
         }
 
+        QStandardItemModel * tblModel= (QStandardItemModel *) ui->trvTables->model();
+        QStandardItem *item= tblModel->itemFromIndex(tableNodeIndex);
+        if(sortableProxyModel->rowCount()>1){
+            item->setIcon(APP->icons()["files@4x"]);
+        }
+        else{
+            item->setIcon(APP->icons()["file@4x"]);
+        }
         sortableProxyModel->sort(1, ui->actionSort->isChecked()?Qt::DescendingOrder:Qt::AscendingOrder);
     }
 }

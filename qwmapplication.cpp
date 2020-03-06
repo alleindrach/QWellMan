@@ -38,6 +38,12 @@ QWMApplication::QWMApplication(int &argc, char **argv):QApplication(argc,argv)
 //    qRegisterMetaType<MDLTable>("MDLTable");
     connect(this,&QWMApplication::shutdown,this,&QCoreApplication::exit,Qt::QueuedConnection);
 
+    _iconMap[QStringLiteral("files@1x")]=QIcon(QStringLiteral(":/images/icons/files@1x.svg"));
+    _iconMap[QStringLiteral("files@2x")]=QIcon(QStringLiteral(":/images/icons/files@2x.svg"));
+    _iconMap[QStringLiteral("files@4x")]=QIcon(QStringLiteral(":/images/icons/files@4x.svg"));
+    _iconMap[QStringLiteral("file@1x")]=QIcon(QStringLiteral(":/images/icons/file@1x.svg"));
+    _iconMap[QStringLiteral("file@2x")]=QIcon(QStringLiteral(":/images/icons/file@2x.svg"));
+    _iconMap[QStringLiteral("file@4x")]=QIcon(QStringLiteral(":/images/icons/file@4x.svg"));
     _iconMap[QStringLiteral("folder@1x")]=QIcon(QStringLiteral(":/images/icons/folder@1x.png"));
     _iconMap[QStringLiteral("folder@2x")]=QIcon(QStringLiteral(":/images/icons/folder@2x.png"));
     _iconMap[QStringLiteral("folder@4x")]=QIcon(QStringLiteral(":/images/icons/folder@4x.png"));

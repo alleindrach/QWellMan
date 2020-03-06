@@ -210,5 +210,11 @@
         <file>images/icons/sort@4x.svg</file>
         <file>images/icons/sort@2x.svg</file>
         <file>images/icons/sort@1x.svg</file>
+        <file>images/icons/file@1x.svg</file>
+        <file>images/icons/file@2x.svg</file>
+        <file>images/icons/file@4x.svg</file>
+        <file>images/icons/files@4x.svg</file>
+        <file>images/icons/files@2x.svg</file>
+        <file>images/icons/files@1x.svg</file>
     </qresource>
 </RCC>

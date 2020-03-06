@@ -544,7 +544,7 @@ void MDLDao::loadChildTable(QStandardItem * parent,bool showGroup)
         QString strChildTblName=table->CaptionLongP();
         QStandardItem*  tableItem=new QStandardItem(); //新建节点时设定类型为 itTopItem
         if(showGroup)
-            tableItem->setIcon(APP->icons()["data@4x"]); //设置第1列的图标
+            tableItem->setIcon(APP->icons()["file@4x"]); //设置第1列的图标
         tableItem->setText(strChildTblName); //设置第1列的文字
         tableItem->setFlags(Qt::ItemIsEnabled |Qt::ItemIsSelectable);
         tableItem->setData(QWMApplication::TABLE,CAT_ROLE); //设置节点第1列的Qt::UserRole的Data
@@ -582,7 +582,7 @@ QStandardItemModel * MDLDao::loadDataTree(bool showGroup,QObject * /*parent*/)
             QString key=table->KeyTbl();
             QStandardItem*  tableItem=new QStandardItem(); //新建节点时设定类型为 itTopItem
             if(showGroup)
-                tableItem->setIcon(APP->icons()["data@4x"]); //设置第1列的图标
+                tableItem->setIcon(APP->icons()["file@4x"]); //设置第1列的图标
 
             tableItem->setText(text); //设置第1列的文字
             //        item->setText(MainWindow::colItemType,"type=itTopItem");  //设置第2列的文字
