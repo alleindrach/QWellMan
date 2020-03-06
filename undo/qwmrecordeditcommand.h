@@ -29,6 +29,7 @@ private:
     QSqlRecord _record;
     Type _type;
     QString _idWell;
+    QString _id;
     bool _submitted{false};
     void unInsertRecord();
     void unDeleteRecord();

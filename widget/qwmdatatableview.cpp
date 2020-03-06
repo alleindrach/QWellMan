@@ -152,6 +152,7 @@ void QWMDataTableView::setModel(QAbstractItemModel *model)
     QWMRotatableProxyModel * rmodel=(QWMRotatableProxyModel*)this->model();
     connect(model,SIGNAL(modeChanged()),this,SLOT(onModeChange()));
     connect(model,SIGNAL(modelReset()),this,SLOT(onModeChange()));
+    connect(rmodel,&QWMRotatableProxyModel::rowsChanged,this,&QWMDataTableView::onRowsChanged);
     rmodel->reset();
 }
 
@@ -170,6 +171,11 @@ void QWMDataTableView::onModeChange()
 void QWMDataTableView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint)
 {
     return QTableView::closeEditor(editor,hint);
+}
+
+void QWMDataTableView::onRowsChanged()
+{
+    emit this->RecordCountChanged(0,1);
 }
 void QWMDataTableView::rowCountChanged(int oldCount, int newCount)
 {

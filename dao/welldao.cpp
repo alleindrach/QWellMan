@@ -29,7 +29,7 @@ DECL_SQL(select_record,"select  w.* from %1  w  where  not exists(select * from 
 DECL_SQL(select_record2,"select  w.* from %1  w  where  not exists(select * from %2 d where  w.%3=d.IDRec COLLATE NOCASE) and w.%3=:id COLLATE NOCASE")
 DECL_SQL(select_records,"select  w.* from %1  w  where  not exists(select * from %2 d where  w.%3=d.IDRec COLLATE NOCASE) %4  order by %5")
 DECL_SQL(insert_record,"insert into %1 (%2) values( %3)")
-DECL_SQL(delete_record,"delete  %1 where %2")
+DECL_SQL(delete_record,"delete from %1 where %2")
 DECL_SQL(select_well_cnt_in_cat,"select  count(1) as cnt from %1  w  "
                                 "where  not exists(select * from %2 d where w.%3=d.%4 COLLATE NOCASE and w.%3=d.IDRec  COLLATE NOCASE) "
                                 "and w.%3=:idwell")

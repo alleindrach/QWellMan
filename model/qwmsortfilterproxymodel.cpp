@@ -83,7 +83,7 @@ QModelIndex QWMSortFilterProxyModel::mapFromSource(const QModelIndex &sourceInde
 int QWMSortFilterProxyModel::mapToSource(int row)
 {
     S1(model);
-    if(row<=0)
+    if(row<0)
         return row;
     if(row>=this->rowCount())
         return -1;
@@ -116,7 +116,6 @@ bool QWMSortFilterProxyModel::insertRecordDirect(int row, const QSqlRecord &reco
 bool QWMSortFilterProxyModel::removeRecord(int row)
 {
     S1(model);
-    QModelIndex  index=this->index(row,0);
     int sourceRow=mapToSource(row);
     QSqlRecord  record=model->record(sourceRow);
     PK_VALUE(id,record);

@@ -16,7 +16,7 @@ public:
 protected Q_SLOTS:
     virtual void onModeChange() ;
     virtual void closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint)  override;
-
+    void onRowsChanged();
 
     void setHorizontalHeader(QHeaderView *header);
     void setVerticalHeader(QHeaderView *header);
@@ -27,6 +27,7 @@ signals:
     void RecordCountChanged(int oldCount,int newCount);
 private:
     QWMStyledItemDelegate * _itemDelegate;
+
 };
 
 
