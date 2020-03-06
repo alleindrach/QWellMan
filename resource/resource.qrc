@@ -204,5 +204,11 @@
         <file>images/icons/quit@1x.png</file>
         <file>images/icons/quit@2x.png</file>
         <file>images/icons/quit@4x.png</file>
+        <file>images/icons/delete-row@1x.svg</file>
+        <file>images/icons/delete-row@2x.svg</file>
+        <file>images/icons/delete-row@4x.svg</file>
+        <file>images/icons/sort@4x.svg</file>
+        <file>images/icons/sort@2x.svg</file>
+        <file>images/icons/sort@1x.svg</file>
     </qresource>
 </RCC>

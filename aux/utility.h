@@ -9,6 +9,7 @@ public:
     Utility();
     static QString format(QString fmtstr,QVariant v);
     static bool isNumber(QVariant v);
+    static int compare(QVariant left,QVariant right);
 };
 
 #endif // UTILITY_H

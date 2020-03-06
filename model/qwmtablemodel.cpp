@@ -86,7 +86,7 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
         QString table=this->tableName();
         QString field=_fieldsCalcInOrder[index.column()-record.count()];
         MDLField *  fieldInfo=MDL->fieldInfo(table,field);
-        if(role==Qt::EditRole||role==Qt::DisplayRole){
+        if(role==Qt::EditRole||role==Qt::DisplayRole||role==SORT_ROLE){
             return QVariant();
         }else if(role == Qt::BackgroundColorRole ){
             if(fieldInfo->Calculated()){
@@ -111,7 +111,9 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
             return value;
         }
         MDLField *  fieldInfo=MDL->fieldInfo(tableName,fieldName);
-        if(role==Qt::EditRole || role==Qt::DisplayRole||role==DATA_ROLE){
+        if(role==SORT_ROLE){
+            return QSqlRelationalTableModel::data(index,Qt::EditRole);
+        }else if(role==Qt::EditRole || role==Qt::DisplayRole||role==DATA_ROLE){
             QVariant value= QSqlRelationalTableModel::data(index,Qt::EditRole);
             if(fieldInfo!=nullptr){
                 if(fieldInfo->PhysicalType()==MDLDao::Boolean)//booelan
@@ -333,7 +335,8 @@ int QWMTableModel::fieldsCount()
 
 int QWMTableModel::columnCount(const QModelIndex &parent) const
 {
-    return _visibleFields;
+//    return _visibleFields;
+    return QSqlRelationalTableModel::columnCount(parent);
 }
 
 const QString QWMTableModel::fieldInPosByOrder(int pos)
@@ -391,6 +394,11 @@ QModelIndex QWMTableModel::createIndex(int row, int col)
     return QSqlRelationalTableModel::createIndex(row,col);
 
 }
+
+//bool QWMTableModel::updateRowInTable(int row, const QSqlRecord &values)
+//{
+//    return QSqlRelationalTableModel::updateRowInTable(row,values);
+//}
 
 void QWMTableModel::init_record_on_prime_insert(int row, QSqlRecord &record)
 {

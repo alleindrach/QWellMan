@@ -45,6 +45,7 @@
 #define CHILD_TABLE_NAME_ROLE (Qt::UserRole+180)
 #define LINKED_FIELDS (Qt::UserRole+190)
 #define BASE_UNIT_VALUE (Qt::UserRole+210)
+#define SORT_ROLE (Qt::UserRole+220)
 #define BEGIN_SQL_DECLARATION(typ) \
     QHash<QString,QString> typ::_sql={
 

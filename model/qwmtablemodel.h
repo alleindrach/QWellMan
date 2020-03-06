@@ -37,7 +37,8 @@ public:
     }
 signals:
     void  rowsChanged();
-
+protected:
+//    virtual bool updateRowInTable(int row, const QSqlRecord &values) override;
 public slots:
     void init_record_on_prime_insert(int row, QSqlRecord &record);
 private :

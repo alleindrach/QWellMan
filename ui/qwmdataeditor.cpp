@@ -22,6 +22,7 @@
 #include "qwmrecordeditcommand.h"
 #include "qwmsortfilterproxymodel.h"
 #include <QDebug>
+#include <QSqlField>
 #define CHECK_UNDO_STATE \
     ui->actionRedo->setEnabled(_undoStack.canRedo());\
     ui->actionUndo->setEnabled(_undoStack.canUndo());\
@@ -364,11 +365,11 @@ void QWMDataEditor::editTable(const QModelIndex &tableNodeIndex)
 
         ui->trvTables->model()->setData(tableNodeIndex,v,MODEL_ROLE);
         SX(sourceModel,model);
-        PX(proxyModel,model);
+        PX(sortableProxyModel,model);
 
         if(sourceModel->tableName()=="wvJobReport"){
             //qDebug()<<"error"<<proxyModel->filterRegExp();
-            QModelIndex index =proxyModel->index(0,0,QModelIndex());
+            QModelIndex index =sortableProxyModel->index(0,0,QModelIndex());
         }
 
 
@@ -382,10 +383,10 @@ void QWMDataEditor::editTable(const QModelIndex &tableNodeIndex)
         connect(_tbvData->selectionModel(),&QItemSelectionModel::currentChanged,this, &QWMDataEditor::on_current_record_changed);
 
         int sourceCount=sourceModel->rowCount();
-        int proxyCount=proxyModel->rowCount();
+        int proxyCount=sortableProxyModel->rowCount();
         //        qDebug()<<"Table:"<<sourceModel->tableName()<<",Filter:"<<parentID<<",SourceCNT:"<<sourceCount<<",ProxyCNT:"<<proxyCount;
         MDLTable * tableInfo=nodeTableInfo(tableNodeIndex);
-        if(proxyModel->rowCount()>0){
+        if(sortableProxyModel->rowCount()>0){
             ui->actionNew->setEnabled(true);
             ui->actionDelete->setEnabled(true);
         }else{
@@ -423,12 +424,18 @@ void QWMDataEditor::editTable(const QModelIndex &tableNodeIndex)
         if(!sourceModel->isSignalConnected(QMetaMethod::fromSignal(&QWMTableModel::primeInsert))){
             connect(sourceModel,&QWMTableModel::primeInsert,this,&QWMDataEditor::init_record_on_prime_insert);
         }
+        if(!sourceModel->isSignalConnected(QMetaMethod::fromSignal(&QWMTableModel::beforeUpdate))){
+            connect(sourceModel,&QWMTableModel::beforeUpdate,this,&QWMDataEditor::before_update_record);
+        }
+
         if(model->isDirty()){
             ui->actionSave->setEnabled(false);
         }
         if(this->isDirty()){
             ui->actionSave->setEnabled(false);
         }
+
+        sortableProxyModel->sort(1, ui->actionSort->isChecked()?Qt::DescendingOrder:Qt::AscendingOrder);
     }
 }
 
@@ -657,4 +664,20 @@ void QWMDataEditor::on_actionSaveAll_triggered()
         QString msg=errors.join("\n");
         QMessageBox::critical(this,tr("错误"),tr("提交错误[%1]").arg(msg));
     }
+}
+
+void QWMDataEditor::on_actionSort_triggered(bool checked)
+{
+    QWMRotatableProxyModel * model=qobject_cast<QWMRotatableProxyModel*>( _tbvData->model());
+    PX(sortableModel,model);
+    sortableModel->sort(1,checked?Qt::DescendingOrder:Qt::AscendingOrder);
+}
+
+void QWMDataEditor::before_update_record(int row, QSqlRecord &record)
+{
+     int sysMDIndex=record.indexOf(CFG(SysMD));
+     if(sysMDIndex>=0){
+         record.setValue(sysMDIndex,QDateTime::currentDateTime());
+         record.setGenerated(sysMDIndex,true);
+     }
 }

@@ -24,6 +24,7 @@ public:
     QSqlRecord record(QModelIndex) const;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
     void setFilterFunction( std::function<bool (int , const QModelIndex &)>  acceptor);
+    void setSortFunction( std::function<bool (const QModelIndex &, const QModelIndex &)>  acceptor);
     bool submitAll() ;
     bool submit() override;
     void revert() override;
@@ -56,10 +57,11 @@ public  slots:
     void on_rows_changed();
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
-    //    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 
 private :
     std::function<bool (int , const QModelIndex &)>  _filterFunction{nullptr};
+    std::function<bool (const QModelIndex & , const QModelIndex &)>  _sortFunction{nullptr};
     bool _showGroup{false};
     QHash<QString,QStringList> _fieldGroup;
     QHash<int,QString > _groupIndex;

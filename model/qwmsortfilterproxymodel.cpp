@@ -160,6 +160,10 @@ void QWMSortFilterProxyModel::setFilterFunction( std::function<bool (int, const 
     _filterFunction=acceptor;
 }
 
+void QWMSortFilterProxyModel::setSortFunction( std::function<bool (const QModelIndex &, const QModelIndex &)>  acceptor)
+{
+    _sortFunction=acceptor;
+}
 
 
 bool QWMSortFilterProxyModel::submitAll()
@@ -261,7 +265,7 @@ const int QWMSortFilterProxyModel::groupedColumn(const int col) const
 int QWMSortFilterProxyModel::columnCount(const QModelIndex &parent) const
 {
     S1(model);
-    int cols=model->columnCount();
+    int cols=model->visibleFieldsCount();
     if(_showGroup){
         cols+= _groupIndex.count();
     }
@@ -446,4 +450,14 @@ bool QWMSortFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex 
         return _filterFunction(sourceRow,sourceParent);
     }
 
+}
+
+bool QWMSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
+{
+    if(_sortFunction==nullptr){
+        return QExSortFilterProxyModel::lessThan(left,right);
+    }else
+    {
+        return _sortFunction(left,right);
+    }
 }

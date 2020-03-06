@@ -120,6 +120,7 @@
    <addaction name="actionRotate"/>
    <addaction name="actionUndo"/>
    <addaction name="actionRedo"/>
+   <addaction name="actionSort"/>
   </widget>
   <action name="actionSave">
    <property name="icon">
@@ -193,7 +194,7 @@
   <action name="actionDelete">
    <property name="icon">
     <iconset resource="../resource/resource.qrc">
-     <normaloff>:/images/icons/delete.png</normaloff>:/images/icons/delete.png</iconset>
+     <normaloff>:/images/icons/delete-row@4x.svg</normaloff>:/images/icons/delete-row@4x.svg</iconset>
    </property>
    <property name="text">
     <string>Delete</string>
@@ -239,6 +240,21 @@
    </property>
    <property name="toolTip">
     <string>Save All</string>
+   </property>
+  </action>
+  <action name="actionSort">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../resource/resource.qrc">
+     <normaloff>:/images/icons/sort@4x.svg</normaloff>:/images/icons/sort@4x.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Sort</string>
+   </property>
+   <property name="toolTip">
+    <string>Sort Asc/Desc</string>
    </property>
   </action>
  </widget>

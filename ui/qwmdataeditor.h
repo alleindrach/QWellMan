@@ -61,10 +61,10 @@ private Q_SLOTS:
     void init_record_on_prime_insert(int row, QSqlRecord &record);
     void on_data_record_changed(int , int );
     void on_actionSave_triggered();
-
     void on_actionExit_triggered();
-
     void on_actionSaveAll_triggered();
+    void on_actionSort_triggered(bool checked);
+    void before_update_record(int row, QSqlRecord &record);
 
 private:
     Ui::QWMDataEditor *ui;

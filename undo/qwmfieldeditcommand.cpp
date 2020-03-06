@@ -20,19 +20,19 @@ void QWMFieldEditCommand::undo()
             emit  _model->dataChanged(_model->index(modify.row,modify.col),_model->index(modify.row,modify.col));
         }
     }else if(_type==LinkedFields){
-         foreach(Modifier modify,_changlist){
+        foreach(Modifier modify,_changlist){
             QList<QPair<QString,QVariant>> oldV=modify.oldValue.value<QList<QPair<QString,QVariant>>>();
             QList<QPair<QString,QVariant>> newV=modify.newValue.value<QList<QPair<QString,QVariant>>>();
             if(oldV.length()==newV.length()){
                 for(int i=0;i<oldV.length();i++){
                     if(oldV[i].second!=newV[i].second){
                         int col=_model->record().indexOf(oldV[i].first);
-                         _model->setData(_model->index(modify.row,col),oldV[i].second,BASE_UNIT_VALUE);
-                         emit  _model->dataChanged(_model->index(modify.row,col),_model->index(modify.row,col));
+                        _model->setData(_model->index(modify.row,col),oldV[i].second,BASE_UNIT_VALUE);
+                        emit  _model->dataChanged(_model->index(modify.row,col),_model->index(modify.row,col));
                     }
                 }
             }
-         }
+        }
     }
 }
 
@@ -44,19 +44,19 @@ void QWMFieldEditCommand::redo()
         }
     }else if(_type==LinkedFields){
         foreach(Modifier modify,_changlist){
-           QList<QPair<QString,QVariant>> oldV=modify.oldValue.value<QList<QPair<QString,QVariant>>>();
-           QList<QPair<QString,QVariant>> newV=modify.newValue.value<QList<QPair<QString,QVariant>>>();
-           if(oldV.length()==newV.length()){
-               for(int i=0;i<oldV.length();i++){
-                   if(oldV[i].second!=newV[i].second){
-                       int col=_model->record().indexOf(oldV[i].first);
+            QList<QPair<QString,QVariant>> oldV=modify.oldValue.value<QList<QPair<QString,QVariant>>>();
+            QList<QPair<QString,QVariant>> newV=modify.newValue.value<QList<QPair<QString,QVariant>>>();
+            if(oldV.length()==newV.length()){
+                for(int i=0;i<oldV.length();i++){
+                    if(oldV[i].second!=newV[i].second){
+                        int col=_model->record().indexOf(oldV[i].first);
                         _model->setData(_model->index(modify.row,col),newV[i].second,BASE_UNIT_VALUE);
                         emit  _model->dataChanged(_model->index(modify.row,col),_model->index(modify.row,col));
-                   }
-               }
-           }
+                    }
+                }
+            }
         }
-   }
+    }
 }
 
 QWMTableModel *QWMFieldEditCommand::model()
