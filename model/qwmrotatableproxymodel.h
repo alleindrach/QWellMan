@@ -13,8 +13,14 @@ class QWMRotatableProxyModel : public QAbstractProxyModel
 public:
     enum Mode{H=Qt::Horizontal,V=Qt::Vertical};
     Q_ENUM(Mode);
-    explicit QWMRotatableProxyModel(Mode mode=H,QObject *parent = nullptr);
+    explicit QWMRotatableProxyModel(QString idWell, Mode mode=H,QObject *parent = nullptr);
 
+    inline void  setIDWell(QString idWell){
+        _idWell=idWell;
+    }
+    inline QString idWell(){
+        return _idWell;
+    }
     bool insertRecord(int row, const QSqlRecord &record);
     bool insertRecordDirect(int row, const QSqlRecord &record);
     bool removeRecord(QModelIndex index);
@@ -23,6 +29,7 @@ public:
     QVariant data(const QModelIndex &item, int role = Qt::DisplayRole) const override;
     Q_INVOKABLE virtual QModelIndex mapToSource(const QModelIndex &proxyIndex) const  override;
     Q_INVOKABLE virtual QModelIndex mapFromSource(const QModelIndex &sourceIndex) const   override;
+    int mapToSourceTable(QModelIndex index);
     Qt::ItemFlags flags(const QModelIndex &index) const override;
     Q_INVOKABLE virtual QItemSelection mapSelectionToSource(const QItemSelection &selection) const override;
     Q_INVOKABLE virtual QItemSelection mapSelectionFromSource(const QItemSelection &selection) const override;
@@ -95,6 +102,7 @@ public  slots:
     void sourceReset();
 
 signals:
+    void rowsChanged();
     void  modeChanged();
 
     //    void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>());
@@ -119,13 +127,13 @@ protected:
 private :
     Mode _mode{H};
     bool _showGroup;
-
+    QString _idWell;
     friend class QWMDataEditor;
     QHash<QString ,QStringList> _group2FieldMap;
     QHash<QString,QString> _fileld2GroupMap;
     QList<QPersistentModelIndex> saved_layoutChange_parents;
 private slots:
-
+    void on_rows_changed();
 };
 Q_DECLARE_METATYPE(QWMRotatableProxyModel*);
 #endif // QWMROTATEPROXYMODEL_H

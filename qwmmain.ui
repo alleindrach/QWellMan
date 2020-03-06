@@ -173,7 +173,6 @@
    <addaction name="actionGroup"/>
    <addaction name="actionListColumn"/>
    <addaction name="separator"/>
-   <addaction name="actionRotate"/>
   </widget>
   <action name="actionNew">
    <property name="icon">

@@ -12,9 +12,10 @@ class QWMSortFilterProxyModel : public QExSortFilterProxyModel
     Q_OBJECT
 
 public:
-    explicit QWMSortFilterProxyModel(QObject *parent = nullptr);
+    explicit QWMSortFilterProxyModel(QString idWell,QObject *parent = nullptr);
     Q_INVOKABLE virtual QModelIndex mapToSource(const QModelIndex &proxyIndex) const override;
     Q_INVOKABLE virtual QModelIndex mapFromSource(const QModelIndex &sourceIndex) const override;
+    int mapToSource(int row);
     bool insertRecord(int row, const QSqlRecord &record);
     bool insertRecordDirect(int row, const QSqlRecord &record);
     bool removeRecord(int row);
@@ -26,6 +27,7 @@ public:
     bool submitAll() ;
     bool submit() override;
     void revert() override;
+    void reset();
     int  visibleFieldsCount();
     bool isFieldVisible(const QString & field);
     const QString  groupTitle(const int col) const;
@@ -41,11 +43,17 @@ public:
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     bool setData(const QModelIndex &item, const QVariant &value, int role = Qt::EditRole) override;
-
+    inline void  setIDWell(QString idWell){
+        _idWell=idWell;
+    }
+    inline QString idWell(){
+        return _idWell;
+    }
 signals:
+    void rowsChanged();
 public  slots:
     void  on_source_model_data_changed(QModelIndex,QModelIndex,QVector<int>);
-
+    void on_rows_changed();
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
     //    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
@@ -55,8 +63,8 @@ private :
     bool _showGroup{false};
     QHash<QString,QStringList> _fieldGroup;
     QHash<int,QString > _groupIndex;
-
-friend class QWMMain;
+    QString _idWell;
+    friend class QWMMain;
 };
 
 #endif // QWMSORTFILTERPROXYMODEL_H

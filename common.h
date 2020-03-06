@@ -137,7 +137,20 @@ if(q.lastError().isValid()) qDebug()<<" Query["<<q.lastQuery()<<"] Error["<<q.la
     }  \
     }
 
+#define PK_INDEX(pk,record) \
+    int pk=-1; \
+    if(!record.isEmpty()) {\
+        if(record.indexOf(CFG(ID))>=0){ \
+            pk=record.indexOf(CFG(ID)); \
+        }else \
+        { \
+            pk=record.indexOf(CFG(IDWell)); \
+        }  \
+    }
+
+
 #define PK_FLD(pkf,record) \
+    QString pkf; \
     if(record.indexOf(CFG(ID))>=0){\
         pkf=CFG(ID); \
     }     \
@@ -146,6 +159,7 @@ if(q.lastError().isValid()) qDebug()<<" Query["<<q.lastQuery()<<"] Error["<<q.la
     }
 
 #define PARENT_ID_FLD(pkf,record) \
+    QString pkf; \
     if(record.indexOf(CFG(ParentID))>=0){\
         pkf=CFG(ParentID); \
     }     \
@@ -186,4 +200,7 @@ if(x!=nullptr && x->metaObject()->className()==tp::staticMetaObject.className())
 #define USER_PROPERTY "UserProperty"
 #define TIMESTAMP(tag) \
     qDebug()<<"==="<< QTime::currentTime().toString("HH:mm:ss.zzz")<<"==="<<__FILE__<<"|"<<__LINE__<< "|"<<#tag<<"  ";
+
+#define ICON_SUFFIX ".svg"
+#define ICON_ROOT "pceicons"
 #endif // COMMON_H

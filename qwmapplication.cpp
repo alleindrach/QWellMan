@@ -16,6 +16,7 @@
 #include "udllibgroup.h"
 #include "udllibtab.h"
 #include "udllibtabfield.h"
+#include "qwmtablemodel.h"
 QWMApplication::QWMApplication(int &argc, char **argv):QApplication(argc,argv)
 {
     REGISTER_ALL(Record);
@@ -32,6 +33,7 @@ QWMApplication::QWMApplication(int &argc, char **argv):QApplication(argc,argv)
     REGISTER_ALL(UDLLibTab);
     REGISTER_ALL(UDLLibTabField);
     REGISTER(QWMRotatableProxyModel*);
+    REGISTER(QWMTableModel*);
 //    qRegisterMetaType<Record>("Record");
 //    qRegisterMetaType<MDLTable>("MDLTable");
     connect(this,&QWMApplication::shutdown,this,&QCoreApplication::exit,Qt::QueuedConnection);

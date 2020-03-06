@@ -1,5 +1,6 @@
 #ifndef QWMCOMBOBOXDELEGATE_H
 #define QWMCOMBOBOXDELEGATE_H
+#include <QObject>
 #include <QStyledItemDelegate>
 #include <QVector>
 #include <QPair>

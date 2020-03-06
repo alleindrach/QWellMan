@@ -7,13 +7,19 @@ class QWMRecordEditCommand : public QUndoCommand
 {
 public:
     enum Type{insert,remove};
-    explicit QWMRecordEditCommand(QWMTableModel * model,QSqlRecord record,Type typ, QUndoCommand *parent = nullptr);
+    explicit QWMRecordEditCommand(QWMTableModel * model,QString idWell,QSqlRecord record,Type typ, QUndoCommand *parent = nullptr);
     ~QWMRecordEditCommand();
     virtual void undo() override;
     virtual void redo() override;
     bool insertRecord();
     bool removeRecord();
     QWMTableModel *  model();
+    inline void setSubmitted(bool v){
+        _submitted=v;
+    }
+    inline bool submitted(){
+        return _submitted;
+    }
 signals:
 
 public slots:
@@ -22,6 +28,10 @@ private:
     QWMTableModel * _model;
     QSqlRecord _record;
     Type _type;
+    QString _idWell;
+    bool _submitted{false};
+    void unInsertRecord();
+    void unDeleteRecord();
 
 };
 

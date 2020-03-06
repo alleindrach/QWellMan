@@ -14,6 +14,9 @@
 #include "QSqlQueryModel"
 #include <QFileSystemModel>
 #include "qwmapplication.h"
+#include "qcoreapplication.h"
+
+
 QWMIconSelector::QWMIconSelector( QWidget *parent) : QWMAbstractEditor(parent),ui(new Ui::QWMIconSelector)
 {
     ui->setupUi(this);
@@ -83,7 +86,7 @@ void QWMIconSelector::on_item_click(const QModelIndex &)
 
 void QWMIconSelector::selectFile(QString filename)
 {
-    QString path = QDir::cleanPath(_defaultDir);
+    QString path = QDir::cleanPath(defaultDir());
     QDir    currentDir = QDir(path);
     QStringList filter;
     if(filename.isNull()|| filename.isEmpty())
@@ -118,7 +121,7 @@ QString QWMIconSelector::file()
 
 QList<QFileInfo> QWMIconSelector::folders()
 {
-    QDirIterator it(_defaultDir, QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
+    QDirIterator it(defaultDir(), QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
     QList<QFileInfo> list;
     while(it.hasNext()){
         it.next();
@@ -129,7 +132,7 @@ QList<QFileInfo> QWMIconSelector::folders()
 
 QList<QFileInfo> QWMIconSelector::files(QString subFolder)
 {
-    QString subPath=QString("%1%2%3").arg(_defaultDir).arg(QDir::separator()).arg(subFolder);
+    QString subPath=QString("%1%2%3").arg(defaultDir()).arg(QDir::separator()).arg(subFolder);
     QDirIterator it(subPath, QStringList() << "*.svg", QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
     QList<QFileInfo> list;
     while(it.hasNext()){

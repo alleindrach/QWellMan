@@ -152,22 +152,22 @@ QList<QWMRotatableProxyModel *> QWMDataEditor::dirtyTables(QModelIndex index)
     QAbstractItemModel * model=ui->trvTables->model();
     QString parentID=index.data(PK_VALUE_ROLE).toString();
     QString parentTableName=index.data(TABLE_NAME_ROLE).toString();
-//    qDebug()<<"dirtyTables["<<index.row()<<","<<index.column()<<"]."<<parentTableName<<"."<<parentID;
+    //    qDebug()<<"dirtyTables["<<index.row()<<","<<index.column()<<"]."<<parentTableName<<"."<<parentID;
     if(!parentID.isNull()){
         for(int i=0;i<model->rowCount(index);i++){
             QModelIndex childIndex=index.child(i,0);
             QString tableName=model->data(childIndex,TABLE_NAME_ROLE).toString();
-//            if(tableName=="wvJobReportSupportVes"){
-//                qDebug()<<"main.wvJobReportSupportVes";
-//            }
+            //            if(tableName=="wvJobReportSupportVes"){
+            //                qDebug()<<"main.wvJobReportSupportVes";
+            //            }
             int modelTypeId=QMetaType::type((QString(QWMRotatableProxyModel::staticMetaObject.className())+"*").toStdString().c_str());
             QVariant value=model->data(childIndex,MODEL_ROLE);
 
-//            qDebug()<<"\tdirtySub Tables["<<i<<"]."<<tableName<<"."<<parentID;
+            //            qDebug()<<"\tdirtySub Tables["<<i<<"]."<<tableName<<"."<<parentID;
 
             if(!value.isNull()){
                 QWMRotatableProxyModel * model=value.value<QWMRotatableProxyModel*>();//  WELL->tableForEdit(tableName,_idWell,parentID);
-//                qDebug()<<"\t\tdirtySub Tables["<<i<<"].modeldirty."<<(model!=nullptr? QString(model->isDirty()):"null");
+                //                qDebug()<<"\t\tdirtySub Tables["<<i<<"].modeldirty."<<(model!=nullptr? QString(model->isDirty()):"null");
                 if(model!=nullptr && model->isDirty()){
                     result<<model;
                 }
@@ -233,12 +233,14 @@ bool QWMDataEditor::saveAll(QStringList & errors){
                     qDebug()<<"Submit Statement:["+model->selectStatement()<<"],Error["<<model->lastError().text()<<"]";
                     result=false;
                     errors<<QString(tr("提交[%1] 记录增删 错误[%2]")).arg(model->tableName()).arg(model->lastError().text());
+                    continue;
                 }
             }
+            reCommand->setSubmitted(true);
         }
     }
     CHECK_UNDO_STATE
-    return result;
+            return result;
 }
 
 bool QWMDataEditor::isDirty()
@@ -351,7 +353,7 @@ void QWMDataEditor::editTable(const QModelIndex &tableNodeIndex)
     if(tableNodeIndex.data(CAT_ROLE)==QWMApplication::TABLE){
         QString lastError;
         QString parentID=nodeParentID(tableNodeIndex,lastError);
-        if(parentID.isNull()&& !lastError.isEmpty()){
+        if((parentID.isNull()) && !lastError.isEmpty()){
             QMessageBox::information(this,tr("错误"),lastError);
             return ;
         }
@@ -381,7 +383,7 @@ void QWMDataEditor::editTable(const QModelIndex &tableNodeIndex)
 
         int sourceCount=sourceModel->rowCount();
         int proxyCount=proxyModel->rowCount();
-//        qDebug()<<"Table:"<<sourceModel->tableName()<<",Filter:"<<parentID<<",SourceCNT:"<<sourceCount<<",ProxyCNT:"<<proxyCount;
+        //        qDebug()<<"Table:"<<sourceModel->tableName()<<",Filter:"<<parentID<<",SourceCNT:"<<sourceCount<<",ProxyCNT:"<<proxyCount;
         MDLTable * tableInfo=nodeTableInfo(tableNodeIndex);
         if(proxyModel->rowCount()>0){
             ui->actionNew->setEnabled(true);
@@ -393,6 +395,7 @@ void QWMDataEditor::editTable(const QModelIndex &tableNodeIndex)
                 model->insertRecord(0,record);
             }
             ui->actionDelete->setEnabled(false);
+            ui->actionNew->setEnabled(true);
         }
         if(tableInfo->OneToOne()){//1:1的情况
             ui->actionNew->setEnabled(false);
@@ -473,6 +476,22 @@ void QWMDataEditor::removeRecord(const QModelIndex &index)
     }
 
 }
+
+void QWMDataEditor::checkUndoStacks(QWMTableModel *commitedModel)
+{
+    for(int i=0;i<_undoStack.count();i++){
+        const QUndoCommand * cmd=_undoStack.command(i);
+
+        if(instanceof<QWMRecordEditCommand>(cmd)){
+            QWMRecordEditCommand* reCommand=(QWMRecordEditCommand*) cmd;
+            QWMTableModel * model=reCommand->model();
+            if(commitedModel->tableName()==model->tableName()){
+                reCommand->setSubmitted(true);
+            }
+        }
+    }
+
+}
 bool QWMDataEditor::saveDirtTables(QModelIndex index,QStringList & errors){
     //此处要获取已经脏了的数据库表，更新
     if(!index.isValid())
@@ -495,6 +514,9 @@ bool QWMDataEditor::saveDirtTables(QModelIndex index,QStringList & errors){
                     {
                         errors<<tr("表[")<<sourceTable->tableName()<<"] 提交异常,IDWELL["<<_idWell<<",PARENTID["<<proxyTable->filterRegExp().pattern()<<"]";
                     }
+                }else{
+                    SX(sourceTable,table);
+                    checkUndoStacks(sourceTable);
                 }
             }
         }
@@ -519,7 +541,11 @@ void QWMDataEditor::on_current_record_changed(const QModelIndex &current, const 
         QString tableName=sourceModel->tableName();
         MDLTable * tableInfo=MDL->tableInfo(tableName);
         QString des=WELL->recordDes(tableName,record);
-        QString dispText=QString("%1  [%2]").arg(tableInfo->CaptionLongP()).arg(des);
+        QString dispText=tableInfo->CaptionLongP();
+        if(!des.isNull()&& !des.isEmpty())
+        {
+            dispText=QString("%1  [%2]").arg(tableInfo->CaptionLongP()).arg(des);
+        }
         ui->trvTables->model()->setData(ui->trvTables->currentIndex(),dispText,Qt::DisplayRole);
         ui->trvTables->model()->setData(ui->trvTables->currentIndex(),pk,PK_VALUE_ROLE);
         //        clearChildSelection(ui->trvTables->currentIndex());
@@ -610,6 +636,9 @@ void QWMDataEditor::on_actionSave_triggered()
             msg=model->lastError().text();
         }
         QMessageBox::critical(this,tr("错误"),tr("提交错误[%1]").arg(msg));
+    }else{
+        SX(sourceModel,model);
+        this->checkUndoStacks(sourceModel);
     }
     CHECK_UNDO_STATE
 }

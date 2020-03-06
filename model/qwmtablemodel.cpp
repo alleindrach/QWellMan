@@ -10,7 +10,8 @@
 #include "QUuid"
 #include "QDateTime"
 #include "utility.h"
-QWMTableModel::QWMTableModel(QObject *parent,QSqlDatabase db) : QSqlRelationalTableModel(parent,db)
+QWMTableModel::QWMTableModel(QString idWell,QObject *parent,QSqlDatabase db)
+    : QSqlRelationalTableModel(parent,db),_idWell(idWell)
 {
     //    connect(this ,&QSqlTableModel::primeInsert,this,&QWMTableModel::init_record_on_prime_insert);
 }
@@ -110,7 +111,7 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
             return value;
         }
         MDLField *  fieldInfo=MDL->fieldInfo(tableName,fieldName);
-        if(role==Qt::EditRole || role==Qt::DisplayRole){
+        if(role==Qt::EditRole || role==Qt::DisplayRole||role==DATA_ROLE){
             QVariant value= QSqlRelationalTableModel::data(index,Qt::EditRole);
             if(fieldInfo!=nullptr){
                 if(fieldInfo->PhysicalType()==MDLDao::Boolean)//booelan
@@ -150,8 +151,8 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
                     if(fieldName=="SzODNom"){
                         qDebug()<<"SzDrift";
                     }
-                    //单位转换
-                    if(Utility::isNumber(value))
+                    //单位转换,只有在显示和用户编辑的时候才需要进行转换
+                    if(Utility::isNumber(value) && (role==Qt::DisplayRole||role==DATA_ROLE) )
                         value=fieldInfo->displayValue(value);
                 }
                 return value;
@@ -212,6 +213,9 @@ bool QWMTableModel::setData(const QModelIndex &index, const QVariant &value, int
             }
         }
         bool success= QSqlRelationalTableModel::setData(index, v,  role);
+        if(!success){
+            qDebug()<<"ERROR:"<<this->lastError().text();
+        }
         return success;
     }
 }
@@ -238,7 +242,7 @@ Qt::ItemFlags QWMTableModel::flags( const QModelIndex &index ) const
         if(fieldInfo!=nullptr){
             if(fieldInfo->PhysicalType()==MDLDao::Boolean)//booelan
             {
-                return flags|Qt::ItemIsUserCheckable;
+                return flags|Qt::ItemIsUserCheckable|Qt::ItemIsEditable;
             }else{
                 return flags|Qt::ItemIsEditable;
             }

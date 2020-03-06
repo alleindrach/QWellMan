@@ -17,18 +17,20 @@ public:
 
     QAbstractItemModel * wells(int type);
     bool  processWells(QWMTableModel *);
-    QWMRotatableProxyModel * tableForEdit(const QString  tablename,const QString  IDWell,const  QString  parentID);
-    QWMRotatableProxyModel * table(QString tablename);
+    QWMRotatableProxyModel * tableForEdit(const QString  tablename,const QString  idWell,const  QString  parentID);
+    QWMTableModel * table(QString tablename,QString idWell);
     bool processTable(QWMTableModel *);
     QSqlRecord well(QString idWell);
     int addRecord(QString table,QString parentId=QString());
     int addRecentWell(QString idWell);
     int addFavoriteWell(QString idWell);
     int removeFavoriteWell(QString idWell);
-    int deleteItem(QString idWell,QString idRec);
+    int deleteItem(QString idWell,QString idRec,QString table);
+    int undeleteItem(QString idWell,QString idRec);
     bool isRecentWell(QString idwell);
     bool isFavoriteWell(QString idwell);
     bool isDeletedWell(QString  idwell);
+    bool isDeletedRecord(QString idWell,QString idRec);
     QString recordDes(QString table,QSqlRecord record);
     QSqlRecord refRecord(QString table, QString id);
     void initRecord(QSqlRecord &,QString IDWell=QString(),QString parentID=QString() );

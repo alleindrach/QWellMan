@@ -22,7 +22,8 @@
     uo=o==Qt::Horizontal?Qt::Vertical:Qt::Horizontal;\
     }
 
-QWMRotatableProxyModel::QWMRotatableProxyModel(Mode mode,QObject *parent) : QAbstractProxyModel(parent),_mode(mode),_showGroup(mode==QWMRotatableProxyModel::V)
+QWMRotatableProxyModel::QWMRotatableProxyModel(QString idWell,Mode mode ,QObject *parent)
+    : QAbstractProxyModel(parent),_idWell(idWell),_mode(mode),_showGroup(mode==QWMRotatableProxyModel::V)
 {
 
 }
@@ -104,6 +105,13 @@ QModelIndex QWMRotatableProxyModel::mapFromSource(const QModelIndex &sourceIndex
     }
 }
 
+int QWMRotatableProxyModel::mapToSourceTable(QModelIndex index)
+{
+    P(pmodel);
+    QModelIndex pIndex=this->mapToSource(index);
+    return pmodel->mapToSource(pIndex.row());
+}
+
 Qt::ItemFlags QWMRotatableProxyModel::flags(const QModelIndex &index) const
 {
     P(model);
@@ -133,7 +141,7 @@ QModelIndex QWMRotatableProxyModel::index(int row, int column, const QModelIndex
 {
     return createIndex(row,column);
     //    if(_mode==H){
-//    return QAbstractProxyModel::index(row,column,parent);
+    //    return QAbstractProxyModel::index(row,column,parent);
     //    }else
     //    {
     //        return QExSortFilterProxyModel::index(column,row,parent);
@@ -303,8 +311,8 @@ bool QWMRotatableProxyModel::isFieldVisible(const QString &field)
 void QWMRotatableProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
 {
 
-//    disconnect(sourceModel,&QAbstractItemModel::dataChanged,0,0);
-//    connect(sourceModel,&QAbstractItemModel::dataChanged,this,&QWMRotatableProxyModel::on_source_model_data_changed);
+    //    disconnect(sourceModel,&QAbstractItemModel::dataChanged,0,0);
+    //    connect(sourceModel,&QAbstractItemModel::dataChanged,this,&QWMRotatableProxyModel::on_source_model_data_changed);
 
 
     if (sourceModel ==this->sourceModel())
@@ -336,8 +344,8 @@ void QWMRotatableProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
 
     QAbstractProxyModel::setSourceModel(sourceModel);
 
-//    P(proxyModel);
-//    proxyModel->setShowGroup(_mode);
+    //    P(proxyModel);
+    //    proxyModel->setShowGroup(_mode);
 
     connect(thisModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
             this, SLOT(sourceDataChanged(QModelIndex,QModelIndex,QVector<int>)));
@@ -375,7 +383,8 @@ void QWMRotatableProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
     connect(thisModel, SIGNAL(modelReset()), this, SLOT(_q_sourceReset()));
     endResetModel();
 
-
+    P(pmodel);
+    connect(pmodel,&QWMSortFilterProxyModel::rowsChanged,this,&QWMRotatableProxyModel::on_rows_changed);
 }
 
 QWMRotatableProxyModel::Mode QWMRotatableProxyModel::mode()
@@ -390,14 +399,14 @@ void QWMRotatableProxyModel::setMode(QWMRotatableProxyModel::Mode m)
     P(model);
     model->setShowGroup(m==QWMRotatableProxyModel::V);
     endResetModel();
-//    emit modeChanged();
+    //    emit modeChanged();
 }
 
 void QWMRotatableProxyModel::reset()
 {
     beginResetModel();
     endResetModel();
-//    emit modeChanged();
+    //    emit modeChanged();
 }
 
 QSqlError QWMRotatableProxyModel::lastError()
@@ -572,7 +581,7 @@ void QWMRotatableProxyModel::sourceLayoutAboutToBeChanged(const QList<QPersisten
     if (!sourceParents.isEmpty() && saved_layoutChange_parents.isEmpty())
         return;
 
-       emit layoutAboutToBeChanged(saved_layoutChange_parents);
+    emit layoutAboutToBeChanged(saved_layoutChange_parents);
 
 }
 
@@ -630,4 +639,9 @@ bool QWMRotatableProxyModel::removeRecord(QModelIndex index){
     P(model);
     QModelIndex  sourceIndex=mapToSource(index);
     model->removeRecord(sourceIndex.row());
+}
+
+void QWMRotatableProxyModel::on_rows_changed(){
+    this->reset();
+    emit rowsChanged();
 }

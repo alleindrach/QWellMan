@@ -1,12 +1,12 @@
 #ifndef DATEDELEGATE_H
 #define DATEDELEGATE_H
-
+#include <QObject>
 #include "QItemDelegate"
 #include "qwmdatetimeeditor.h"
 #include "qwmabstractdelegate.h"
 class QWMDateDelegate : public QWMAbstractDelegate
 {
-   Q_OBJECT
+    Q_OBJECT
 public:
     QWMDateDelegate(int mode=DATE,QString format="yyyy-MM-dd", QObject *parent = 0);
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;

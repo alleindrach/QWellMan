@@ -15,7 +15,7 @@
 #include "QUuid"
 #include "QDateTime"
 #include <QSettings>
-
+#include  <QSqlDriver>
 WellDao * WellDao::_instance=nullptr;
 QHash<QString ,QVariant> WellDao::_cache={};
 
@@ -29,6 +29,7 @@ DECL_SQL(select_record,"select  w.* from %1  w  where  not exists(select * from 
 DECL_SQL(select_record2,"select  w.* from %1  w  where  not exists(select * from %2 d where  w.%3=d.IDRec COLLATE NOCASE) and w.%3=:id COLLATE NOCASE")
 DECL_SQL(select_records,"select  w.* from %1  w  where  not exists(select * from %2 d where  w.%3=d.IDRec COLLATE NOCASE) %4  order by %5")
 DECL_SQL(insert_record,"insert into %1 (%2) values( %3)")
+DECL_SQL(delete_record,"delete  %1 where %2")
 DECL_SQL(select_well_cnt_in_cat,"select  count(1) as cnt from %1  w  "
                                 "where  not exists(select * from %2 d where w.%3=d.%4 COLLATE NOCASE and w.%3=d.IDRec  COLLATE NOCASE) "
                                 "and w.%3=:idwell")
@@ -71,15 +72,18 @@ bool WellDao::processTable(QWMTableModel *sourceModel)
         sourceModel->fetchMore();
     return true;
 }
-QWMRotatableProxyModel *WellDao::table(QString tablename)
+//针对此井的过滤表
+QWMTableModel *WellDao::table(QString tablename,QString idWell)
 {
-    QString key=QString("table.%1").arg(tablename);
-    CS(key,QWMRotatableProxyModel*);
+    QString key=QString("table.%1.%2").arg(tablename).arg(idWell);
+    CS(key,QWMTableModel*);
 
 
-    QSqlTableModel *  model=new QWMTableModel(this,APP->well());
+    QWMTableModel *  model=new QWMTableModel(idWell,this,APP->well());
+    QString filter=QString(" %1='%2' ").arg(CFG(IDWell)).arg(idWell);
     model->setEditStrategy(QSqlTableModel::OnManualSubmit);
     model->setTable(tablename);
+    model->setFilter(filter);
     model->setSort(model->fieldIndex( MDL->tableOrderKey(tablename)),Qt::AscendingOrder);
     //    model->select();
     if(model->lastError().isValid())
@@ -88,49 +92,81 @@ QWMRotatableProxyModel *WellDao::table(QString tablename)
         qDebug()<<e;
     }
 
-    QWMSortFilterProxyModel * proxy=new QWMSortFilterProxyModel(model);
-    proxy->setSourceModel(model);
-    //    proxy->setShowGroup(true);
-    QSettings settings;
-    int mode= settings.value(QString(EDITOR_TABLE_ENTRY_PREFIX).arg(tablename),QWMRotatableProxyModel::V).toInt();
-    proxy->setShowGroup(mode==QWMRotatableProxyModel::V);
-    QWMRotatableProxyModel * rotateProxy=new QWMRotatableProxyModel((QWMRotatableProxyModel::Mode)mode,proxy);
-    rotateProxy->setSourceModel(proxy);
-    CI(key,rotateProxy);
+    CI(key,model);
 
 }
 //获取table，并设置过滤，
 //如果是顶级节点，则只过滤IDWell
 //如果是子节点，则过滤IDRecParent
 
-QWMRotatableProxyModel *WellDao::tableForEdit(const QString tablename,const QString  IDWell,const  QString parentID)
+QWMRotatableProxyModel *WellDao::tableForEdit(const QString tablename,const QString  idWell,const  QString parentID)
 {
-    QString key=QString("tableForEdit.%1.%2.%3").arg(tablename).arg(IDWell).arg(parentID);
+    QString key=QString("tableForEdit.%1.%2.%3").arg(tablename).arg(idWell).arg(parentID);
     CS(key,QWMRotatableProxyModel*);
-    QWMRotatableProxyModel * model=table(tablename);
-    PX(proxyModel,model);
-    SX(sourceModel,model);
+    QWMTableModel * sourceModel=table(tablename,idWell);
+
+
+    QWMSortFilterProxyModel * proxyModel=new QWMSortFilterProxyModel(idWell,sourceModel);
+    proxyModel->setSourceModel(sourceModel);
+    //    proxy->setShowGroup(true);
+    QSettings settings;
+    int mode= settings.value(QString(EDITOR_TABLE_ENTRY_PREFIX).arg(tablename),QWMRotatableProxyModel::V).toInt();
+    proxyModel->setShowGroup(mode==QWMRotatableProxyModel::V);
+    QWMRotatableProxyModel * rotateProxy=new QWMRotatableProxyModel(idWell,(QWMRotatableProxyModel::Mode)mode,proxyModel);
+    rotateProxy->setSourceModel(proxyModel);
+
     //如果有parentid，则根据IDRecParent字段进行过滤
     QSqlRecord record=sourceModel->record();
-    proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    if(!parentID.isNull() && !parentID.isEmpty()){
+//    if(!parentID.isEmpty()){
+//        QString additionalWhere=QString(" %1='%2' ").arg(CFG(ParentID)).arg(parentID);
+//        if(record.indexOf(CFG(ParentID))>=0){
+//            QString filter=sourceModel->filter();
+//            filter+=additionalWhere;
+//            proxyModel->setFilterKeyColumn(record.indexOf(CFG(ParentID)));
+//            proxyModel->setFilterFixedString(parentID);
 
-        if(record.indexOf(CFG(ParentID))>=0)
-        {
-            proxyModel->setFilterKeyColumn(record.indexOf(CFG(ParentID)));
-            proxyModel->setFilterFixedString(parentID);
+//        }
+//    }
+//    proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+//    if(!parentID.isNull() && !parentID.isEmpty()){
 
-        }else{
-            proxyModel->setFilterFixedString(parentID);
-            proxyModel->setFilterKeyColumn(record.indexOf(CFG(IDWell)));
-        }
-    }else
-    {
-        proxyModel->setFilterFixedString(IDWell);
-        proxyModel->setFilterKeyColumn(record.indexOf(CFG(IDWell)));
-    }
+//        if(record.indexOf(CFG(ParentID))>=0)
+//        {
+//            proxyModel->setFilterKeyColumn(record.indexOf(CFG(ParentID)));
+//            proxyModel->setFilterFixedString(parentID);
+
+//        }else{
+//            proxyModel->setFilterFixedString(parentID);
+//            proxyModel->setFilterKeyColumn(record.indexOf(CFG(IDWell)));
+//        }
+//    }else
+//    {
+//        proxyModel->setFilterFixedString(IDWell);
+//        proxyModel->setFilterKeyColumn(record.indexOf(CFG(IDWell)));
+//    }
+
+    proxyModel->setFilterFunction( [=](int sourceRow, const QModelIndex &sourceParent)->bool {
+//        QModelIndex index0 = model->index(sourceRow, 0, sourceParent);
+//        QString idwell=index0.data(PK_ROLE).toString();
+
+            QSqlRecord record=sourceModel->record(sourceRow);
+            if(record.indexOf(CFG(ParentID))>=0){
+                QString pidOfRow=record.value(CFG(ParentID)).toString();
+                if(parentID.isNull()&& !pidOfRow.isNull()){
+                    return false;
+                }
+                if(parentID.compare(pidOfRow,Qt::CaseInsensitive)!=0){
+                    return false;
+                }
+            }
+            QString idWellThis=record.value(CFG(IDWell)).toString();
+            QString idRec=record.value(CFG(ID)).toString();
+            bool isDeleted=WELL->isDeletedRecord(idWell,idRec);
+            return !isDeleted;
+    });
+
     processTable(sourceModel);
-    CI(key,model);
+    CI(key,rotateProxy);
     //    return model;
 }
 
@@ -201,6 +237,22 @@ bool WellDao::isDeletedWell(QString idwell)
         return  QS(q,cnt).toUInt()>0;
     return false;
 }
+bool WellDao::isDeletedRecord(QString idWell, QString idRec)
+{
+    QSqlQuery q(APP->well());
+    q.prepare(SQL(select_is_deleted)
+              .arg(CFG(SysRecDelTable)) //%1 wvSysDelRec
+              .arg(CFG(IDWell)) //%2 IDWell
+              .arg(CFG(ID))) //%4 IDWell
+            ;
+    q.bindValue(":idwell",idWell);
+    q.bindValue(":idrec",idRec);
+    q.exec();
+    PRINT_ERROR(q);
+    if(q.next())
+        return  QS(q,cnt).toUInt()>0;
+    return false;
+}
 int WellDao::addRecord(QString table, QString parentId)
 {
     return 0;
@@ -243,12 +295,28 @@ int WellDao::removeFavoriteWell(QString idWell)
     return q.numRowsAffected();
 }
 
-int WellDao::deleteItem(QString idWell, QString idRec)
+int WellDao::undeleteItem(QString idWell, QString idRec)
 {
     QSqlQuery q(APP->well());
+    QString tableName=CFG(SysRecDelTable);
+    QString where=QString(" %1='%2'  and  %3='%4' ")
+            .arg(CFG(IDWell)).arg(idWell).arg(CFG(ID)).arg(idRec);
+    q.prepare(SQL(delete_record)
+              .arg(tableName) //%1 wvSysDelRec
+              .arg(where)) //%2 where
+            ;
+    q.exec();
+    PRINT_ERROR(q);
+    return q.numRowsAffected();
+}
+
+int WellDao::deleteItem(QString idWell, QString idRec,QString table)
+{
+
+    QSqlQuery q(APP->well());
     QStringList fields,values;
-    fields<<QString("%1").arg(CFG(IDMainFieldName))<<QString("%1").arg(CFG(ID));
-    values<<QString("'%1'").arg(idWell)<<QString("'%1'").arg(idRec);
+    fields<<QString("'%1'").arg(CFG(IDMainFieldName))<<QString("'%1'").arg(CFG(ID))<<QString("'%1'").arg("TblKey");
+    values<<QString("'%1'").arg(idWell)<<QString("'%1'").arg(idRec)<<QString("'%1'").arg(table);
     q.prepare(SQL(insert_record)
               .arg(CFG(SysRecDelTable)) //%2 wvSysDelRec
               .arg(fields.join(",")) //%1 wvWellHeader
@@ -281,26 +349,31 @@ QString WellDao::recordDes(QString table, QSqlRecord record)
                     MDLField * fieldInfo=MDL->fieldInfo(table,var);
                     if(fieldInfo!=nullptr){
                         value=fieldInfo->refValue(value.toString());
+                        if(Utility::isNumber(value))
+                        {
+                            //单位转换
+                            value=fieldInfo->displayValue(value);
+                        }
                     }
                     cachedValue.insert(var,value);
                     cachedTransferedValue.insert(var,value);
                     //                    rdResult.replace("<"+var+">",value);
                 }else{
-                    QString refVarName=var.replace(".unit","");
+                    QString refVarName=var;
+                    refVarName.replace(".unit","");
                     MDLUnitType *unitType=MDL->baseUnitOfField(table,refVarName);
                     QString baseUnit=unitType->BaseUnits();
                     MDLUnitTypeSet* userUnitInfo=MDL->userUnitKey(APP->unit(),unitType->KeyType());
                     if(userUnitInfo!=nullptr){
-
-                        //需要转换
+                        //显示为用户profile的单位制
                         QString userUnit=userUnitInfo->UserUnits();
                         cachedValue.insert(var,userUnit);
                         cachedTransferedValue.insert(var,userUnit);
-                        QVariant value=cachedValue[refVarName];
-                        value=MDL->unitBase2User(baseUnit,userUnit,value);
-                        QString fmtstr=userUnitInfo->UserFormat();
-                        cachedTransferedValue.remove(refVarName);
-                        cachedTransferedValue.insert(refVarName,Utility::format(fmtstr,value));//这个是转换后的数值,<NSDist.Unit>:10(ft)
+//                        QVariant value=cachedValue[refVarName];
+//                        value=MDL->unitBase2User(baseUnit,userUnit,value);
+//                        QString fmtstr=userUnitInfo->UserFormat();
+//                        cachedTransferedValue.remove(refVarName);
+//                        cachedTransferedValue.insert(refVarName,Utility::format(fmtstr,value));//这个是转换后的数值,<NSDist.Unit>:10(ft)
                     }else{
                         cachedValue.insert(var,baseUnit);
                         cachedTransferedValue.insert(var,baseUnit);
@@ -341,7 +414,7 @@ QAbstractItemModel*  WellDao::wells(int type)
     QString key=QString("wells.%1").arg(type);
     CS(key,QAbstractItemModel*);
 
-    QWMTableModel *  model=new QWMTableModel(this,APP->well());
+    QWMTableModel *  model=new QWMTableModel(QString(),this,APP->well());
     model->setTable(CFG(KeyTblMain));
     model->setSort(model->fieldIndex( MDL->tableOrderKey(CFG(KeyTblMain))),Qt::AscendingOrder);
     model->select();
@@ -353,7 +426,7 @@ QAbstractItemModel*  WellDao::wells(int type)
     }
     processWells(model);
 
-    QWMSortFilterProxyModel * proxy=new QWMSortFilterProxyModel(model);
+    QWMSortFilterProxyModel * proxy=new QWMSortFilterProxyModel(QString(),model);
     proxy->setSourceModel(model);
 
     proxy->setFilterFunction( [model,type](int sourceRow, const QModelIndex &sourceParent)->bool {
@@ -427,8 +500,6 @@ QSqlQuery WellDao::records(QString table,QString idWell,QString parentID)
 {
     MDLTable * tableInfo=MDL->tableInfo(table);
     QSqlRecord record=aRecord(table);
-    QString parentFld=CFG(IDWell);
-    QString idFld=CFG(ID);
     PARENT_ID_FLD(parentFld,record);
     PK_FLD(idFld,record);
     QString additionalCri;

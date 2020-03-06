@@ -7,6 +7,7 @@
 #include "qwmabstractdelegate.h"
 class QWMIconDelegate : public QWMAbstractDelegate
 {
+    Q_OBJECT
 public:
     QWMIconDelegate( QObject * parent=nullptr);
     ~QWMIconDelegate();
@@ -15,6 +16,8 @@ public:
     void setEditorData(QWidget *editor, const QModelIndex &index) const override;
     void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
     virtual bool isEditor(QObject  * widget ) override;
+    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option,
+                       const QModelIndex &index) const override;
 public slots:
 };
 #endif // QWMICONDELEGATE_H

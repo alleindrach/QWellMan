@@ -33,6 +33,7 @@ protected Q_SLOTS:
 private:
     //    QWellDoc * m_doc;
 
+public :
 signals:
     void RecordCountChanged(int oldCount,int newCount);
 };

@@ -49,6 +49,7 @@ SOURCES += \
     widget/delegate/qwmdistinctvaluedelegate.cpp \
     widget/delegate/qwmicondelegate.cpp \
     widget/delegate/qwmreflookupdelegate.cpp \
+    widget/delegate/qwmstyleditemdelegate.cpp \
     widget/delegate/spinboxdelegate.cpp \
     widget/editor/qwmabstracteditor.cpp \
     widget/editor/qwmdatetimeeditor.cpp \
@@ -99,6 +100,7 @@ HEADERS += \
     widget/delegate/qwmdistinctvaluedelegate.h \
     widget/delegate/qwmicondelegate.h \
     widget/delegate/qwmreflookupdelegate.h \
+    widget/delegate/qwmstyleditemdelegate.h \
     widget/delegate/spinboxdelegate.h \
     widget/editor/qwmabstracteditor.h \
     widget/editor/qwmdatetimeeditor.h \

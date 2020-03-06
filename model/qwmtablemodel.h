@@ -2,13 +2,14 @@
 #define QWMTABLEMODEL_H
 #include <QSqlRelationalTableModel>
 #include <QObject>
-#include "common.h"
 #include "qwmapplication.h"
+#include "common.h"
+
 class QWMTableModel : public QSqlRelationalTableModel
 {
     Q_OBJECT
 public:
-    explicit QWMTableModel(QObject *parent = nullptr,QSqlDatabase db = APP->well());
+    explicit QWMTableModel(QString idWell,QObject *parent = nullptr,QSqlDatabase db = APP->well());
     QVariant data(const QModelIndex &item, int role = Qt::DisplayRole) const override;
     bool setData(const QModelIndex &item, const QVariant &value, int role = Qt::EditRole) override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
@@ -28,7 +29,14 @@ public:
     int fieldIndexEx(const QString &fieldName) ;
     QString   fieldNameEx(const int  index) const;
     QModelIndex createIndex(int row,int col) ;
+    inline void  setIDWell(QString idWell){
+        _idWell=idWell;
+    }
+    inline QString idWell(){
+        return _idWell;
+    }
 signals:
+    void  rowsChanged();
 
 public slots:
     void init_record_on_prime_insert(int row, QSqlRecord &record);
@@ -40,7 +48,8 @@ private :
     QHash<QString,int> _fieldsCalcMap;
     QList<QString> _fieldsOrigin;
     int _visibleFields{0};
+    QString _idWell;
     friend class QWMDataEditor;
 };
-
+Q_DECLARE_METATYPE(QWMTableModel*)
 #endif // QWMTABLEMODEL_H

@@ -9,10 +9,11 @@
 #include "qwmdatatableview.h"
 #include "qwmrotatableproxymodel.h"
 #include "mdltable.h"
+//#include "qwmtablemodel.h"
 namespace Ui {
 class QWMDataEditor;
 }
-
+class QWMTableModel;
 class QWMDataEditor : public QMainWindow
 {
     Q_OBJECT
@@ -43,6 +44,10 @@ protected:
     void editTable(const QModelIndex & inddex);
     void addRecord(const QModelIndex & index);
     void removeRecord(const QModelIndex &index);
+private:
+    void checkUndoStacks(QWMTableModel * commitedModel);
+signals:
+    void RecordCountChanged(int ,int);
 public Q_SLOTS:
     void undo();
     void redo();
@@ -108,12 +113,6 @@ private:
             QTableView::indicator { \
             width: 17px; \
             height: 17px; \
-} \
-            QTableView::indicator:enabled:unchecked { \
-            image: url(:/images/icons/uncheck.png); \
-}\
-            QTableView::indicator:enabled:checked { \
-            image: url(:/images/icons/checked.png);\
 }\
             ";
 };

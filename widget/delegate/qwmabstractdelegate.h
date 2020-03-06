@@ -1,5 +1,6 @@
 #ifndef QWMABSTRACTDELEGATE_H
 #define QWMABSTRACTDELEGATE_H
+#include <QObject>
 #include <QStyledItemDelegate>
 #include <QCoreApplication>
 //#include "qwmiconselector.h"
@@ -10,6 +11,7 @@
 
 class QWMAbstractDelegate : public QStyledItemDelegate
 {
+    Q_OBJECT
 public:
     QWMAbstractDelegate( QObject * parent=nullptr);
     ~QWMAbstractDelegate();

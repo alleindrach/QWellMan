@@ -21,12 +21,33 @@
     }\
     for(int i=0;i<w->model()->rowCount();i++){\
     w->setItemDelegateForRow(i,nullptr);\
-    }
+    } \
+    w->setItemDelegate(_itemDelegate);
 
-QWMDataTableView::QWMDataTableView(QWidget *parent):QRotatableTableView(parent)
+QWMDataTableView::QWMDataTableView(QWidget *parent):QTableView(parent)
+{
+    _itemDelegate=new QWMStyledItemDelegate(this);
+}
+void QWMDataTableView::setHorizontalHeader(QHeaderView *header)
 {
 
+    QTableView::setHorizontalHeader(header);
+
+    disconnect(header, SIGNAL(sectionCountChanged(int,int)),0,0);
+    connect(header, SIGNAL(sectionCountChanged(int,int)),
+            this, SLOT(rowCountChanged(int,int)));
 }
+
+void QWMDataTableView::setVerticalHeader(QHeaderView *header)
+{
+    QTableView::setHorizontalHeader(header);
+
+    disconnect(header, SIGNAL(sectionCountChanged(int,int)),0,0);
+    connect(header, SIGNAL(sectionCountChanged(int,int)),
+            this, SLOT(columnCountChanged(int,int)));
+
+}
+
 
 void QWMDataTableView::bindDelegate()
 {
@@ -127,8 +148,10 @@ void QWMDataTableView::bindDelegate()
 
 void QWMDataTableView::setModel(QAbstractItemModel *model)
 {
-    QRotatableTableView::setModel(model);
+    QTableView::setModel(model);
     QWMRotatableProxyModel * rmodel=(QWMRotatableProxyModel*)this->model();
+    connect(model,SIGNAL(modeChanged()),this,SLOT(onModeChange()));
+    connect(model,SIGNAL(modelReset()),this,SLOT(onModeChange()));
     rmodel->reset();
 }
 
@@ -138,34 +161,6 @@ void QWMDataTableView::onModeChange()
     QWMRotatableProxyModel * model=(QWMRotatableProxyModel*)this->model();
     PX(pmodel,this->model());
     SX(smodel,this->model());
-    //    if(model->mode()==QWMRotatableProxyModel::H){
-    //        for(int j=0;j<model->columnCount();j++){
-    //            if(j<pmodel->columnCount()){
-    //                setColumnHidden(j,false);
-    //            }else
-    //            {
-    //                setColumnHidden(j,true);
-    //            }
-    //        }
-    //        for(int i=0;i<model->rowCount();i++){
-    //            setRowHidden(i,false);
-    //        }
-    //    }else{
-    //        int columns=model->rowCount();
-    //        int vis=pmodel->columnCount();
-    //        qDebug()<<"V:"<<",Total:"<<columns<<",Visible:"<<vis;
-    //        for(int i=0;i<model->rowCount();i++){
-    //            if(i<pmodel->columnCount()){
-    //                setRowHidden(i,false);
-    //            }else
-    //            {
-    //                setRowHidden(i,true);
-    //            }
-    //        }
-    //        for(int j=0;j<model->columnCount();j++){
-    //            setColumnHidden(j,false);
-    //        }
-    //    }
     QSettings settings;
     settings.setValue(QString(EDITOR_TABLE_ENTRY_PREFIX).arg(smodel->tableName()),model->mode());
     bindDelegate();
@@ -174,6 +169,36 @@ void QWMDataTableView::onModeChange()
 
 void QWMDataTableView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint)
 {
-    return QRotatableTableView::closeEditor(editor,hint);
+    return QTableView::closeEditor(editor,hint);
 }
+void QWMDataTableView::rowCountChanged(int oldCount, int newCount)
+{
+    QAbstractItemModel  * model=this->verticalHeader()->model();
+    if(model!=nullptr){
+        QVariant vMode=model->property("mode");
+        if(!vMode.isNull()&& vMode.isValid()){
+            int mode = vMode.toInt();
+            if(Qt::Horizontal == mode){
+                emit this->RecordCountChanged(oldCount,newCount);
+            }
+        }
+    }
+    QTableView::rowCountChanged(oldCount,newCount);
+}
+
+void QWMDataTableView::columnCountChanged(int oldCount, int newCount)
+{
+    QAbstractItemModel * model=this->horizontalHeader()->model();
+    if(model!=nullptr){
+        QVariant vMode=model->property("mode");
+        if(!vMode.isNull()&& vMode.isValid()){
+            int mode = vMode.toInt();
+            if(Qt::Vertical == mode){
+                emit this->RecordCountChanged(oldCount,newCount);
+            }
+        }
+    }
+    QTableView::columnCountChanged(oldCount,newCount);
+}
+
 

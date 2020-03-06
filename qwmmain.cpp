@@ -472,7 +472,7 @@ void QWMMain::on_actionDelete_triggered()
         foreach(QModelIndex index,selection->selectedRows())
         {
             QString idWell=index.data(PK_ROLE).toString();
-            int effectRows=WELL->deleteItem(idWell,idWell);
+            int effectRows=WELL->deleteItem(idWell,idWell,CFG(KeyTblMain));
 //            qDebug()<<"Delete:"<<idWell<<":"<<effectRows;
             //            proxyModel->removeRow(index.row());
         }

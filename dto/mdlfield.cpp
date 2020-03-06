@@ -3,6 +3,7 @@
 #include "common.h"
 #include "mdldao.h"
 #include "welldao.h"
+#include "utility.h"
 MDLField::MDLField(QObject *parent) : Record(parent)
 {
 
@@ -53,6 +54,7 @@ QVariant MDLField::displayValue(QVariant v)
                 QString userUnit=userUnitInfo->UserUnits();
                 QString userUnitFormat=userUnitInfo->UserFormat();
                 value=MDL->unitBase2User(baseUnit,userUnit,value);
+                value=Utility::format(baseUnitFormat,value);
             }
         }
     }
@@ -75,6 +77,7 @@ QVariant MDLField::baseValue(QVariant dispValue)
                 QString userUnit=userUnitInfo->UserUnits();
                 QString userUnitFormat=userUnitInfo->UserFormat();
                 value=MDL->unitUser2Base(baseUnit,userUnit,value);
+                value=Utility::format(userUnitFormat,value);
             }
         }
     }

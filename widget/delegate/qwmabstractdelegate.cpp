@@ -95,11 +95,11 @@ bool QWMAbstractDelegate::eventFilter(QObject *watched, QEvent *event) {
         return true;
     }
 
-    if(event->type()==QEvent::FocusOut){
-//        closeEditorAndRevert(dynamic_cast<QWidget*>( watched));
-        event->accept();
-        return true;
-    }
+//    if(event->type()==QEvent::FocusOut){
+////        closeEditorAndRevert(dynamic_cast<QWidget*>( watched));
+//        event->accept();
+//        return true;
+//    }
     return QStyledItemDelegate::eventFilter(watched,event);
 }
 

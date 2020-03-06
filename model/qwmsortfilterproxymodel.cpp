@@ -18,8 +18,8 @@
 #define S1(model)\
     QWMTableModel * model=static_cast<QWMTableModel *>(this->sourceModel());
 
-
-QWMSortFilterProxyModel::QWMSortFilterProxyModel(QObject *parent) : QExSortFilterProxyModel(parent)
+QWMSortFilterProxyModel::QWMSortFilterProxyModel(QString idWell,QObject *parent)
+    : QExSortFilterProxyModel(parent),_idWell(idWell)
 {
 
 }
@@ -80,13 +80,25 @@ QModelIndex QWMSortFilterProxyModel::mapFromSource(const QModelIndex &sourceInde
     //    return createIndex(sourceIndex.row(),visiblePos);
 }
 
+int QWMSortFilterProxyModel::mapToSource(int row)
+{
+    S1(model);
+    if(row<=0)
+        return row;
+    if(row>=this->rowCount())
+        return -1;
+    // 4    取该行对应的原始行号
+    QModelIndex proxyIndex2=this->index(row,0);
+    QModelIndex sourceIndex2=QExSortFilterProxyModel::mapToSource(proxyIndex2);
+
+    return sourceIndex2.row();
+}
+
 
 bool QWMSortFilterProxyModel::insertRecord(int row, const QSqlRecord &record)
 {
     S1(model);
-    QModelIndex  index=this->index(row,0);
-    QModelIndex sourceIndex=mapToSource(index);
-    QWMRecordEditCommand * command=new QWMRecordEditCommand(model,record,QWMRecordEditCommand::insert);
+    QWMRecordEditCommand * command=new QWMRecordEditCommand( model,_idWell,record,QWMRecordEditCommand::insert);
     DOC->addUndoCommand(command);
     return true;
 }
@@ -105,9 +117,10 @@ bool QWMSortFilterProxyModel::removeRecord(int row)
 {
     S1(model);
     QModelIndex  index=this->index(row,0);
-    QModelIndex sourceIndex=mapToSource(index);
-    QSqlRecord  record=model->record(sourceIndex.row());
-    QWMRecordEditCommand * command=new QWMRecordEditCommand(model,record,QWMRecordEditCommand::remove);
+    int sourceRow=mapToSource(row);
+    QSqlRecord  record=model->record(sourceRow);
+    PK_VALUE(id,record);
+    QWMRecordEditCommand * command=new QWMRecordEditCommand(model,_idWell,record,QWMRecordEditCommand::remove);
     DOC->addUndoCommand(command);
     return true;
 }
@@ -153,7 +166,7 @@ void QWMSortFilterProxyModel::setFilterFunction( std::function<bool (int, const 
 bool QWMSortFilterProxyModel::submitAll()
 {
     QWMTableModel *model=static_cast<QWMTableModel *>(this->sourceModel());
-//    qDebug()<<" is dirt:"<<model->isDirty();
+    //    qDebug()<<" is dirt:"<<model->isDirty();
 
     model->database().transaction();
     if(model->submitAll())
@@ -180,6 +193,12 @@ void QWMSortFilterProxyModel::revert()
 {
     S1(model);//QWMTableModel *model=static_cast<QWMTableModel *>(this->sourceModel());
     return model->revert();
+}
+
+void QWMSortFilterProxyModel::reset()
+{
+    this->beginResetModel();
+    this->endResetModel();
 }
 
 int QWMSortFilterProxyModel::visibleFieldsCount()
@@ -247,7 +266,7 @@ int QWMSortFilterProxyModel::columnCount(const QModelIndex &parent) const
     if(_showGroup){
         cols+= _groupIndex.count();
     }
-//    qDebug()<<"QWMSortFilterProxyModel:"<<model->tableName()<<",columnCount="<<cols;
+    //    qDebug()<<"QWMSortFilterProxyModel:"<<model->tableName()<<",columnCount="<<cols;
     return cols;
 }
 
@@ -282,7 +301,7 @@ void QWMSortFilterProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
     QExSortFilterProxyModel::setSourceModel(sourceModel);
     disconnect(sourceModel,&QAbstractItemModel::dataChanged,0,0);
     connect(sourceModel,&QAbstractItemModel::dataChanged,this,&QWMSortFilterProxyModel::on_source_model_data_changed);
-
+    connect(model,&QWMTableModel::rowsChanged,this,&QWMSortFilterProxyModel::on_rows_changed);
 }
 
 
@@ -366,6 +385,17 @@ bool QWMSortFilterProxyModel::setData(const QModelIndex &item, const QVariant &v
         list.append(m);
         QWMFieldEditCommand * command=new QWMFieldEditCommand(model,list);
         DOC->addUndoCommand(command);
+    }else if(role==Qt::CheckStateRole){
+        QModelIndex sourceIndex=mapToSource(item);
+        Modifier m;
+        m.col=sourceIndex.column();
+        m.row=sourceIndex.row();
+        m.newValue=value==Qt::Checked;
+        m.oldValue=(model->data(sourceIndex,Qt::CheckStateRole)==Qt::Checked);
+        QList<Modifier> list;
+        list.append(m);
+        QWMFieldEditCommand * command=new QWMFieldEditCommand(model,list);
+        DOC->addUndoCommand(command);
     }else if(role==LINKED_FIELDS){
         QModelIndex sourceIndex=mapToSource(item);
         Modifier m;
@@ -400,6 +430,12 @@ void QWMSortFilterProxyModel::on_source_model_data_changed(QModelIndex lefttop, 
     QModelIndex proxyRightBottom=mapFromSource(rightbottom);
     emit dataChanged(proxyLeftTop,proxyRightBottom,roles);
 
+}
+
+void QWMSortFilterProxyModel::on_rows_changed()
+{
+    this->reset();
+    emit rowsChanged();
 }
 
 bool QWMSortFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
