@@ -73,7 +73,7 @@ QWMDataEditor::QWMDataEditor(QString idWell,QString name,QWidget *parent) :
     this->showReferenceDatum(APP->referenceDatumName( APP->datumPreference()));
     this->showUnitSetting(APP->unit());
 
-    _tbvData->setStyleSheet(_TableStyle);
+    _tbvData->setStyleSheet(APP->style());
     _tbvData->verticalHeader()->setDefaultSectionSize(12);
     _tbvData->setFont(font);
 

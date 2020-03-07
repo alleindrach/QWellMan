@@ -38,6 +38,7 @@ DECL_SQL(select_is_deleted,"select  count(1) as cnt from %1  w  "
 DECL_SQL(select_distinct_value,"select  distinct %2 as fv from %1  w  where fv is not null"
                                " order by fv ")
 DECL_SQL(select_a_record ,"select * from %1 limit 1")
+DECL_SQL(select_record_count_even_deleted,"select count(*) as c from %1 w where w.%2=:id COLLATE NOCASE")
 
 END_SQL_DECLARATION
 
@@ -578,5 +579,20 @@ QSqlRecord WellDao::aRecord(QString table)
     QSqlQuery q(SQL(select_a_record).arg(table),APP->well());
     q.exec();
     return q.record();
+}
+
+bool WellDao::hasRecord(QString table, QString idrec)
+{
+//    select count(*) as c from %1 w where w.%2=:id COLLATE NOCASE
+    QStringList result;
+    QSqlQuery q(APP->well());
+    q.prepare(SQL(select_record_count_even_deleted).arg(table).arg(CFG(ID)));
+    q.bindValue(":id",idrec);
+    q.exec();
+    PRINT_ERROR(q);
+    if(q.next()){
+        return q.value("c").toInt()>0;
+    }
+    return false;
 }
 

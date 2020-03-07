@@ -16,7 +16,7 @@ class QWMTableSelector : public QWidget
 {
     Q_OBJECT
 public:
-    explicit QWMTableSelector(QString title,QWidget *parent = nullptr);
+    explicit QWMTableSelector(QWidget *parent = nullptr);
     void  setText(QString text);
     QString text();
     QItemSelectionModel * selectionModel();
@@ -26,8 +26,6 @@ private:
     void init();
     Ui::QWMTableSelector *ui;
     QString _selectedValue;
-    QString _title;
-
 signals:
     void  accepted(QWidget * );
     void  rejected(QWidget * );

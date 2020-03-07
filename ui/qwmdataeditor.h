@@ -29,13 +29,15 @@ public:
     void showProfile(QString profile);
     void showUnitSetting(QString unit);
     void showReferenceDatum(QString datum);
-//    void showDataGrid(QWMRotatableProxyModel *  model);
+    //    void showDataGrid(QWMRotatableProxyModel *  model);
     QList<QWMRotatableProxyModel*> dirtyTables(QModelIndex index);
     bool saveDirtTables(QModelIndex index,QStringList & errors);
     bool saveAll(QStringList & errors);
     bool isDirty();
     bool isCurrentTableDirty();
     QString inline const idWell(){return _idWell;};
+    inline QWMDataTableView * dataView (){return _tbvData;}
+
 protected:
     virtual void closeEvent(QCloseEvent *event);
     QString nodeParentID(const QModelIndex &index,QString & lastError);
@@ -79,42 +81,48 @@ private:
     QLabel * _lblMessage;
     QWMDataTableView * _tbvData;
     QString _parentID;
-    QString _TableStyle="/*tablewidget 样式*/ \
-            QTableView { \
-            font-size:10px ;\
-            selection-background-color:rgb(155, 0, 2);\
-            alternate-background-color: gray; \
-            background-color:white;/*整个表格的背景色，这里为白色*/ \
-            border:1px solid #E0DDDC;/*边框为1像素，灰色*/ \
-            gridline-color:lightgray;/*这个是表格的格子线的颜色，为亮灰*/ \
-} \
-            QTableView QTableCornerButton::section{\
-            border:0px solid lightgray; \
-            background-color: rgb(50,50,50); \
-            selection-background-color: darkblue ;\
-            color:white;\
-}  \
-            \
-            QHeaderView::section { \
-            font-size:10px ;\
-            selection-background-color: darkblue; \
-            padding-left: 4px; \
-            border-right: 1px solid lightgray; \
-            border-bottom: 1px solid lightgray; \
-} \
-            QHeaderView::section:checked { \
-            color:white;\
-            background-color:rgb(50, 50, 50); \
-} \
-            QHeaderView::section:unchecked { \
-            color:black;\
-            background-color: white; \
-} \
-            QTableView::indicator { \
-            width: 17px; \
-            height: 17px; \
-}\
-            ";
+//    QString _TableStyle="/*tablewidget 样式*/ \
+//            QTableView { \
+//            font-size:10px ;\
+//            selection-background-color:rgb(155, 0, 2);\
+//            alternate-background-color: gray; \
+//            background-color:white;/*整个表格的背景色，这里为白色*/ \
+//            border:1px solid #E0DDDC;/*边框为1像素，灰色*/ \
+//            gridline-color:lightgray;/*这个是表格的格子线的颜色，为亮灰*/ \
+//} \
+//            QTableView QTableCornerButton::section{\
+//            border:0px solid lightgray; \
+//            background-color: rgb(50,50,50); \
+//            selection-background-color: darkblue ;\
+//            color:white;\
+//}  \
+//            \
+//            QHeaderView::section { \
+//            font-size:10px ;\
+//            selection-background-color: darkblue; \
+//            padding-left: 4px; \
+//            border-right: 1px solid lightgray; \
+//            border-bottom: 1px solid lightgray; \
+//} \
+//            QHeaderView::section:checked { \
+//            color:white;\
+//            background-color:rgb(50, 50, 50); \
+//} \
+//            QHeaderView::section:unchecked { \
+//            color:black;\
+//            background-color: white; \
+//} \
+//            QTableView::indicator { \
+//            width: 17px; \
+//            height: 17px; \
+//}\
+//            QTableView::indicator:enabled:unchecked { \
+//            image: url(:/images/icons/checkbox-on.svg); \
+//}\
+//            QTableView::indicator:enabled:checked { \
+//            image: url(:/images/icons/checkbox-off.svg);\
+//}\
+//            ";
 };
 
 #endif // QWMDATAEDITOR_H

@@ -41,6 +41,11 @@
          <pointsize>10</pointsize>
         </font>
        </property>
+       <property name="styleSheet">
+        <string notr="true">QTreeView::item:selected:active{
+    background: red;
+}</string>
+       </property>
        <property name="editTriggers">
         <set>QAbstractItemView::NoEditTriggers</set>
        </property>
@@ -120,6 +125,7 @@
    <addaction name="actionRotate"/>
    <addaction name="actionUndo"/>
    <addaction name="actionRedo"/>
+   <addaction name="separator"/>
    <addaction name="actionSort"/>
   </widget>
   <action name="actionSave">
@@ -140,7 +146,7 @@
   <action name="actionCalc">
    <property name="icon">
     <iconset resource="../resource/resource.qrc">
-     <normaloff>:/images/icons/calc@2x.png</normaloff>:/images/icons/calc@2x.png</iconset>
+     <normaloff>:/images/icons/calculator.svg</normaloff>:/images/icons/calculator.svg</iconset>
    </property>
    <property name="text">
     <string>Calc</string>
@@ -194,7 +200,7 @@
   <action name="actionDelete">
    <property name="icon">
     <iconset resource="../resource/resource.qrc">
-     <normaloff>:/images/icons/delete-row@4x.svg</normaloff>:/images/icons/delete-row@4x.svg</iconset>
+     <normaloff>:/images/icons/remove-2.svg</normaloff>:/images/icons/remove-2.svg</iconset>
    </property>
    <property name="text">
     <string>Delete</string>
@@ -209,7 +215,7 @@
    </property>
    <property name="icon">
     <iconset resource="../resource/resource.qrc">
-     <normaloff>:/images/icons/rotate.png</normaloff>:/images/icons/rotate.png</iconset>
+     <normaloff>:/images/icons/rotate.svg</normaloff>:/images/icons/rotate.svg</iconset>
    </property>
    <property name="text">
     <string>Rotate</string>

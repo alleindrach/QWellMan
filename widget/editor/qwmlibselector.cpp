@@ -10,42 +10,55 @@
 #include "mdldao.h"
 #include "QSqlQueryModel"
 #include "qwmapplication.h"
-QWMLibSelector::QWMLibSelector(QString table,QString lib,QString lookupFld,QString title,bool editale,QString v,QWidget *parent)
-    : QWidget(parent),ui(new Ui::QWMLibSelector),_table(table),_refLibName(lib),_lookupFld(lookupFld),_title(title),_selectedValue(v),_editable(editale)
+
+
+QWMLibSelector::QWMLibSelector(QString table,QString lib, QSqlQueryModel* model, QWidget *parent):
+    QWidget(parent),ui(new Ui::QWMLibSelector),_table(table),_refLibName(lib),_model(model)
 {
     ui->setupUi(this);
-    QStringList lookupFlds=MDL->lookupFields(table,lib);
-    QSqlQueryModel*  model=LIB->libLookup(table,lib,QString(),lookupFlds);
-//    QSqlRecord record=model->record();
-//    for(int i=0;i<record.count();i++){
-//        model->setHeaderData(i,Qt::Horizontal,record.fieldName(i),FIELD_ROLE);
-//    }
-    init(model);
-}
 
-QWMLibSelector::QWMLibSelector(QString table,QString lib, QString lookupFld,QString title, QAbstractItemModel* model,QStringList visibleFields, bool editable, QString v, QWidget *parent):
-    QWidget(parent),ui(new Ui::QWMLibSelector),_table(table),_refLibName(lib),_lookupFld(lookupFld),_selectedValue(v),_editable(editable),_title(title),_visibleFlds(visibleFields)
+    init();
+}
+void QWMLibSelector::setEditable(bool v)
 {
-
-    ui->setupUi(this);
-    init(model);
+    _editable=v;
 }
 
+bool QWMLibSelector::editable()
+{
+    return _editable;
+}
 void QWMLibSelector::setText(QString text)
 {
     _selectedValue=text;
     QSortFilterProxyModel * proxyModel=( QSortFilterProxyModel * )ui->tableView->model();
-
-    QModelIndexList indexs= proxyModel->match(proxyModel->index(0,_col),Qt::DisplayRole,_selectedValue,1,Qt::MatchExactly);
-    if(indexs.length()==1){
-        QItemSelection selection;
-        selection.select(proxyModel->index(indexs.first().row(),0),
-                         proxyModel->index(indexs.first().row(),proxyModel->columnCount()-1) );
-        ui->tableView->selectionModel()->select(selection,QItemSelectionModel::SelectCurrent);
-    }else{
-        if(!_editable){
-            _selectedValue=QString();
+    QSqlQueryModel * sourceModel=(QSqlQueryModel*)proxyModel->sourceModel();
+    if(!_lookupFld.isNull() && !_lookupFld.isEmpty()){
+        _col=sourceModel->record().indexOf(_lookupFld);
+    }
+    if(_col>=0){
+        QModelIndexList indexs= proxyModel->match(proxyModel->index(0,_col),Qt::DisplayRole,_selectedValue,1,Qt::MatchExactly);
+        if(indexs.length()==1){
+            QItemSelection selection;
+            selection.select(proxyModel->index(indexs.first().row(),0),
+                             proxyModel->index(indexs.first().row(),proxyModel->columnCount()-1) );
+            ui->tableView->selectionModel()->select(selection,QItemSelectionModel::SelectCurrent);
+            return;
         }
+    }else{
+        for(int c=0;c<proxyModel->columnCount();c++){
+            QModelIndexList indexs= proxyModel->match(proxyModel->index(0,c),Qt::DisplayRole,_selectedValue,1,Qt::MatchExactly);
+            if(indexs.length()==1){
+                QItemSelection selection;
+                selection.select(proxyModel->index(indexs.first().row(),0),
+                                 proxyModel->index(indexs.first().row(),proxyModel->columnCount()-1) );
+                ui->tableView->selectionModel()->select(selection,QItemSelectionModel::SelectCurrent);
+                return;
+            }
+        }
+    }
+    if(!_editable){
+        _selectedValue=QString();
     }
 }
 
@@ -63,10 +76,20 @@ QString QWMLibSelector::text()
     return _selectedValue;
 }
 
-void QWMLibSelector::init(QAbstractItemModel * model)
+void QWMLibSelector::setTitle(QString v)
+{
+    _title=v;
+}
+
+void QWMLibSelector::init()
 {
 
-
+    if(_model==nullptr){
+        //根据当前表和检索表名，获取当前表需要用到的字段
+        QStringList lookupFlds=MDL->lookupFields(_table,_refLibName);
+        _model=LIB->libLookup(_table,_refLibName,QString(),lookupFlds);
+    }
+    this->ui->tableView->setStyleSheet(APP->style());
     //    connect(ui->buttonBox,&QDialogButtonBox::clicked,this,&QWMLibSelector::on_btn_clicked);
     TIMESTAMP(QWMLibSelectorINIT1);
     connect(ui->btnOK,&QPushButton::clicked,this,&QWMLibSelector::on_btn_clicked);
@@ -78,44 +101,43 @@ void QWMLibSelector::init(QAbstractItemModel * model)
     ui->tableView->installEventFilter(this);;
     TIMESTAMP(QWMLibSelectorINIT2);
     QSortFilterProxyModel * proxyModel=new QSortFilterProxyModel(this);
-    proxyModel->setSourceModel(model);
+    proxyModel->setSourceModel(_model);
     proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     proxyModel->setFilterKeyColumn(-1);
     ui->tableView->setModel(proxyModel);
-
     ui->tableView->verticalHeader()->setDefaultSectionSize(12);
     TIMESTAMP(QWMLibSelectorINIT3);
-    for(int i=0;i<model->columnCount();i++){
-        QString fieldName=model->headerData(i,Qt::Horizontal,FIELD_ROLE).toString();
-        if(LIBDao::hiddenFields.contains(fieldName)){
-            ui->tableView->setColumnHidden(i,true);
-        }else{
+    //    for(int i=0;i<_model->columnCount();i++){
+    //        QString fieldName=_model->headerData(i,Qt::Horizontal,FIELD_ROLE).toString();
+    //        if(LIBDao::hiddenFields.contains(fieldName)){
+    //            ui->tableView->setColumnHidden(i,true);
+    //        }else{
 
-            if(!_visibleFlds.isEmpty()){
-                if(!_visibleFlds.contains(fieldName)){
-                    ui->tableView->setColumnHidden(i,true);
-                }
-            }
-            if(_lookupFld.compare(fieldName,Qt::CaseInsensitive)==0){
-                ui->tableView->setColumnHidden(i,false);
-                //                proxyModel->setFilterKeyColumn(i);
-                proxyModel->setFilterRole(Qt::DisplayRole);
-                _col=i;
-                proxyModel->setHeaderData(i,Qt::Horizontal,_title,Qt::DisplayRole);
-                proxyModel->setHeaderData(i,Qt::Horizontal,_title,Qt::EditRole);
-            }
-            else{
-                proxyModel->setHeaderData(i,Qt::Horizontal,fieldName,Qt::DisplayRole);
-                proxyModel->setHeaderData(i,Qt::Horizontal,fieldName,Qt::EditRole);
-            }
-        }
-    }
+    //            if(!_visibleFlds.isEmpty()){
+    //                if(!_visibleFlds.contains(fieldName)){
+    //                    ui->tableView->setColumnHidden(i,true);
+    //                }
+    //            }
+    //            if(_lookupFld.compare(fieldName,Qt::CaseInsensitive)==0){
+    //                ui->tableView->setColumnHidden(i,false);
+    //                //                proxyModel->setFilterKeyColumn(i);
+    //                proxyModel->setFilterRole(Qt::DisplayRole);
+    //                _col=i;
+    //                proxyModel->setHeaderData(i,Qt::Horizontal,_title,Qt::DisplayRole);
+    //                proxyModel->setHeaderData(i,Qt::Horizontal,_title,Qt::EditRole);
+    //            }
+    //            else{
+    //                proxyModel->setHeaderData(i,Qt::Horizontal,fieldName,Qt::DisplayRole);
+    //                proxyModel->setHeaderData(i,Qt::Horizontal,fieldName,Qt::EditRole);
+    //            }
+    //        }
+    //    }
     TIMESTAMP(QWMLibSelectorINIT4);
-    QModelIndexList indexs= proxyModel->match(proxyModel->index(0,_col),Qt::DisplayRole,_selectedValue,1,Qt::MatchExactly);
-    TIMESTAMP(QWMLibSelectorINIT5);
-    if(indexs.length()==1){
-        ui->tableView->selectionModel()->select(indexs.first(),QItemSelectionModel::SelectCurrent);
-    }
+    //    QModelIndexList indexs= proxyModel->match(proxyModel->index(0,_col),Qt::DisplayRole,_selectedValue,1,Qt::MatchExactly);
+    //    TIMESTAMP(QWMLibSelectorINIT5);
+    //    if(indexs.length()==1){
+    //        ui->tableView->selectionModel()->select(indexs.first(),QItemSelectionModel::SelectCurrent);
+    //    }
     TIMESTAMP(QWMLibSelectorINIT6);
     ui->lineEdit->setFocus();
     TIMESTAMP(QWMLibSelectorINIT7);
@@ -179,8 +201,8 @@ QSqlRecord QWMLibSelector::selectedRecord()
         if(this->instanceof<QSortFilterProxyModel>(ui->tableView->model())){
             QSortFilterProxyModel * pModel=dynamic_cast<QSortFilterProxyModel*>(ui->tableView->model());
             if(this->instanceof<QSqlQueryModel>(pModel->sourceModel())){
-                 QSqlQueryModel * model=dynamic_cast<QSqlQueryModel*>( pModel->sourceModel());
-                 return model->record(pModel->mapToSource( selectionModel->currentIndex()).row());
+                QSqlQueryModel * model=dynamic_cast<QSqlQueryModel*>( pModel->sourceModel());
+                return model->record(pModel->mapToSource( selectionModel->currentIndex()).row());
             }
         }
     }

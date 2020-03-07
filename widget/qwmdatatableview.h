@@ -5,6 +5,7 @@
 #include "qwmrotatableproxymodel.h"
 #include "qrotatabletableview.h"
 #include "qwmstyleditemdelegate.h"
+#include "qwmreflookupdelegate.h"
 class QWMDataTableView : public QTableView
 {
     Q_OBJECT
@@ -27,7 +28,7 @@ signals:
     void RecordCountChanged(int oldCount,int newCount);
 private:
     QWMStyledItemDelegate * _itemDelegate;
-
+    QWMRefLookupDelegate * _reflookupDelegate;
 };
 
 

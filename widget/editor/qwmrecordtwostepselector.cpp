@@ -19,19 +19,17 @@
 #include "mdldao.h"
 #include "QSizePolicy"
 #include "QHBoxLayout"
-QWMRecordTwoStepSelector::QWMRecordTwoStepSelector(QString idwell,QString title,QWidget *parent )
+QWMRecordTwoStepSelector::QWMRecordTwoStepSelector(QString idwell,QWidget *parent )
     : QWMAbstractEditor(parent),ui(new Ui::QWMRecordTwoStepSelector) ,
       _idWell(idwell)
 {
     ui->setupUi(this);
     for(int i=0;i<ui->stackedWidget->count();i++)
         ui->stackedWidget->removeWidget(ui->stackedWidget->widget(i));
-    qDebug()<<"i:"<<ui->stackedWidget->count();
-    QWMTableSelector * tableSelector=new QWMTableSelector(title,this);
+    QWMTableSelector * tableSelector=new QWMTableSelector(this);
     int c=ui->stackedWidget->addWidget(tableSelector);
-    qDebug()<<"c:"<<c;
 
-    QWMRecordSelector * recordSelector=new QWMRecordSelector(idwell,title,this);
+    QWMRecordSelector * recordSelector=new QWMRecordSelector(idwell,this);
     ui->stackedWidget->addWidget(recordSelector);
     ui->stackedWidget->setCurrentIndex(0);
 
@@ -47,7 +45,17 @@ QWMRecordTwoStepSelector::QWMRecordTwoStepSelector(QString idwell,QString title,
 
 QWMRecordTwoStepSelector::~QWMRecordTwoStepSelector()
 {
-       qDebug()<<"QWMRecordTwoStepSelector destory!";
+    qDebug()<<"QWMRecordTwoStepSelector destory!";
+}
+
+void QWMRecordTwoStepSelector::setValue(QVariant v)
+{
+    return setText(v.toString());
+}
+
+QVariant QWMRecordTwoStepSelector::value()
+{
+    return text();
 }
 
 void QWMRecordTwoStepSelector::on_btn_clicked()
@@ -116,7 +124,17 @@ QList<QWidget *> QWMRecordTwoStepSelector::taborders()
 QSize QWMRecordTwoStepSelector::sizeHint()
 {
     return QWMAbstractEditor::sizeHint();
-//    return QSize(450,350);
+    //    return QSize(450,350);
+}
+
+QWMAbstractEditor::Type QWMRecordTwoStepSelector::type()
+{
+    return QWMAbstractEditor::BiTree;
+}
+
+void QWMRecordTwoStepSelector::init()
+{
+
 }
 void QWMRecordTwoStepSelector::on_tab_accepted(QWidget *sel)
 {

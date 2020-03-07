@@ -20,7 +20,10 @@
 QWMIconSelector::QWMIconSelector( QWidget *parent) : QWMAbstractEditor(parent),ui(new Ui::QWMIconSelector)
 {
     ui->setupUi(this);
-
+    init();
+}
+void QWMIconSelector::init()
+{
     connect(ui->btnOK,&QPushButton::clicked,this,&QWMIconSelector::on_btn_clicked);
     connect(ui->btnCancel,&QPushButton::clicked,this,&QWMIconSelector::on_btn_clicked);
     connect(ui->listWidget,&QListWidget::doubleClicked,this,&QWMIconSelector::on_item_doubleclick);
@@ -31,8 +34,6 @@ QWMIconSelector::QWMIconSelector( QWidget *parent) : QWMAbstractEditor(parent),u
     foreach(QFileInfo fileInfo,subFolders){
         ui->comboBox->addItem(fileInfo.completeBaseName(),QVariant::fromValue(fileInfo));
     }
-//    ui->splitter->setStretchFactor(0,1);
-//    ui->splitter->setStretchFactor(1,1);
     emit ui->comboBox->currentTextChanged(ui->comboBox->currentText());
 }
 
@@ -58,6 +59,18 @@ void QWMIconSelector::showEvent(QShowEvent *event)
         showIcon(file);
     }
 }
+
+void QWMIconSelector::setValue(QVariant v)
+{
+    QString filename=v.toString();
+    this->selectFile(filename);
+}
+
+QVariant QWMIconSelector::value()
+{
+    return this->file();
+}
+
 
 void QWMIconSelector::on_btn_clicked()
 {

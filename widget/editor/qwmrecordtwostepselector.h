@@ -15,16 +15,19 @@ class QWMRecordTwoStepSelector : public QWMAbstractEditor
 {
     Q_OBJECT
 public:
-    explicit QWMRecordTwoStepSelector(QString idwell,QString title,QWidget *parent = nullptr);
+    explicit QWMRecordTwoStepSelector(QString idwell,QWidget *parent = nullptr);
     ~QWMRecordTwoStepSelector();
-    void  setText(QString text);
-    QString text();
+    virtual void setValue(QVariant v) override;
+    virtual QVariant value() override;
+
     const QItemSelectionModel* selectionModel();
     virtual QList<QWidget *> taborders() override;
     inline QWMRecordSelector *selector(){
         return _selector;
     }
     virtual QSize sizeHint() override;
+    virtual Type type() override;
+    virtual void init() override;;
     virtual void on_btn_clicked() override;
 private:
     Ui::QWMRecordTwoStepSelector *ui;
@@ -34,6 +37,8 @@ private:
     QWMRecordSelector * _selector;
     void  nav2RecordSelector();
     void  nav2TableSelector();
+    void  setText(QString text);
+    QString text();
 private slots:
 
     void on_tab_accepted(QWidget *);

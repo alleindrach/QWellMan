@@ -16,15 +16,18 @@ class QWMRecordSingleStepSelector : public QWMAbstractEditor
 {
     Q_OBJECT
 public:
-    explicit QWMRecordSingleStepSelector(QStringList tables,QString idwell,QString title,QWidget *parent = nullptr);
-    void  setText(QString text);
-    QString text();
+    explicit QWMRecordSingleStepSelector(QStringList tables,QString idwell,QWidget *parent = nullptr);
+
     const QItemSelectionModel* selectionModel();
     virtual QList<QWidget *> taborders() override;
     inline QWMRecordSelector *selector(){
         return _selector;
     }
     virtual QSize sizeHint() override;
+    virtual Type type() override;
+    virtual void init() override;;
+    virtual QVariant value();
+    virtual void  setValue(QVariant v);
 private:
     Ui::QWMRecordSingleStepSelector *ui;
     QString _selectedValue;
@@ -32,6 +35,8 @@ private:
     QString _idWell;
     QStringList _tables;
     QWMRecordSelector * _selector;
+    void  setText(QString text);
+    QString text();
 private slots:
     void on_tab_accepted(QWidget *);
     void on_tab_recjected(QWidget *);

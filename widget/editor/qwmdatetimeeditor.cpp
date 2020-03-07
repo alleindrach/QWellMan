@@ -4,18 +4,15 @@
 #include "qwmdatedelegate.h"
 #include "common.h"
 #include "QKeyEvent"
-QWMDateTimeEditor::QWMDateTimeEditor(QDateTime date,QWidget *parent) : QWMAbstractEditor(parent),ui(new Ui::QWMDateTimeEditor)
+QWMDateTimeEditor::QWMDateTimeEditor(QWidget *parent) : QWMAbstractEditor(parent),ui(new Ui::QWMDateTimeEditor)
 {
     ui->setupUi(this);
-    ui->calendarWidget->setSelectedDate(date.date());
-    ui->timeEdit->setDateTime(date);
     connect(ui->btnOK,&QPushButton::clicked,this,&QWMDateTimeEditor::on_btn_clicked);
     connect(ui->btnCancel,&QPushButton::clicked,this,&QWMDateTimeEditor::on_btn_clicked);
     connect(ui->btnReset,&QPushButton::clicked,this,&QWMDateTimeEditor::on_btn_clicked);
     ui->calendarWidget->installEventFilter(this);
     ui->btnOK->setDefault(true);
-    //    ui->
-//    installEventFilters();
+    init();
 }
 
 bool QWMDateTimeEditor::eventFilter(QObject *watched, QEvent *event)
@@ -85,5 +82,21 @@ QList<QWidget *> QWMDateTimeEditor::taborders()
     QList<QWidget*> results;
     results<<ui->calendarWidget<<ui->timeEdit<<ui->btnReset<<ui->btnCancel<<ui->btnOK;
     return results;
+}
+
+void QWMDateTimeEditor::setValue(QVariant v)
+{
+    QDateTime date=v.toDateTime();
+    ui->calendarWidget->setSelectedDate(date.date());
+    ui->timeEdit->setDateTime(date);
+}
+
+QVariant QWMDateTimeEditor::value()
+{
+    return this->dateTime();
+}
+
+void QWMDateTimeEditor::init()
+{
 }
 

@@ -216,5 +216,15 @@
         <file>images/icons/files@4x.svg</file>
         <file>images/icons/files@2x.svg</file>
         <file>images/icons/files@1x.svg</file>
+        <file>images/icons/remove.svg</file>
+        <file>images/icons/remove-2.svg</file>
+        <file>images/icons/folder.svg</file>
+        <file>images/icons/file.svg</file>
+        <file>images/icons/files.svg</file>
+        <file>images/icons/checkbox-off.svg</file>
+        <file>images/icons/checkbox-on.svg</file>
+        <file>images/icons/calculator.svg</file>
+        <file>images/icons/rotate.svg</file>
+        <file>images/About.png</file>
     </qresource>
 </RCC>

@@ -13,7 +13,7 @@
 #include "qwmapplication.h"
 #include "ui_qwmrecordsinglestepselector.h"
 
-QWMRecordSingleStepSelector::QWMRecordSingleStepSelector(QStringList tables,QString idwell,QString title,QWidget *parent )
+QWMRecordSingleStepSelector::QWMRecordSingleStepSelector(QStringList tables,QString idwell,QWidget *parent )
     : QWMAbstractEditor(parent),ui(new Ui::QWMRecordSingleStepSelector) ,
       _idWell(idwell),_tables(tables)
 {
@@ -22,7 +22,7 @@ QWMRecordSingleStepSelector::QWMRecordSingleStepSelector(QStringList tables,QStr
     horizontalLayout->setMargin(0);
 //    this->setStyleSheet("background-color:rgb(150,150,150);");
     horizontalLayout->setObjectName("horizontalLayout");
-    _selector=new QWMRecordSelector(tables,idwell,title,this);
+    _selector=new QWMRecordSelector(tables,idwell,this);
     horizontalLayout->addWidget(_selector);
     connect(_selector,&QWMRecordSelector::accepted,this,&QWMRecordSingleStepSelector::on_tab_accepted);
     connect(_selector,&QWMRecordSelector::rejected,this,&QWMRecordSingleStepSelector::on_tab_recjected);
@@ -53,7 +53,27 @@ QList<QWidget *> QWMRecordSingleStepSelector::taborders()
 QSize QWMRecordSingleStepSelector::sizeHint()
 {
     return QWMAbstractEditor::sizeHint();
-//    return QSize(350,250);
+    //    return QSize(350,250);
+}
+
+QWMAbstractEditor::Type QWMRecordSingleStepSelector::type()
+{
+    return QWMAbstractEditor::Tree;
+}
+
+void QWMRecordSingleStepSelector::init()
+{
+
+}
+
+QVariant QWMRecordSingleStepSelector::value()
+{
+    return text();
+}
+
+void QWMRecordSingleStepSelector::setValue(QVariant v)
+{
+    return setText(v.toString());
 }
 void QWMRecordSingleStepSelector::on_tab_accepted(QWidget */*sel*/)
 {

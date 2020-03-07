@@ -37,7 +37,7 @@ public:
     QStringList distinctValue(QString table,QString field);
     QSqlQuery records(QString table,QString idWell,QString parentID);
     QSqlRecord aRecord(QString table);
-
+    bool hasRecord(QString table,QString idrec);
 signals:
 private:
     QSqlDatabase  _db;

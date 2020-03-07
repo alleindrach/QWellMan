@@ -16,8 +16,8 @@ class QWMRecordSelector : public QWidget
 {
     Q_OBJECT
 public:
-    explicit QWMRecordSelector(QStringList tables,QString idwell,QString title,QWidget *parent = nullptr);
-    explicit QWMRecordSelector(QString idwell,QString title,QWidget *parent = nullptr);
+    explicit QWMRecordSelector(QStringList tables,QString idwell,QWidget *parent = nullptr);
+    explicit QWMRecordSelector(QString idwell,QWidget *parent = nullptr);
     void  loadTables(QStringList tables);
     void  setText(QString text);
     QString text();

@@ -15,8 +15,8 @@
 #include <QSqlQuery>
 #include <QStyleFactory>
 #include <QStack>
-QWMTableSelector::QWMTableSelector(QString title,QWidget *parent) :
-    QWidget(parent),ui(new Ui::QWMTableSelector),_title(title)
+QWMTableSelector::QWMTableSelector(QWidget *parent) :
+    QWidget(parent),ui(new Ui::QWMTableSelector)
 {
     ui->setupUi(this);
     init();

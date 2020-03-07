@@ -12,16 +12,17 @@
 #include "qwmapplication.h"
 #include "ui_qwmlibsingleselector.h"
 
-QWMLibSingleSelector::QWMLibSingleSelector(QString table,QString lib,QString lookupFld,QString title,bool editable,QString v,QWidget *parent)
+QWMLibSingleSelector::QWMLibSingleSelector(QString table,QString lib,QWidget *parent)
     : QWMAbstractEditor(parent),ui(new Ui::QWMLibSingleSelector) ,
-      _lookupFld(lookupFld),_title(title),_selectedValue(v),_editable(editable),_table(table)
+    _table(table)
 {
     ui->setupUi(this);
     QHBoxLayout* horizontalLayout = new QHBoxLayout(this);
     horizontalLayout->setMargin(0);
-    this->setStyleSheet("background-color:rgb(150,150,150);");
+//    this->setStyleSheet("background-color:rgb(150,150,150);");
     horizontalLayout->setObjectName("horizontalLayout");
-    _selector=new QWMLibSelector(table,lib,lookupFld,title,editable,v,parent);
+
+    _selector=new QWMLibSelector(table,lib,nullptr,parent);
     horizontalLayout->addWidget(_selector);
     connect(_selector,&QWMLibSelector::accepted,this,&QWMLibSingleSelector::on_tab_accepted);
     connect(_selector,&QWMLibSelector::rejected,this,&QWMLibSingleSelector::on_tab_recjected);
@@ -51,6 +52,27 @@ QSqlRecord QWMLibSingleSelector::selectedRecord()
 QList<QWidget *> QWMLibSingleSelector::taborders()
 {
     return _selector->taborders();
+}
+
+void QWMLibSingleSelector::setValue(QVariant v)
+{
+    this->setText(v.toString());
+}
+
+QVariant QWMLibSingleSelector::value()
+{
+    return  text();
+}
+
+void QWMLibSingleSelector::init()
+{
+    _selector->setEditable(_editable);
+    _selector->init();
+}
+
+QWMAbstractEditor::Type QWMLibSingleSelector::type()
+{
+    return QWMAbstractEditor::Simple;
 }
 void QWMLibSingleSelector::on_tab_accepted(QWidget */*sel*/)
 {

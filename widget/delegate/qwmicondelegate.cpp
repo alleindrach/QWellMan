@@ -8,6 +8,7 @@
 #include "qwmabstracteditor.h"
 #include <QPainter>
 #include <QBitmap>
+#include <QWidget>
 QWMIconDelegate::QWMIconDelegate(QObject * parent):QWMAbstractDelegate(parent)
 {
 
@@ -20,13 +21,16 @@ QWMIconDelegate::~QWMIconDelegate()
 
 QWidget *QWMIconDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    QWMIconSelector *editor = new QWMIconSelector(parent);
-    editor->setModal(true);
+    QString key=QWMIconSelector::staticMetaObject.className();
+    EC(key,QWMIconSelector,editor);
+    if(editor==nullptr){
+        editor= new QWMIconSelector( APP->mainWindow());
+        EI(key,editor);
+    }
     connect(editor,&QWMIconSelector::rejected,this,&QWMIconDelegate::closeEditorAndRevert);
     connect(editor,&QWMIconSelector::accepted,this,&QWMIconDelegate::commitAndCloseEditor);
     QWMRotatableProxyModel  *  model=(QWMRotatableProxyModel*)index.model();
-    QString title=  model->fieldTitle(index);
-    editor->setWindowTitle(title);
+    {EDITOR_TITLE};
     return editor;
 }
 
@@ -35,14 +39,14 @@ void QWMIconDelegate::setEditorData(QWidget *editor, const QModelIndex &index) c
     QWMIconSelector *iconSelector = static_cast<QWMIconSelector*>(editor);
     QString value = index.model()->data(index, Qt::DisplayRole).toString();
     QVariant data = index.data(DATA_ROLE);
-    iconSelector->selectFile(value);
+    iconSelector->setValue(value);
 
 }
 
 void QWMIconDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
     QWMIconSelector *cb = static_cast<QWMIconSelector*>(editor);
-    QString newValue = cb->file();
+    QString newValue = cb->value().toString();
 
     QVariant oldValue=index.data(Qt::DisplayRole);
     if(oldValue!=newValue){

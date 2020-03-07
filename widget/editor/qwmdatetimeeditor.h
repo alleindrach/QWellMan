@@ -12,15 +12,19 @@ class QWMDateTimeEditor : public QWMAbstractEditor
 {
     Q_OBJECT
 public:
-    explicit QWMDateTimeEditor(QDateTime date=QDateTime::currentDateTime(), QWidget *parent = nullptr);
+    explicit QWMDateTimeEditor(/*QDateTime date=QDateTime::currentDateTime(),*/ QWidget *parent = nullptr);
     virtual bool eventFilter(QObject *watched, QEvent *event) override;
-    void setDateTime(QDateTime value);
-    QDateTime dateTime();
     virtual QList<QWidget *> taborders() override;
+    virtual void setValue(QVariant v) override;
+    virtual QVariant value() override;
+    virtual void init() override;
+    inline virtual QWMAbstractEditor::Type type() override  {return QWMAbstractEditor::DateTime;};
 signals:
     void  accepted(QWMDateTimeEditor * );
     void  rejected(QWMDateTimeEditor * );
 private:
+    void setDateTime(QDateTime value);
+    QDateTime dateTime();
     Ui::QWMDateTimeEditor *ui;
     //     QDateTime _date;
 private slots:

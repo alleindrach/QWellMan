@@ -13,6 +13,7 @@
 #include "QSqlQueryModel"
 #include "qwmapplication.h"
 #include <QSettings>
+#include <QPoint>
 QWMAbstractEditor::QWMAbstractEditor( QWidget *parent) : QDialog(parent)
 {
     //    this->on_comboBox_currentTextChanged(ui->comboBox->currentText());
@@ -108,6 +109,29 @@ void QWMAbstractEditor::resizeEvent(QResizeEvent *)
     QString entry=QString("%1.%2").arg(EDITOR_SIZE_ENTRY,objectName);
     QSize size=this->size();
     settings.setValue(entry,size);
+}
+
+void QWMAbstractEditor::moveEvent(QMoveEvent *event)
+{
+    QSettings settings;
+    QString objectName=this->metaObject()->className();
+    QString entry=QString("%1.%2").arg(EDITOR_POS_ENTRY,objectName);
+    QPoint pos=this->pos();
+    settings.setValue(entry,pos);
+}
+
+void QWMAbstractEditor::setTitle(QString title)
+{
+    _title=title;
+    this->setWindowTitle(_title);
+
+}
+
+bool QWMAbstractEditor::event(QEvent *event)
+{
+    qDebug()<<"#####"<<event->type();
+    return  QDialog::event(event);
+
 }
 
 

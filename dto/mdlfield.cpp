@@ -98,7 +98,9 @@ QString MDLField::lookupTable(QSqlRecord  rec)
             QList<MDLFieldLookup *> fl=MDL->fieldLookupinfo(this->KeyTbl(),this->KeyFld());
             foreach(MDLFieldLookup * fli,fl){
                 if(fli->TableKey()){
-                    return fli->LookupItem();
+                    //如果需要查找的表中，有这个记录，则返回，否则继续超找下一个表
+                    if(WELL->hasRecord(fli->LookupItem(),rec.value(this->KeyFld()).toString()))
+                        return fli->LookupItem();
                 }
             }
         }

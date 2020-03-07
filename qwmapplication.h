@@ -5,6 +5,7 @@
 #include <QSqlDatabase>
 #include <QStandardItem>
 #include "qwmmain.h"
+class QWMMain;
 class QWMApplication : public QApplication
 {
     Q_OBJECT
@@ -41,7 +42,7 @@ public:
     void setMainWindow(QWMMain * v);
     enum Catalog{ RECENT,ALL,FAVORITE,QUERY,QUICK_QUERY,GROUP,TABLE,RECORD,NA};
     Q_ENUM(Catalog)
-
+    inline QString style(){return _style;};
 signals:
     void shutdown(int  code);
 public slots:
@@ -100,6 +101,86 @@ public :
         }
         return false;
     }
+
+private:
+    QString _style="/*tablewidget 样式*/ \
+            QTableView { \
+            font-size:10px ;\
+            selection-background-color:rgb(155, 0, 2);\
+            alternate-background-color: gray; \
+            background-color:white;/*整个表格的背景色，这里为白色*/ \
+            border:1px solid #E0DDDC;/*边框为1像素，灰色*/ \
+            gridline-color:lightgray;/*这个是表格的格子线的颜色，为亮灰*/ \
+} \
+            QTableView QTableCornerButton::section{\
+            border:0px solid lightgray; \
+            background-color: rgb(50,50,50); \
+            selection-background-color: darkblue ;\
+            color:white;\
+}  \
+            \
+            QHeaderView::section { \
+            color:white;\
+            font-size:10px ;\
+            background-color: rgb(50,50,50); \
+            selection-background-color: darkblue; \
+            padding-left: 4px; \
+            border-right: 1px solid lightgray; \
+            border-bottom: 1px solid lightgray; \
+} \
+            QHeaderView::section:checked { \
+            color:white;\
+            background-color:rgb(50, 50, 50); \
+} \
+            QHeaderView::section:unchecked { \
+            color:black;\
+            background-color: white; \
+} \
+            QTableView::indicator { \
+            width: 17px; \
+            height: 17px; \
+} \
+            QTableView::indicator:enabled:unchecked { \
+            image: url(:/images/icons/checkbox-off.svg); \
+}\
+            QTableView::indicator:enabled:checked { \
+            image: url(:/images/icons/checkbox-on.svg);\
+}\
+//            QTabWidget::pane { /* The tab widget frame */ \
+//                border-top: 2px solid #C2C7CB; \
+//                position: absolute; \
+//                top: -0.5em; \
+//            } \
+//            \
+//            QTabWidget::tab-bar { \
+//                alignment: center; \
+//            }\
+//            \
+//            /* Style the tab using the tab sub-control. Note that \
+//                it reads QTabBar _not_ QTabWidget */\
+//            QTabBar::tab { \
+//                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, \
+//                                            stop: 0 #E1E1E1, stop: 0.4 #DDDDDD, \
+//                                            stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3); \
+//                border: 2px solid #C4C4C3; \
+//                border-bottom-color: #C2C7CB; /* same as the pane color */ \
+//                border-top-left-radius: 4px; \
+//                border-top-right-radius: 4px; \
+//                min-width: 8ex; \
+//                padding: 2px; \
+//            } \
+//             \
+//            QTabBar::tab:selected, QTabBar::tab:hover { \
+//                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, \
+//                                            stop: 0 #fafafa, stop: 0.4 #f4f4f4, \
+//                                            stop: 0.5 #e7e7e7, stop: 1.0 #fafafa); \
+//            } \
+//            \
+//            QTabBar::tab:selected { \
+//                border-color: #9B9B9B; \
+//                border-bottom-color: #C2C7CB; /* same as pane color */ \
+//            } \
+            ";
 
 };
 

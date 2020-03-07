@@ -27,6 +27,8 @@
 QWMDataTableView::QWMDataTableView(QWidget *parent):QTableView(parent)
 {
     _itemDelegate=new QWMStyledItemDelegate(this);
+    _reflookupDelegate=new QWMRefLookupDelegate(this);
+
 }
 void QWMDataTableView::setHorizontalHeader(QHeaderView *header)
 {
@@ -86,10 +88,10 @@ void QWMDataTableView::bindDelegate()
                     (this->*func)(i,new QWMDateDelegate(QWMDateDelegate::TIME,"HH:mm:ss",this));
                 }
             }else if( fieldInfo->LookupTyp()==MDLDao::LibEdit){
-                (this->*func)(i,new QWMRefLookupDelegate(tableName, fieldInfo->LookupTableName(),fieldInfo->LookupFieldName(),fieldInfo->CaptionLong(),true,this));
+                (this->*func)(i,_reflookupDelegate);
             }
             else if(fieldInfo->LookupTyp()==MDLDao::LibOnly){
-                (this->*func)(i,new QWMRefLookupDelegate(tableName, fieldInfo->LookupTableName(),fieldInfo->LookupFieldName(),fieldInfo->CaptionLong(),false,this));
+                (this->*func)(i,_reflookupDelegate);
             }
             else if(fieldInfo->LookupTyp()==MDLDao::DBDistinctValues){
                 (this->*func)(i,new QWMDistinctValueDelegate(tableName,fieldName,this));
@@ -124,23 +126,7 @@ void QWMDataTableView::bindDelegate()
                 }
                 (this->*func)(i,new QWMComboBoxDelegate(options,true,this));
             }else if (fieldInfo->LookupTyp()==MDLDao::Foreign){
-                QList<MDLFieldLookup *> fls=MDL->fieldLookupinfo(fieldInfo->KeyTbl(),fieldInfo->KeyFld());
-                //                QList<QPair<QString,QVariant>> options{{tr("<空白>"),""}};
-                QStringList tables;
-
-                foreach(MDLFieldLookup * l,fls){
-                    if(l->TableKey()){
-                        QString tableName=l->LookupItem();
-                        tables<<tableName;
-                    }
-                }
-                TP(this,QWMDataEditor,parentDoc);
-                if(IS_SPEC_REF_FIELD(fieldInfo)){
-                    (this->*func)(i,new QWMRefLookupDelegate(tables,fieldInfo->caption(),parentDoc->idWell(),QWMRefLookupDelegate::TwoStepRecord,this));
-                }else{
-                    (this->*func)(i,new QWMRefLookupDelegate(tables,fieldInfo->caption(),parentDoc->idWell(),QWMRefLookupDelegate::SigleStepRecord,this));
-
-                }
+                    (this->*func)(i,_reflookupDelegate);
             }
         }
     }

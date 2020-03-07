@@ -35,6 +35,8 @@ public:
                              const QStyleOptionViewItem &option,
                              const QModelIndex &index) override;
     virtual bool isEditor(QObject  * widget )=0;
+    virtual void destroyEditor(QWidget *editor, const QModelIndex &index) const override;
+
 public slots:
     virtual void commitAndCloseEditor(QWidget * editor);
     virtual void closeEditorAndRevert(QWidget * editor);

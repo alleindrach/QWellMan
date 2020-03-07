@@ -37,14 +37,17 @@ QWidget *QWMDateDelegate::createEditor(QWidget *parent,
         break;
     case DATETIME:
     {
-        QWMDateTimeEditor *editor = new QWMDateTimeEditor(QDateTime::currentDateTime(), parent);
+        QString key="QWMDateTimeEditor";
+        EC(key,QWMDateTimeEditor,editor);
+        if(editor==nullptr){
+            editor= new QWMDateTimeEditor( APP->mainWindow());
+            EI(key,editor);
+        }
         editor->setModal(true);
         connect(editor,&QWMDateTimeEditor::rejected,this,&QWMDateDelegate::closeEditorAndRevert);
         connect(editor,&QWMDateTimeEditor::accepted,this,&QWMDateDelegate::commitAndCloseEditor);
         QWMRotatableProxyModel  *  model=(QWMRotatableProxyModel*)index.model();
-        QString title=  model->fieldTitle(index);
-        editor->setWindowTitle(title);
-
+        {EDITOR_TITLE};
         return editor;
     }
         break;
@@ -78,7 +81,7 @@ void QWMDateDelegate::setEditorData(QWidget *editor,
     {
         QDateTime date =  value.toDateTime();
         QWMDateTimeEditor *edit=static_cast<QWMDateTimeEditor*>(editor);
-        edit->setDateTime(date);
+        edit->setValue(date);
         break;
     }
     }
@@ -122,7 +125,7 @@ void QWMDateDelegate::setModelData(QWidget *editor,QAbstractItemModel *model,
         //            if(v!=ov)
         //                model->setData(index,QVariant(date.toString(m_format)));
         QWMDateTimeEditor *edit=static_cast<QWMDateTimeEditor*>(editor);
-        QDateTime date = edit->dateTime();
+        QDateTime date = edit->value().toDateTime();
         QString v=date.toString(m_format);
         QString ov=index.data().toDateTime().toString(m_format);
         if(v!=ov)

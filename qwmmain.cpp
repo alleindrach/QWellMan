@@ -32,11 +32,144 @@
 #include "QUuid"
 #include <QEvent>
 #include <QKeyEvent>
+#include "qwmabout.h"
+#include "qwmdatetimeeditor.h"
+#include "qwmiconselector.h"
+#include "qwmlibtabselector.h"
 QWMMain::QWMMain(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::QWMMain)
 {
     ui->setupUi(this);
+}
+
+QWMMain::~QWMMain()
+{
+    delete ui;
+}
+
+void QWMMain::loadAllWells()
+{
+    QAbstractItemModel * model= WELL->wells(QWMApplication::ALL);
+    ui->tbvWells->setModel(model);
+    SA(tableModel,model);
+    tableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    showWellGrid(static_cast<QWMSortFilterProxyModel*>(model));
+}
+
+void QWMMain::loadFavoriateWells()
+{
+    QAbstractItemModel * model= WELL->wells(QWMApplication::FAVORITE);
+    ui->tbvWells->setModel(model);
+    showWellGrid(static_cast<QWMSortFilterProxyModel*>(model));
+}
+
+void QWMMain::loadRecentWells()
+{
+    QAbstractItemModel * model= WELL->wells(QWMApplication::RECENT);
+    ui->tbvWells->setModel(model);
+    showWellGrid(static_cast<QWMSortFilterProxyModel*>(model));
+}
+
+
+
+void QWMMain::on_actionChangeDB_triggered()
+{
+    QString error;
+    APP->selectWellDB(error,this);
+    this->setWindowTitle(APP->applicationName()+" "+APP->well().databaseName());
+}
+
+void QWMMain::on_trvCatalogs_clicked(const QModelIndex &index)
+{
+    switch(index.data(CAT_ROLE).toInt()){
+    case QWMApplication::ALL:
+        loadAllWells();
+        break;
+    case QWMApplication::FAVORITE:
+        loadFavoriateWells();
+        break;
+    case  QWMApplication::RECENT:
+        loadRecentWells();
+        break;
+    case  QWMApplication::QUERY:
+        break;
+    case QWMApplication::QUICK_QUERY:
+        break;
+    }
+    QWMSortFilterProxyModel * model=static_cast<QWMSortFilterProxyModel*>(ui->tbvWells->model());
+
+}
+
+void QWMMain::on_actionFavorite_triggered()
+{
+
+    //    QSqlQueryModel* model= (QSqlQueryModel *)ui->tbvWells->model();
+    QWMSortFilterProxyModel * model=static_cast<QWMSortFilterProxyModel*>(ui->tbvWells->model());
+    QItemSelectionModel * selection=ui->tbvWells->selectionModel();
+    switch(ui->trvCatalogs->currentIndex().data(CAT_ROLE).toInt()){
+    case QWMApplication::ALL:
+    case QWMApplication::RECENT:
+        foreach(QModelIndex index ,selection->selectedRows()){
+            QSqlRecord rec=model->record(index);
+            int fieldIndex=rec.indexOf(CFG(IDMainFieldName));
+            QString idwell=rec.value(fieldIndex).toString();
+            int affected=WELL->addFavoriteWell(idwell);
+            qDebug()<<"insert:"<<affected;
+        }
+        break;
+    }
+    return;
+}
+
+void QWMMain::resizeEvent(QResizeEvent *event)
+{
+    //列宽随窗口大小改变而改变，每列平均分配，充满整个表，但是此时列宽不能拖动进行改变
+    QWMSortFilterProxyModel * model=static_cast<QWMSortFilterProxyModel *>( ui->tbvWells->model());
+    ui->tbvWells->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+}
+
+void QWMMain::showStatus(QString status)
+{
+    this->_lblStatus->setText(status);
+}
+
+void QWMMain::showProfile(QString profile)
+{
+    this->_lblProfile->setText(profile);
+}
+
+void QWMMain::showUnitSetting(QString unit)
+{
+    this->_lblUnit->setText(unit);
+}
+
+void QWMMain::showReferenceDatum(QString datum)
+{
+    this->_lblReferenceDatum->setText(datum);
+}
+
+QWMDataEditor *QWMMain::currentEditor() const
+{
+    return _currentEditor;
+}
+
+void QWMMain::showSplash()
+{
+    _splash=new QWMAbout(this);
+    _splash->setGeometry(
+                QStyle::alignedRect(
+                    Qt::LeftToRight,
+                    Qt::AlignCenter,
+                    _splash->size(),
+                    APP->desktop()->availableGeometry()
+                    ));
+    _splash->show();
+    init();
+}
+
+void QWMMain::init()
+{
     ui->splitter->setStretchFactor(0,1);
     ui->splitter->setStretchFactor(1,4);
     QFont font=ui->tbvWells->font();
@@ -46,7 +179,7 @@ QWMMain::QWMMain(QWidget *parent)
     ui->tbvWells->setSelectionBehavior(QAbstractItemView::SelectRows);
 
 
-    ui->tbvWells->setStyleSheet(_TableStyle);
+    ui->tbvWells->setStyleSheet(APP->style());
     ui->tbvWells->verticalHeader()->setDefaultSectionSize(12);
 
     // create objects for the label and progress bar
@@ -160,123 +293,26 @@ QWMMain::QWMMain(QWidget *parent)
         this->loadAllWells();
         ui->tbvWells->installEventFilter(this);
     }
+    initEditors();
+    _splash->hide();
+    this->showMaximized();
 }
 
-QWMMain::~QWMMain()
+void QWMMain::initEditors()
 {
-    delete ui;
+    QWMDateTimeEditor *editor = new QWMDateTimeEditor(this);
+    QString key=QWMDateTimeEditor::staticMetaObject.className();
+    APP->cachEditor(key,editor);
+    editor->setKey(key);
+    key=QWMIconSelector::staticMetaObject.className();
+    QWMIconSelector *icoSelector = new QWMIconSelector( this);
+    editor->setKey(key);
+    APP->cachEditor(key,icoSelector);
+    key=QString("%1.wvCasComp.libCasComp").arg(QWMLibTabSelector::staticMetaObject.className());
+    QWMLibTabSelector * lts=new QWMLibTabSelector("wvCasComp","libCasComp",this);
+    APP->cachEditor(key,lts);
+    lts->setKey(key);
 
-
-}
-
-void QWMMain::loadAllWells()
-{
-
-    QAbstractItemModel * model= WELL->wells(QWMApplication::ALL);
-    ui->tbvWells->setModel(model);
-    SA(tableModel,model);
-    tableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    showWellGrid(static_cast<QWMSortFilterProxyModel*>(model));
-    //    connect(tableModel,&QSqlTableModel::primeInsert,this,&QWMMain::init_record_on_prime_insert);
-}
-
-void QWMMain::loadFavoriateWells()
-{
-
-    QAbstractItemModel * model= WELL->wells(QWMApplication::FAVORITE);
-    ui->tbvWells->setModel(model);
-    showWellGrid(static_cast<QWMSortFilterProxyModel*>(model));
-}
-
-void QWMMain::loadRecentWells()
-{
-
-    QAbstractItemModel * model= WELL->wells(QWMApplication::RECENT);
-    ui->tbvWells->setModel(model);
-    showWellGrid(static_cast<QWMSortFilterProxyModel*>(model));
-}
-
-
-
-void QWMMain::on_actionChangeDB_triggered()
-{
-    QString error;
-    APP->selectWellDB(error,this);
-    this->setWindowTitle(APP->applicationName()+" "+APP->well().databaseName());
-}
-
-void QWMMain::on_trvCatalogs_clicked(const QModelIndex &index)
-{
-    switch(index.data(CAT_ROLE).toInt()){
-    case QWMApplication::ALL:
-        loadAllWells();
-        break;
-    case QWMApplication::FAVORITE:
-        loadFavoriateWells();
-        break;
-    case  QWMApplication::RECENT:
-        loadRecentWells();
-        break;
-    case  QWMApplication::QUERY:
-        break;
-    case QWMApplication::QUICK_QUERY:
-        break;
-    }
-    QWMSortFilterProxyModel * model=static_cast<QWMSortFilterProxyModel*>(ui->tbvWells->model());
-
-}
-
-void QWMMain::on_actionFavorite_triggered()
-{
-
-    //    QSqlQueryModel* model= (QSqlQueryModel *)ui->tbvWells->model();
-    QWMSortFilterProxyModel * model=static_cast<QWMSortFilterProxyModel*>(ui->tbvWells->model());
-    QItemSelectionModel * selection=ui->tbvWells->selectionModel();
-    switch(ui->trvCatalogs->currentIndex().data(CAT_ROLE).toInt()){
-    case QWMApplication::ALL:
-    case QWMApplication::RECENT:
-        foreach(QModelIndex index ,selection->selectedRows()){
-            QSqlRecord rec=model->record(index);
-            int fieldIndex=rec.indexOf(CFG(IDMainFieldName));
-            QString idwell=rec.value(fieldIndex).toString();
-            int affected=WELL->addFavoriteWell(idwell);
-            qDebug()<<"insert:"<<affected;
-        }
-        break;
-    }
-    return;
-}
-
-void QWMMain::resizeEvent(QResizeEvent *event)
-{
-    //列宽随窗口大小改变而改变，每列平均分配，充满整个表，但是此时列宽不能拖动进行改变
-    QWMSortFilterProxyModel * model=static_cast<QWMSortFilterProxyModel *>( ui->tbvWells->model());
-    ui->tbvWells->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-}
-
-void QWMMain::showStatus(QString status)
-{
-    this->_lblStatus->setText(status);
-}
-
-void QWMMain::showProfile(QString profile)
-{
-    this->_lblProfile->setText(profile);
-}
-
-void QWMMain::showUnitSetting(QString unit)
-{
-    this->_lblUnit->setText(unit);
-}
-
-void QWMMain::showReferenceDatum(QString datum)
-{
-    this->_lblReferenceDatum->setText(datum);
-}
-
-QWMDataEditor *QWMMain::currentEditor() const
-{
-    return _currentEditor;
 }
 
 void QWMMain::setCurrentEditor(QWMDataEditor * v)
@@ -473,7 +509,7 @@ void QWMMain::on_actionDelete_triggered()
         {
             QString idWell=index.data(PK_ROLE).toString();
             int effectRows=WELL->deleteItem(idWell,idWell,CFG(KeyTblMain));
-//            qDebug()<<"Delete:"<<idWell<<":"<<effectRows;
+            //            qDebug()<<"Delete:"<<idWell<<":"<<effectRows;
             //            proxyModel->removeRow(index.row());
         }
         sourceModel->select();
@@ -482,3 +518,10 @@ void QWMMain::on_actionDelete_triggered()
     }
 }
 
+
+void QWMMain::on_actionAbout_triggered()
+{
+    QWMAbout * aboutBox=new QWMAbout(this);
+    aboutBox->setModal(true);
+    aboutBox->showNormal();
+}

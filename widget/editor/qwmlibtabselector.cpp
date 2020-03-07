@@ -30,71 +30,59 @@
 
 //    ui->tabWidget->setCurrentIndex(0);
 //}
-QWMLibTabSelector::QWMLibTabSelector(QString table, QString lib,QString lookupFld,QString title,bool editale,QString v,QWidget *parent)
-    : QWMAbstractEditor(parent),ui(new Ui::QWMLibTabSelector),_table(table),_title(title),_selectedValue(v),_editable(editale)
+QWMLibTabSelector::QWMLibTabSelector(QString table, QString lib,QWidget *parent)
+    : QWMAbstractEditor(parent),ui(new Ui::QWMLibTabSelector),_table(table)
 {
-
-    TIMESTAMP(QWMLibTabSelectorE);
     ui->setupUi(this);
+    ui->tabWidget->setStyleSheet(APP->style());
     QString group=UDL->lookupGroup(APP->profile(),table);
     if(group.isNull()||group.isEmpty()){//单分组
-        _type=S;
+        _type=Tab;
         QStringList tabs=LIB->libTabs(lib);
         QStringList lookupFlds=MDL->lookupFields(table,lib);
         foreach(QString tab ,tabs){
             QSqlQueryModel * model=LIB->libLookup(table,lib,tab,lookupFlds);
-            QWMLibSelector * selector=new  QWMLibSelector(table,lib,lookupFld,title,model,QStringList() ,_editable,v,this);
+            QWMLibSelector * selector=new  QWMLibSelector(table,lib,model,this);
             ui->tabWidget->addTab(selector,tab);
             connect(selector,&QWMLibSelector::accepted,this,&QWMLibTabSelector::on_tab_accepted);
             connect(selector,&QWMLibSelector::rejected,this,&QWMLibTabSelector::on_tab_recjected);
         }
     }else{//横竖双向分组
-        _type=B;
+        _type=BiTab;
         QList<UDLLibGroup *> tabs= UDL->lookupTables(group);
-        TIMESTAMP(QWMLibTabSelectorInitGROUP);
         foreach(UDLLibGroup* tab ,tabs){
             QTabWidget * subTabWidget=new QTabWidget(ui->tabWidget);//
             subTabWidget->setTabPosition(QTabWidget::North);
             subTabWidget->setProperty(USER_PROPERTY,tab->KeyTbl());
-            TIMESTAMP(QWMLibTabSelectorTab);
             QList<UDLLibTab*> subTabs=UDL->lookupTableTabs(tab->KeySet(),tab->KeyTbl());
-            TIMESTAMP(QWMLibTabSelectorTab2);
             foreach(UDLLibTab * subTab,subTabs){
-                TIMESTAMP(QWMLibTabSelectorTab3);
                 QList<UDLLibTabField*>  visibleFields=UDL->lookupTableFieldsOfTab(subTab->KeySet(),subTab->KeyTbl(),subTab->KeyTab());
-                TIMESTAMP(QWMLibTabSelectorTab4);
                 QStringList fields;
                 foreach(UDLLibTabField * field,visibleFields){
                     fields<<field->KeyFld();
                 }
-                TIMESTAMP(QWMLibTabSelectorTab5);
                 QSqlQueryModel * model=LIB->libLookup(table, subTab->KeyTbl(),subTab->KeyTab(),fields);
-                TIMESTAMP(QWMLibTabSelectorTab6);
-                QWMLibSelector * selector=new  QWMLibSelector(table,lib,lookupFld,title,model,QStringList() ,_editable,v,this);
-                TIMESTAMP(QWMLibTabSelectorTab7);
+                QWMLibSelector * selector=new  QWMLibSelector(table,lib,model,this);
                 subTabWidget->addTab(selector,subTab->KeyTab()) ;
-                TIMESTAMP(QWMLibTabSelectorTab8);
                 connect(selector,&QWMLibSelector::accepted,this,&QWMLibTabSelector::on_tab_accepted);
                 connect(selector,&QWMLibSelector::rejected,this,&QWMLibTabSelector::on_tab_recjected);
-                TIMESTAMP(QWMLibTabSelectorTab9);
             }
             subTabWidget->setCurrentIndex(0);
             ui->tabWidget->addTab(subTabWidget,tab->Caption());
         }
-        TIMESTAMP(QWMLibTabSelectorENDGROUP);
         ui->tabWidget->setTabPosition(QTabWidget::West);
     }
     ui->tabWidget->setCurrentIndex(0);
 }
 void QWMLibTabSelector::setText(QString text)
 {
-    if(_type==S){
+    if(_type==Tab){
         for(int i=0;i<ui->tabWidget->count();i++){
             QWMLibSelector * selector=(QWMLibSelector*) ui->tabWidget->widget(i);
             selector->setText(text);
         }
     }
-    else if(_type==B){
+    else if(_type==BiTab){
         for(int i=0;i<ui->tabWidget->count();i++){
             QTabWidget * subTab=(QTabWidget*)ui->tabWidget->widget(i);
             for(int j=0;j<subTab->count();j++){
@@ -105,12 +93,22 @@ void QWMLibTabSelector::setText(QString text)
     }
 }
 
+void QWMLibTabSelector::setValue(QVariant v)
+{
+    this->setText(v.toString());
+}
+
+QVariant QWMLibTabSelector::value()
+{
+    return QVariant();
+}
+
 QWMLibSelector *QWMLibTabSelector::currentWidget()
 {
-    if(_type==S){
+    if(_type==Tab){
         return (QWMLibSelector*)ui->tabWidget->currentWidget();
     }
-    else if(_type==B){
+    else if(_type==BiTab){
         return (QWMLibSelector*) ((QTabWidget*)(ui->tabWidget->currentWidget()))->currentWidget();
     }
 }
@@ -118,9 +116,9 @@ QWMLibSelector *QWMLibTabSelector::currentWidget()
 void QWMLibTabSelector::focusInEvent(QFocusEvent *event)
 {
     if(event->reason()!=Qt::NoFocusReason){
-        if(_type==S){
+        if(_type==Tab){
             ui->tabWidget->currentWidget()->setFocus();
-        }else if(_type==B){
+        }else if(_type==BiTab){
             ((QTabWidget*)(ui->tabWidget->currentWidget()))->currentWidget()->setFocus();
         }
     }
@@ -147,6 +145,35 @@ QSize QWMLibTabSelector::sizeHint()
     //    {
     //        return QSize(500,350);
     //    }
+}
+
+QWMAbstractEditor::Type QWMLibTabSelector::type()
+{
+    return _type;
+}
+
+void QWMLibTabSelector::init()
+{
+
+}
+
+void QWMLibTabSelector::setLookupFld(QString fld)
+{
+    if(_type==Tab){
+        for(int i=0;i<ui->tabWidget->count();i++){
+            QWMLibSelector * selector=(QWMLibSelector*) ui->tabWidget->widget(i);
+            selector->setLookupFld(fld);
+        }
+    }
+    else if(_type==BiTab){
+        for(int i=0;i<ui->tabWidget->count();i++){
+            QTabWidget * subTab=(QTabWidget*)ui->tabWidget->widget(i);
+            for(int j=0;j<subTab->count();j++){
+                QWMLibSelector * selector=(QWMLibSelector*) subTab->widget(j);
+                selector->setLookupFld(fld);
+            }
+        }
+    }
 }
 
 

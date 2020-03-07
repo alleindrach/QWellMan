@@ -15,8 +15,8 @@
 #include <QSqlQuery>
 #include <QStyleFactory>
 #include <QStack>
-QWMRecordSelector::QWMRecordSelector(QStringList  tables,QString idwell,QString title,QWidget *parent) :
-    QWidget(parent),ui(new Ui::QWMRecordSelector),_title(title),_tables(tables),_idWell(idwell)
+QWMRecordSelector::QWMRecordSelector(QStringList  tables,QString idwell,QWidget *parent) :
+    QWidget(parent),ui(new Ui::QWMRecordSelector),_tables(tables),_idWell(idwell)
 {
     ui->setupUi(this);
     //    QSqlQueryModel*  model=LIB->libLookup(lib);
@@ -27,8 +27,8 @@ QWMRecordSelector::QWMRecordSelector(QStringList  tables,QString idwell,QString 
     init();
 }
 
-QWMRecordSelector::QWMRecordSelector(QString idwell,QString title,QWidget *parent ) :
-    QWidget(parent),ui(new Ui::QWMRecordSelector),_title(title),_idWell(idwell){
+QWMRecordSelector::QWMRecordSelector(QString idwell,QWidget *parent ) :
+    QWidget(parent),ui(new Ui::QWMRecordSelector),_idWell(idwell){
     ui->setupUi(this);
     init();
 }

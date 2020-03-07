@@ -185,10 +185,16 @@ if(x!=nullptr && x->metaObject()->className()==tp::staticMetaObject.className())
 #define IS_KEY_EVENT(event ) \
 (event->type()==QEvent::KeyPress)
 
+#define IS_MOUSE_EVENT(event ) \
+(event->type()==QEvent::MouseButtonPress)
+
 #define KEY_MATCHED(event ,seq)\
     (((QKeyEvent*) event)->matches(seq))
 
 #define EDITOR_TITLE \
+    editor->setParent(parent);\
+    editor->setModal(true);\
+    editor->setWindowFlag(Qt::Dialog);\
     QWMRotatableProxyModel  *  model=(QWMRotatableProxyModel*)index.model();\
     QString title=  model->fieldTitle(index);\
     editor->setWindowTitle(title);
@@ -204,4 +210,16 @@ if(x!=nullptr && x->metaObject()->className()==tp::staticMetaObject.className())
 
 #define ICON_SUFFIX ".svg"
 #define ICON_ROOT "pceicons"
+
+
+#define EC(key,T,editor) \
+    T *editor=nullptr; \
+    if(APP->editorCached(key)){ \
+        editor=(T*)APP->getCachedEditor(key); \
+    }
+
+#define EI(key,editor) \
+    editor->setKey(key); \
+    APP->cachEditor(key,editor)
+
 #endif // COMMON_H

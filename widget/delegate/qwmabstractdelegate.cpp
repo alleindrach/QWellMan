@@ -6,7 +6,7 @@
 //#include "qwmiconselector.h"
 #include "qwmdatatableview.h"
 #include "qwmabstracteditor.h"
-
+#include <QSettings>
 QWMAbstractDelegate::QWMAbstractDelegate(QObject * parent):QStyledItemDelegate(parent)
 {
 
@@ -21,21 +21,23 @@ void QWMAbstractDelegate::updateEditorGeometry(QWidget *editor, const QStyleOpti
 {
     QWMAbstractEditor  * absEditor=qobject_cast<QWMAbstractEditor*>(editor);
 
-    QWidget * view=editor->parentWidget();
+    //    QWidget * view=DOC->dataView();//editor->parentWidget();//
+    QWidget * view=editor->parentWidget();//
     //    QRect visualRect=view->visualRect(index);
     QRect rect =view->geometry();
     int widgetWidth=absEditor->sizeHint().width();//option.rect.width();
     int widgetHeight=absEditor->sizeHint().height();
     int margin=0;
-
     int left=(rect.width()-widgetWidth)/2;
     int top=(rect.height()-widgetHeight)/2;
-    if(left<0)
-        left=0;
-    if(top<0)
-        top=0;
+    if(left<0)        left=0;
+    if(top<0)        top=0;
     QPoint topleft=view->mapToParent(QPoint(left,top));
 
+    QSettings settings;
+    QString objectName=editor->metaObject()->className();
+    QString entry=QString("%1.%2").arg(EDITOR_POS_ENTRY,objectName);
+    topleft=settings.value(entry,topleft).value<QPoint>();
     editor->setGeometry(QRect(topleft,QSize(widgetWidth,widgetHeight)));
 }
 
@@ -95,11 +97,12 @@ bool QWMAbstractDelegate::eventFilter(QObject *watched, QEvent *event) {
         return true;
     }
 
-//    if(event->type()==QEvent::FocusOut){
-////        closeEditorAndRevert(dynamic_cast<QWidget*>( watched));
-//        event->accept();
-//        return true;
-//    }
+    //    if(event->type()==QEvent::FocusOut){
+    ////        closeEditorAndRevert(dynamic_cast<QWidget*>( watched));
+    //        event->accept();
+    //        return true;
+    //    }
+    qDebug()<<"*****Event:"<<event->type();
     return QStyledItemDelegate::eventFilter(watched,event);
 }
 
@@ -107,6 +110,20 @@ bool QWMAbstractDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, 
 {
     qDebug()<<"editorEvent:"<<event->type()<<",index["<<index.row()<<","<<index.column()<<"]";
     return QStyledItemDelegate::editorEvent(event,model,option,index);
+}
+
+void QWMAbstractDelegate::destroyEditor(QWidget *editor, const QModelIndex &index) const
+{
+    if(instanceof<QWMAbstractEditor>(editor)){
+        QWMAbstractEditor * selector=dynamic_cast<QWMAbstractEditor*>(editor);
+        if(!selector->key().isNull()&&!selector->key().isEmpty()){
+            if(APP->editorCached(selector->key()))
+            {
+                return ;
+            }
+        }
+    }
+    QAbstractItemDelegate::destroyEditor(editor,index);
 }
 
 

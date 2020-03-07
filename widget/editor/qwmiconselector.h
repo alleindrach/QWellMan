@@ -20,11 +20,13 @@ public:
     explicit QWMIconSelector(QWidget *parent = nullptr);
     virtual bool eventFilter(QObject *watched, QEvent *event) override;
     virtual void showEvent(QShowEvent *event) override;
-    void selectFile(QString  filename);
-    QString file();
+    virtual void setValue(QVariant v) override;
+    virtual QVariant value() override;
+    virtual void init() override;
     QList<QFileInfo> folders();
     QList<QFileInfo> files(QString subFolder);
     virtual QList<QWidget *> taborders() override;
+    inline virtual QWMAbstractEditor::Type type() override {return QWMAbstractEditor::Icon;};
     static QString defaultDir(){
         return QString("%1%2%3").arg( QCoreApplication::applicationDirPath()).arg(QDir::separator()).arg(ICON_ROOT);
     }
@@ -42,8 +44,8 @@ public:
         return QFileInfo();
     }
 signals:
-//    void  accepted(QWMIconSelector * );
-//    void  rejected(QWMIconSelector * );
+    //    void  accepted(QWMIconSelector * );
+    //    void  rejected(QWMIconSelector * );
 private slots:
     void on_btn_clicked() override;
     void on_item_doubleclick(const QModelIndex &index);
@@ -52,6 +54,9 @@ private slots:
     void on_listWidget_itemSelectionChanged();
 
 private:
+    void selectFile(QString  filename);
+    QString file();
+
     Ui::QWMIconSelector *ui;
     QList<QFileInfo> _files;
     void showIcon(QFileInfo );

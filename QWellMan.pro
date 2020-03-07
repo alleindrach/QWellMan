@@ -33,13 +33,13 @@ SOURCES += \
     dto/udllibtabfield.cpp \
     dto/udltableproperty.cpp \
     main.cpp \
-    model/qt/qexsortfilterproxymodel.cpp \
     model/qwmlibquerymodel.cpp \
     model/qwmrotatableproxymodel.cpp \
     model/qwmsortfilterproxymodel.cpp \
     model/qwmtablemodel.cpp \
     qwmapplication.cpp \
     qwmmain.cpp \
+    ui/qwmabout.cpp \
     ui/qwmdataeditor.cpp \
     undo/qwmfieldeditcommand.cpp \
     undo/qwmrecordeditcommand.cpp \
@@ -84,13 +84,13 @@ HEADERS += \
     dto/udllibtab.h \
     dto/udllibtabfield.h \
     dto/udltableproperty.h \
-    model/qt/qexsortfilterproxymodel.h \
     model/qwmlibquerymodel.h \
     model/qwmrotatableproxymodel.h \
     model/qwmsortfilterproxymodel.h \
     model/qwmtablemodel.h \
     qwmapplication.h \
     qwmmain.h \
+    ui/qwmabout.h \
     ui/qwmdataeditor.h \
     undo/qwmfieldeditcommand.h \
     undo/qwmrecordeditcommand.h \
@@ -118,6 +118,7 @@ HEADERS += \
 
 FORMS += \
     qwmmain.ui \
+    ui/about.ui \
     ui/qwmdataeditor.ui \
     widget/editor/qwmdatetimeeditor.ui \
     widget/editor/qwmiconselector.ui \
@@ -144,14 +145,16 @@ TRANSLATIONS +=  \
 DISTFILES += \
     resource/i18n/QWellMan_zh_CN.ts
 
+RC_ICONS = logo128.png
+
 INCLUDEPATH += $$PWD/dao $$PWD/widget $$PWD/widget/delegate $$PWD/widget/editor $$PWD/ui $$PWD/undo $$PWD/aux $$PWD/model $$PWD/dto  $$PWD/model/qt
 
-INCLUDEPATH += /Users/Allein/Qt/5.14.0/lib/QtCore.framework/Versions/5/Headers/5.14.0
-INCLUDEPATH += /Users/Allein/Qt/5.14.0/lib/QtCore.framework/Versions/5/Headers/5.14.0/QtCore
-INCLUDEPATH += /Users/Allein/Qt/5.14.0/lib/QtWidgets.framework/Versions/5/Headers/5.14.0/QtWidgets
-INCLUDEPATH += /Users/Allein/Qt/5.14.0//lib/QtWidgets.framework/Versions/5/Headers/5.14.0
-INCLUDEPATH += /Users/Allein/Qt/5.14.0//lib/QtGui.framework/Versions/5/Headers/5.14.0
-INCLUDEPATH += /Users/Allein/Qt/5.14.0//lib/QtGui.framework/Versions/5/Headers/5.14.0/QtGui
+#INCLUDEPATH += /Users/Allein/Qt/5.14.0/lib/QtCore.framework/Versions/5/Headers/5.14.0
+#INCLUDEPATH += /Users/Allein/Qt/5.14.0/lib/QtCore.framework/Versions/5/Headers/5.14.0/QtCore
+#INCLUDEPATH += /Users/Allein/Qt/5.14.0/lib/QtWidgets.framework/Versions/5/Headers/5.14.0/QtWidgets
+#INCLUDEPATH += /Users/Allein/Qt/5.14.0//lib/QtWidgets.framework/Versions/5/Headers/5.14.0
+#INCLUDEPATH += /Users/Allein/Qt/5.14.0//lib/QtGui.framework/Versions/5/Headers/5.14.0
+#INCLUDEPATH += /Users/Allein/Qt/5.14.0//lib/QtGui.framework/Versions/5/Headers/5.14.0/QtGui
 #INCLUDEPATH += %{Qt:QT_INSTALL_PREFIX}/lib/QtWidgets.framework/Versions/5/Headers/5.14.0/QtWidgets
 DEFINES += QT_MESSAGELOGCONTEXT
 
@@ -160,3 +163,5 @@ DEFINES +=  DEBUG
 } else {
 
 }
+
+
