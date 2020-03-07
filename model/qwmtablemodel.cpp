@@ -1,5 +1,5 @@
 #include "qwmtablemodel.h"
-#include <QSqlRelationalTableModel>
+#include <QSqlTableModel>
 #include "QSqlRecord"
 #include "mdldao.h"
 #include "udldao.h"
@@ -11,7 +11,7 @@
 #include "QDateTime"
 #include "utility.h"
 QWMTableModel::QWMTableModel(QString idWell,QObject *parent,QSqlDatabase db)
-    : QSqlRelationalTableModel(parent,db),_idWell(idWell)
+    : QSqlTableModel(parent,db),_idWell(idWell)
 {
     //    connect(this ,&QSqlTableModel::primeInsert,this,&QWMTableModel::init_record_on_prime_insert);
 }
@@ -51,19 +51,19 @@ QVariant QWMTableModel::headerData(int section, Qt::Orientation orientation, int
                 }
                 return cap;
             }
-            return QSqlRelationalTableModel::headerData(section,orientation,role);
+            return QSqlTableModel::headerData(section,orientation,role);
         }
     }
     if(orientation==Qt::Orientation::Horizontal && section>=record.count()){
         //计算列的题头
         return QVariant();
     }else{
-        return QSqlRelationalTableModel::headerData(section,orientation,role);
+        return QSqlTableModel::headerData(section,orientation,role);
     }
 }
 void QWMTableModel::setTable(const QString &tableName){
 
-    QSqlRelationalTableModel::setTable(tableName);
+    QSqlTableModel::setTable(tableName);
     this->initFields(tableName);
 }
 QVariant QWMTableModel::data(const QModelIndex &index, int role) const
@@ -101,9 +101,6 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
         //其他列
         QString fieldName=this->record().fieldName(index.column());
         QString tableName=this->tableName();
-        //    if(fieldName=="WellName" && index.row()==0 && role==Qt::DisplayRole){
-        //        qDebug()<<"["<<fieldName<<"]="<<value<<",["<<index.row()<<","<<index.column()<<"]";
-        //    }
         if(role== PK_ROLE){
             QString idField=MDL->idField(this->tableName());
             int col=record.indexOf(idField);
@@ -112,14 +109,20 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
         }
         MDLField *  fieldInfo=MDL->fieldInfo(tableName,fieldName);
         if(role==SORT_ROLE){
-            return QSqlRelationalTableModel::data(index,Qt::EditRole);
+            return QSqlTableModel::data(index,Qt::EditRole);
         }else if(role==Qt::EditRole || role==Qt::DisplayRole||role==DATA_ROLE){
-            QVariant value= QSqlRelationalTableModel::data(index,Qt::EditRole);
+            QVariant value= QSqlTableModel::data(index,Qt::EditRole);
             if(fieldInfo!=nullptr){
                 if(fieldInfo->PhysicalType()==MDLDao::Boolean)//booelan
                 {
-                    bool b=value.toBool();
-                    return QVariant();
+                    if(role==Qt::EditRole||role==DATA_ROLE)
+                    {
+                        bool b=value.toBool();
+                        return b;
+                    }else
+                    {
+                        return QVariant();
+                    }
                 }else if(fieldInfo->PhysicalType()==MDLDao::DateTime){
                     if(role==Qt::DisplayRole){
                         if(fieldInfo->LookupTyp()==MDLDao::Date){
@@ -150,9 +153,9 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
                             value=fieldInfo->refValue(value.toString(),this->record(index.row()));
                         }
                     }
-                    if(fieldName=="SzODNom"){
-                        qDebug()<<"SzDrift";
-                    }
+//                    if(fieldName=="SzODNom"){
+//                        qDebug()<<"SzDrift";
+//                    }
                     //单位转换,只有在显示和用户编辑的时候才需要进行转换
                     if(Utility::isNumber(value) && (role==Qt::DisplayRole||role==DATA_ROLE) )
                         value=fieldInfo->displayValue(value);
@@ -166,7 +169,7 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
                 {
                     if(fieldInfo->PhysicalType()==MDLDao::Boolean)//booelan
                     {
-                        QVariant value= QSqlRelationalTableModel::data(index,Qt::DisplayRole);
+                        QVariant value= QSqlTableModel::data(index,Qt::EditRole);
                         bool b=value.toBool();
                         QString  v=value.toString();
                         //                    qDebug()<<"V:"<<v<<",B:"<<b;
@@ -175,7 +178,7 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
                 }
             }
         }
-        return QSqlRelationalTableModel::data(index,role);
+        return QSqlTableModel::data(index,role);
     }
     return QVariant();
 
@@ -214,7 +217,7 @@ bool QWMTableModel::setData(const QModelIndex &index, const QVariant &value, int
                 role=Qt::EditRole;
             }
         }
-        bool success= QSqlRelationalTableModel::setData(index, v,  role);
+        bool success= QSqlTableModel::setData(index, v,  role);
         if(!success){
             qDebug()<<"ERROR:"<<this->lastError().text();
         }
@@ -237,7 +240,7 @@ Qt::ItemFlags QWMTableModel::flags( const QModelIndex &index ) const
         QString  fieldName=_fieldsCalcInOrder[index.column()-record.count()];
         return  flags;
     }else{
-        QVariant v=QSqlRelationalTableModel::data(index);
+        QVariant v=QSqlTableModel::data(index);
         QString fieldName=this->record().fieldName(index.column());
         QString tableName=this->tableName();
         MDLField *  fieldInfo=MDL->fieldInfo(tableName,fieldName);
@@ -284,7 +287,7 @@ void QWMTableModel::setVisibleFields( QStringList visibleFieldsList)
     _fieldsInOrderVice.clear();
     QSqlRecord rec=this->record();
     QString idFld=CFG(ID);
-//    int idFldInd=rec.indexOf(CFG(ID));
+    //    int idFldInd=rec.indexOf(CFG(ID));
 #ifdef _DEBUG
     if(!visibleFieldsList.contains(CFG(ID))&& rec.indexOf(CFG(ID))>=0)
         visibleFieldsList.append(CFG(ID));
@@ -335,8 +338,8 @@ int QWMTableModel::fieldsCount()
 
 int QWMTableModel::columnCount(const QModelIndex &parent) const
 {
-//    return _visibleFields;
-    return QSqlRelationalTableModel::columnCount(parent);
+    //    return _visibleFields;
+    return QSqlTableModel::columnCount(parent);
 }
 
 const QString QWMTableModel::fieldInPosByOrder(int pos)
@@ -391,7 +394,7 @@ QString QWMTableModel::fieldNameEx(const int index) const
 
 QModelIndex QWMTableModel::createIndex(int row, int col)
 {
-    return QSqlRelationalTableModel::createIndex(row,col);
+    return QSqlTableModel::createIndex(row,col);
 
 }
 

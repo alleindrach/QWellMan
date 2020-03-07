@@ -1,11 +1,11 @@
 #ifndef QWMTABLEMODEL_H
 #define QWMTABLEMODEL_H
-#include <QSqlRelationalTableModel>
+#include <QSqlTableModel>
 #include <QObject>
 #include "qwmapplication.h"
 #include "common.h"
 
-class QWMTableModel : public QSqlRelationalTableModel
+class QWMTableModel : public QSqlTableModel
 {
     Q_OBJECT
 public:
