@@ -42,9 +42,7 @@
         </font>
        </property>
        <property name="styleSheet">
-        <string notr="true">QTreeView::item:selected:active{
-    background: red;
-}</string>
+        <string notr="true"/>
        </property>
        <property name="editTriggers">
         <set>QAbstractItemView::NoEditTriggers</set>

@@ -146,6 +146,17 @@ private:
             QTableView::indicator:enabled:checked { \
             image: url(:/images/icons/checkbox-on.svg);\
 }\
+            QTreeView::item:selected:active{\
+                background: rgb(155, 0, 2);\
+                color:white; \
+            }\
+            QTreeView::item:selected:!active{\
+                background: rgb(155, 0, 2);\
+                color:white;\
+            }\
+            QTabBar::tab:selected, QTabBar::tab:hover { \
+                background: rgb(155, 0, 2);\
+            }\
 //            QTabWidget::pane { /* The tab widget frame */ \
 //                border-top: 2px solid #C2C7CB; \
 //                position: absolute; \

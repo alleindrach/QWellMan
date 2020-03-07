@@ -90,7 +90,7 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
             return QVariant();
         }else if(role == Qt::BackgroundColorRole ){
             if(fieldInfo->Calculated()){
-                return QColor(253, 91, 100);
+                return QColor(218, 170, 170);
             }
         }else if(role==Qt::TextColorRole){
             if(fieldInfo->Calculated()){

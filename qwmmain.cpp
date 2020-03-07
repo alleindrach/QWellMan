@@ -178,7 +178,7 @@ void QWMMain::init()
     ui->tbvWells->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->tbvWells->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-
+    ui->trvCatalogs->setStyleSheet(APP->style());
     ui->tbvWells->setStyleSheet(APP->style());
     ui->tbvWells->verticalHeader()->setDefaultSectionSize(12);
 

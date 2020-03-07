@@ -76,7 +76,7 @@ QWMDataEditor::QWMDataEditor(QString idWell,QString name,QWidget *parent) :
     _tbvData->setStyleSheet(APP->style());
     _tbvData->verticalHeader()->setDefaultSectionSize(12);
     _tbvData->setFont(font);
-
+    ui->trvTables->setStyleSheet(APP->style());
     connect(ui->trvTables,&QTreeView::clicked,this,&QWMDataEditor::on_trv_table_node_clicked);
     connect(ui->actionRedo,&QAction::triggered,this,&QWMDataEditor::redo);
     connect(ui->actionUndo,&QAction::triggered,this,&QWMDataEditor::undo);
