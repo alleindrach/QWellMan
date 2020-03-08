@@ -208,11 +208,15 @@ if(x!=nullptr && x->metaObject()->className()==tp::staticMetaObject.className())
      disconnect(editor,0,0,0);
 
 #define SET_PRIMARY_EDITOR(T) \
-    editor->setObjectName("WMEditor");\
+    editor->setObjectName("WMEditorPM");\
     editor->setProperty("TYPE",T::staticMetaObject.className());
 
 #define IS_EDITOR(W) \
 (W->objectName().startsWith("WMEditor"))
+
+#define IS_PRIMARY_EDITOR(W) \
+(W->objectName().startsWith("WMEditorPM"))
+
 
 #define IS_EDITOR_OF(W,T) \
  (W->property("TYPE").toString().compare(T::staticMetaObject.className())==0)
