@@ -14,7 +14,7 @@ QDlgWellFieldsSelector::QDlgWellFieldsSelector(QStringList selected, QWidget *pa
     ui(new Ui::QDlgWellFieldsSelector)
 {
     ui->setupUi(this);
-    QSqlQuery q=MDL->tableFieldsQuery(CFG(KeyTblMain));
+    QSqlQuery q=UDL->tableFieldsQuery(CFG(KeyTblMain));
     QSqlQueryModel * model=new QSqlQueryModel(this);
     model->setQuery(q);
     ui->lvFields->setModel(model);

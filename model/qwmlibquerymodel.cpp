@@ -14,9 +14,9 @@ QVariant QWMLibQueryModel::data(const QModelIndex &index, int role) const
     if (index.row() >= this->rowCount() || index.row() < 0)
         return QVariant("-");
     if(role==Qt::DisplayRole){
-        MDLTable * tableInfo=MDL->tableInfo(_baseTable);
+//        MDLTable * tableInfo=UDL->tableInfo(_baseTable);
         QString libFieldName=this->record().fieldName(index.column());
-        MDLField * baseFieldInfo=MDL->fieldByLookup(_baseTable,_libTable,libFieldName);
+        MDLField * baseFieldInfo=UDL->fieldByLookup(_baseTable,_libTable,libFieldName);
         QVariant value= QSqlQueryModel::data(index);
         if(baseFieldInfo!=nullptr){
             if(baseFieldInfo->PhysicalType()==MDLDao::Boolean)//booelan
@@ -32,9 +32,9 @@ QVariant QWMLibQueryModel::data(const QModelIndex &index, int role) const
         }
         return value;
     }else if (role == Qt::CheckStateRole){
-        MDLTable * tableInfo=MDL->tableInfo(_baseTable);
+//        MDLTable * tableInfo=UDL->tableInfo(_baseTable);
         QString libFieldName=this->record().fieldName(index.column());
-        MDLField * baseFieldInfo=MDL->fieldByLookup(_baseTable, _libTable,libFieldName);
+        MDLField * baseFieldInfo=UDL->fieldByLookup(_baseTable, _libTable,libFieldName);
         if(baseFieldInfo!=nullptr && baseFieldInfo->PhysicalType()==MDLDao::Boolean)//booelan
         {
             QVariant value= QSqlQueryModel::data(index);
@@ -54,9 +54,9 @@ QVariant QWMLibQueryModel::headerData(int section, Qt::Orientation orientation, 
     if( role == Qt::DisplayRole){
         if( orientation==Qt::Orientation::Horizontal)
         {
-            MDLTable * tableInfo=MDL->tableInfo(_baseTable);
+//            MDLTable * tableInfo=UDL->tableInfo(_baseTable);
             QString libFieldName=this->record().fieldName(section);
-            MDLField * baseFieldInfo=MDL->fieldByLookup(_baseTable, _libTable,libFieldName);
+            MDLField * baseFieldInfo=UDL->fieldByLookup(_baseTable, _libTable,libFieldName);
 
             if(baseFieldInfo!=nullptr){
                 QString cap=baseFieldInfo->CaptionLong();
@@ -81,9 +81,9 @@ Qt::ItemFlags QWMLibQueryModel::flags(const QModelIndex &index) const
         return 0;
     Qt::ItemFlags flags=Qt::ItemIsEnabled|Qt::ItemIsSelectable;
     QSqlRecord record=this->record();
-    MDLTable * tableInfo=MDL->tableInfo(_baseTable);
+//    MDLTable * tableInfo=UDL->tableInfo(_baseTable);
     QString libFieldName=this->record().fieldName(index.column());
-    MDLField * baseFieldInfo=MDL->fieldByLookup(_baseTable, _libTable,libFieldName);
+    MDLField * baseFieldInfo=UDL->fieldByLookup(_baseTable, _libTable,libFieldName);
 
     if(baseFieldInfo!=nullptr){
         QVariant value=QSqlQueryModel::data(index);

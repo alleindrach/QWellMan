@@ -92,7 +92,7 @@ void QWMRecordSelector::loadTable(QString childtable,QStandardItemModel* tv)
     int recordCnt=0;
 
     QStandardItem*  tableItem=new QStandardItem();
-    MDLTable * tableInfo=MDL->tableInfo(table);
+    MDLTable * tableInfo=UDL->tableInfo(table);
     QString des=tableInfo->CaptionLongP();
     //    des+=tr("(无数据)");
     tableItem->setText(des); //设置第1列的文字
@@ -137,7 +137,7 @@ void QWMRecordSelector::loadChildTable(QStandardItem *parent,QStack<QString> tra
     QSqlQuery query=WELL->records(table,_idWell,parentID);
     int recordCnt=0;
     QStandardItem*  tableItem=new QStandardItem();
-    MDLTable * tableInfo=MDL->tableInfo(table);
+    MDLTable * tableInfo=UDL->tableInfo(table);
     QString des=tableInfo->CaptionLongP();
     //    des+=tr("(无数据)");
     tableItem->setText(des); //设置第1列的文字

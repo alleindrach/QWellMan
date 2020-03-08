@@ -27,7 +27,7 @@ public:
     virtual QList<QWidget *> taborders() override;
     virtual QSize sizeHint() override;
     virtual Type type() override;
-    virtual void init();
+    virtual void init()  override;
     inline void setEditable(bool v){
         _editable=v;
     }

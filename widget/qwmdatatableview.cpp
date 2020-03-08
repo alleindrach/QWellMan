@@ -28,7 +28,15 @@ QWMDataTableView::QWMDataTableView(QWidget *parent):QTableView(parent)
 {
     _itemDelegate=new QWMStyledItemDelegate(this);
     _reflookupDelegate=new QWMRefLookupDelegate(this);
+    QWMHeaderView *vertical = new QWMHeaderView(Qt::Vertical, this);
+    vertical->setSectionsClickable(true);
+    vertical->setHighlightSections(true);
+    setVerticalHeader(vertical);
 
+    QWMHeaderView *horizontal = new QWMHeaderView(Qt::Horizontal, this);
+    horizontal->setSectionsClickable(true);
+    horizontal->setHighlightSections(true);
+    setHorizontalHeader(horizontal);
 }
 void QWMDataTableView::setHorizontalHeader(QHeaderView *header)
 {
@@ -75,7 +83,7 @@ void QWMDataTableView::bindDelegate()
                     model->mode()==QWMRotatableProxyModel::H?model->index(0,i): model->index(i,0)
                                                              );
         QString tableName=sourcemodel->tableName();
-        fieldInfo=MDL->fieldInfo(tableName,fieldName);
+        fieldInfo=UDL->fieldInfo(tableName,fieldName);
 
         if(fieldInfo!=nullptr){
             if( fieldInfo->PhysicalType()==MDLDao::DateTime )
@@ -119,7 +127,7 @@ void QWMDataTableView::bindDelegate()
                         options<<p;
                     }else {
                         QString tableName=l->LookupItem();
-                        QString caption=MDL->tableInfo(tableName)->CaptionLongP();
+                        QString caption=UDL->tableInfo(tableName)->CaptionLongP();
                         QPair<QString,QVariant> p(caption,tableName);
                         options<<p;
                     }
@@ -146,7 +154,6 @@ void QWMDataTableView::setModel(QAbstractItemModel *model)
 void QWMDataTableView::onModeChange()
 {
     QWMRotatableProxyModel * model=(QWMRotatableProxyModel*)this->model();
-    PX(pmodel,this->model());
     SX(smodel,this->model());
     QSettings settings;
     settings.setValue(QString(EDITOR_TABLE_ENTRY_PREFIX).arg(smodel->tableName()),model->mode());

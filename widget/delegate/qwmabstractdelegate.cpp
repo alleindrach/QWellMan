@@ -17,7 +17,7 @@ QWMAbstractDelegate::~QWMAbstractDelegate()
     qDebug()<<"QWMBaseDelegate delegate destructor";
 }
 
-void QWMAbstractDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void QWMAbstractDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &/*option*/, const QModelIndex &/*index*/) const
 {
     QWMAbstractEditor  * absEditor=qobject_cast<QWMAbstractEditor*>(editor);
 
@@ -27,7 +27,6 @@ void QWMAbstractDelegate::updateEditorGeometry(QWidget *editor, const QStyleOpti
     QRect rect =view->geometry();
     int widgetWidth=absEditor->sizeHint().width();//option.rect.width();
     int widgetHeight=absEditor->sizeHint().height();
-    int margin=0;
     int left=(rect.width()-widgetWidth)/2;
     int top=(rect.height()-widgetHeight)/2;
     if(left<0)        left=0;
@@ -102,7 +101,7 @@ bool QWMAbstractDelegate::eventFilter(QObject *watched, QEvent *event) {
     //        event->accept();
     //        return true;
     //    }
-    qDebug()<<"*****Event:"<<event->type();
+//    qDebug()<<"*****Event:"<<event->type();
     return QStyledItemDelegate::eventFilter(watched,event);
 }
 

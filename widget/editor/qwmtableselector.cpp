@@ -65,7 +65,6 @@ void QWMTableSelector::init()
     //    ui->treeView->installEventFilter(this);;
     //    QSortFilterProxyModel * proxyModel=new QSortFilterProxyModel(this);
     QStandardItemModel * model=MDL->loadDataTree(false,this);
-    int rows=model->rowCount();
     ui->treeView->setModel(model);
     ui->treeView->expandAll();
     ui->treeView->setStyle(QStyleFactory::create("windows"));
@@ -78,7 +77,7 @@ QItemSelectionModel* QWMTableSelector::selectionModel()
     return ui->treeView->selectionModel();
 }
 
-bool QWMTableSelector::eventFilter(QObject *watched, QEvent *event)
+bool QWMTableSelector::eventFilter(QObject */*watched*/, QEvent *event)
 {
     if(event->type()==QEvent::KeyPress){
         QKeyEvent * keyEvent=(QKeyEvent*) event;

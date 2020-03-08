@@ -7,8 +7,11 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QIcon>
-#include  "common.h"
+#include "common.h"
 #include "mdldao.h"
+#include "udldao.h"
+#include "libdao.h"
+#include "welldao.h"
 #include "record.h"
 #include "mdltable.h"
 #include "mdlfieldlookup.h"
@@ -34,10 +37,10 @@ QWMApplication::QWMApplication(int &argc, char **argv):QApplication(argc,argv)
     REGISTER_ALL(UDLLibTabField);
     REGISTER(QWMRotatableProxyModel*);
     REGISTER(QWMTableModel*);
-//    qRegisterMetaType<Record>("Record");
-//    qRegisterMetaType<MDLTable>("MDLTable");
+    //    qRegisterMetaType<Record>("Record");
+    //    qRegisterMetaType<MDLTable>("MDLTable");
     connect(this,&QWMApplication::shutdown,this,&QCoreApplication::exit,Qt::QueuedConnection);
-
+    _iconMap[QStringLiteral("lookup")]=QIcon(QStringLiteral(":/images/icons/lookup.svg"));
     _iconMap[QStringLiteral("files@1x")]=QIcon(QStringLiteral(":/images/icons/files@1x.svg"));
     _iconMap[QStringLiteral("files@2x")]=QIcon(QStringLiteral(":/images/icons/files@2x.svg"));
     _iconMap[QStringLiteral("files@4x")]=QIcon(QStringLiteral(":/images/icons/files@4x.svg"));
@@ -127,7 +130,7 @@ bool QWMApplication::initMDLDB()
 {
     QSettings settings;
     QString error;
-//    qDebug()<<" Setting file:"<<settings.fileName();
+    //    qDebug()<<" Setting file:"<<settings.fileName();
     QString strMdlDbPath=settings.value(MDLDB_PATH_SETTING_ENTRY).toString();
     if(!QFile::exists(strMdlDbPath)){
         int select=QMessageBox::information(nullptr,tr("提示"),tr("未找到MDL数据库，请选择数据库的位置"),"选择","退出",0);
@@ -143,7 +146,7 @@ bool QWMApplication::initMDLDB()
         }else
         {
             emit this->shutdown(0);
-             return false;
+            return false;
         }
     }else{
         _mdlDB=openDB(strMdlDbPath,_mdlUserName,_mdlPassword,error,MDLDB_CONNECTION_NAME);
@@ -151,19 +154,19 @@ bool QWMApplication::initMDLDB()
             QMessageBox::warning(nullptr,tr("错误"),tr("MDL数据库打开失败")+" "+error,"退出");
             settings.setValue(MDLDB_PATH_SETTING_ENTRY,"");
             emit this->shutdown(0);
-             return false;
+            return false;
         }
     }
-//    _mdlDB.transaction();
-//    QSqlQuery q=_mdlDB.exec("select * from sqlite_master where type='table'");
-//    if(q.lastError().isValid()){
-//        qDebug()<<"open mdl error:"<<q.lastError().text();
-//    }else{
-//        while(q.next()){
-//            qDebug()<<"Mdl  table:"<<q.value("name").toString();
-//        }
-//    }
-//    _mdlDB.commit();
+    //    _mdlDB.transaction();
+    //    QSqlQuery q=_mdlDB.exec("select * from sqlite_master where type='table'");
+    //    if(q.lastError().isValid()){
+    //        qDebug()<<"open mdl error:"<<q.lastError().text();
+    //    }else{
+    //        while(q.next()){
+    //            qDebug()<<"Mdl  table:"<<q.value("name").toString();
+    //        }
+    //    }
+    //    _mdlDB.commit();
     return true;
 }
 
@@ -171,7 +174,7 @@ bool QWMApplication::initUDLDB()
 {
     QSettings settings;
     QString error;
-//    qDebug()<<" Setting file:"<<settings.fileName();
+    //    qDebug()<<" Setting file:"<<settings.fileName();
     QString strUdlDbPath=settings.value(UDLDB_PATH_SETTING_ENTRY).toString();
     if(!QFile::exists(strUdlDbPath)){
         int select=QMessageBox::information(nullptr,tr("提示"),tr("未找到UDL数据库，请选择数据库的位置"),"选择","退出",0);
@@ -187,7 +190,7 @@ bool QWMApplication::initUDLDB()
         }else
         {
             emit this->shutdown(0);
-             return false;
+            return false;
         }
     }else{
         _udlDB=openDB(strUdlDbPath,_udlUserName,_udlPassword,error,UDLDB_CONNECTION_NAME);
@@ -195,19 +198,19 @@ bool QWMApplication::initUDLDB()
             QMessageBox::warning(nullptr,tr("错误"),tr("UDL数据库打开失败")+" "+error,"退出");
             settings.setValue(UDLDB_PATH_SETTING_ENTRY,"");
             emit this->shutdown(0);
-             return false;
+            return false;
         }
     }
-//    _udlDB.transaction();
-//    QSqlQuery q=_udlDB.exec("select * from sqlite_master where type='table'");
-//    if(q.lastError().isValid()){
-//        qDebug()<<"open udl error:"<<q.lastError().text();
-//    }else{
-//        while(q.next()){
-//            qDebug()<<"Udl  table:"<<q.value("name").toString();
-//        }
-//    }
-//    _udlDB.commit();
+    //    _udlDB.transaction();
+    //    QSqlQuery q=_udlDB.exec("select * from sqlite_master where type='table'");
+    //    if(q.lastError().isValid()){
+    //        qDebug()<<"open udl error:"<<q.lastError().text();
+    //    }else{
+    //        while(q.next()){
+    //            qDebug()<<"Udl  table:"<<q.value("name").toString();
+    //        }
+    //    }
+    //    _udlDB.commit();
     return true;
 }
 
@@ -225,13 +228,13 @@ bool QWMApplication::initLIBDB()
             {
                 QMessageBox::warning(nullptr,tr("错误"),tr("LIB数据库打开失败")+" "+error,"退出");
                 emit this->shutdown(0);
-                 return false;
+                return false;
             }
 
         }else
         {
             emit this->shutdown(0);
-             return false;
+            return false;
         }
     }else{
         _libDB=openDB(strMdlDbPath,_mdlUserName,_mdlPassword,error,LIBDB_CONNECTION_NAME);
@@ -239,10 +242,10 @@ bool QWMApplication::initLIBDB()
             QMessageBox::warning(nullptr,tr("错误"),tr("LIB数据库打开失败")+" "+error,"退出");
             settings.setValue(LIBDB_PATH_SETTING_ENTRY,"");
             emit this->shutdown(0);
-             return false;
+            return false;
         }
     }
-     return true;
+    return true;
 }
 
 bool QWMApplication::initWellDB()
@@ -259,13 +262,13 @@ bool QWMApplication::initWellDB()
             {
                 QMessageBox::warning(nullptr,tr("错误"),tr("井数据库打开失败")+" "+error,"退出");
                 emit this->shutdown(0);
-                 return false;
+                return false;
             }
 
         }else
         {
             emit this->shutdown(0);
-             return false;
+            return false;
         }
     }else{
         _wellDB=openDB(strMdlDbPath,_mdlUserName,_mdlPassword,error,WELLDB_CONNECTION_NAME);
@@ -273,7 +276,7 @@ bool QWMApplication::initWellDB()
             QMessageBox::warning(nullptr,tr("错误"),tr("井数据库打开失败")+" "+error,"退出");
             settings.setValue(WELLDB_PATH_SETTING_ENTRY,"");
             emit this->shutdown(0);
-             return false;
+            return false;
         }
     }
     return true;
@@ -308,6 +311,11 @@ QHash<QString, QString> &QWMApplication::config()
 QMap<QString, QIcon> &QWMApplication::icons()
 {
     return _iconMap;
+}
+
+QIcon QWMApplication::icon(QString key)  const
+{
+    return _iconMap[key];
 }
 
 QString QWMApplication::referenceDatumName(QString value){
@@ -398,4 +406,20 @@ QWMMain *QWMApplication::mainWindow()
 void QWMApplication::setMainWindow(QWMMain *v)
 {
     _mainWnd=v;
+}
+
+void QWMApplication::refresh()
+{
+    CLOSEDB(_mdlDB);
+    CLOSEDB(_udlDB);
+    CLOSEDB(_wellDB);
+    CLOSEDB(_libDB);
+     initMDLDB();
+     initUDLDB();
+     initLIBDB();
+     initWellDB();
+     MDLDao::resetCache();
+     UDLDao::resetCache();
+     LIBDao::resetCache();
+     WellDao::resetCache();
 }

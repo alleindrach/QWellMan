@@ -28,7 +28,7 @@ public:
     void focusNext();
     void focusPrev();
     virtual void on_btn_clicked();
-    virtual QSize sizeHint();
+    virtual QSize sizeHint()  ;
     virtual void resizeEvent(QResizeEvent *) override;
     virtual void moveEvent(QMoveEvent *event) override;
     inline void setKey(QString value){

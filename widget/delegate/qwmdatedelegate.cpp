@@ -13,7 +13,7 @@ QWMDateDelegate::QWMDateDelegate(int mode,QString  format,QObject *parent) :
 }
 
 QWidget *QWMDateDelegate::createEditor(QWidget *parent,
-                                       const QStyleOptionViewItem & option,
+                                       const QStyleOptionViewItem & /*option*/,
                                        const QModelIndex & index) const
 {
     switch(m_mode){
@@ -46,7 +46,6 @@ QWidget *QWMDateDelegate::createEditor(QWidget *parent,
         editor->setModal(true);
         connect(editor,&QWMDateTimeEditor::rejected,this,&QWMDateDelegate::closeEditorAndRevert);
         connect(editor,&QWMDateTimeEditor::accepted,this,&QWMDateDelegate::commitAndCloseEditor);
-        QWMRotatableProxyModel  *  model=(QWMRotatableProxyModel*)index.model();
         {EDITOR_TITLE};
         return editor;
     }

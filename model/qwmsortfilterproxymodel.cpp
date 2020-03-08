@@ -80,9 +80,31 @@ QModelIndex QWMSortFilterProxyModel::mapFromSource(const QModelIndex &sourceInde
     //    return createIndex(sourceIndex.row(),visiblePos);
 }
 
-int QWMSortFilterProxyModel::mapToSource(int row)
+int QWMSortFilterProxyModel::mapColumnToSource(const int  col) const
 {
+    if(col<0)
+        return col;
     S1(model);
+
+    //    QWMTableModel * model=static_cast<QWMTableModel *>(this->sourceModel());
+    //1     过滤 掉 分栏列
+    int realCol=realColumn(col);
+    if(realCol<0)
+        return -1;
+    //2     对应的原始字段
+    QString sourceColName= model->fieldInPosByOrder(realCol);
+    if(sourceColName.isNull()||sourceColName.isEmpty()){
+        return -1;
+    }
+    // 3    对应的原始列号
+    //    计算字段没有field对应，这里sourceColPos就可能等于-1
+    int sourceColPos=model->fieldIndexEx(sourceColName);
+
+    return sourceColPos;
+}
+
+int QWMSortFilterProxyModel::mapRowToSource(int row) const
+{
     if(row<0)
         return row;
     if(row>=this->rowCount())
@@ -95,7 +117,7 @@ int QWMSortFilterProxyModel::mapToSource(int row)
 }
 
 
-bool QWMSortFilterProxyModel::insertRecord(int row, const QSqlRecord &record)
+bool QWMSortFilterProxyModel::insertRecord(int /*row*/, const QSqlRecord &record)
 {
     S1(model);
     QWMRecordEditCommand * command=new QWMRecordEditCommand( model,_idWell,record,QWMRecordEditCommand::insert);
@@ -116,7 +138,7 @@ bool QWMSortFilterProxyModel::insertRecordDirect(int row, const QSqlRecord &reco
 bool QWMSortFilterProxyModel::removeRecord(int row)
 {
     S1(model);
-    int sourceRow=mapToSource(row);
+    int sourceRow=mapRowToSource(row);
     QSqlRecord  record=model->record(sourceRow);
     PK_VALUE(id,record);
     QWMRecordEditCommand * command=new QWMRecordEditCommand(model,_idWell,record,QWMRecordEditCommand::remove);
@@ -262,7 +284,7 @@ const int QWMSortFilterProxyModel::groupedColumn(const int col) const
     return gCol;
 }
 
-int QWMSortFilterProxyModel::columnCount(const QModelIndex &parent) const
+int QWMSortFilterProxyModel::columnCount(const QModelIndex &/*parent*/) const
 {
     S1(model);
     int cols=model->visibleFieldsCount();
@@ -292,7 +314,7 @@ QString QWMSortFilterProxyModel::fieldName(QModelIndex index)
 void QWMSortFilterProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
 {
     QWMTableModel  * model=(QWMTableModel *) sourceModel;
-    QStringList groups=MDL->fieldGroup(model->tableName());
+    QStringList groups=UDL->fieldGroup(model->tableName());
     int c=0;
 
     foreach(QString group,groups){
@@ -320,12 +342,14 @@ QVariant QWMSortFilterProxyModel::headerData(int section, Qt::Orientation orient
     if(orientation==Qt::Horizontal){
         if(this->groupTitle(section).isNull()){
             if(role==FIELD_ROLE){
-                QModelIndex index=this->index(0,section);
-                QModelIndex sourceIndex=this->mapToSource(index);
-                QString fieldName=model->fieldNameEx(sourceIndex.column());
+                int sourceSection=mapColumnToSource(section);
+                QString fieldName=model->fieldNameEx(sourceSection);
                 return fieldName;
-            }else
-                return QSortFilterProxyModel::headerData(section,orientation,role);
+            }else{
+                int sourceSection=mapColumnToSource(section);
+                QVariant v= model->headerData(sourceSection,orientation,role);
+                return v;
+            }
         }else{
             //分组
             if(role==Qt::DisplayRole){

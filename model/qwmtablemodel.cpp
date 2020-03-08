@@ -25,7 +25,7 @@ QVariant QWMTableModel::headerData(int section, Qt::Orientation orientation, int
         {
             QString table=this->tableName();
             QString field=this->fieldNameEx(section);
-            MDLField *  fieldInfo=MDL->fieldInfo(table,field);
+            MDLField *  fieldInfo=UDL->fieldInfo(table,field);
 
             if(fieldInfo!=nullptr){
                 QString cap=fieldInfo->CaptionLong();
@@ -85,7 +85,7 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
         //计算列
         QString table=this->tableName();
         QString field=_fieldsCalcInOrder[index.column()-record.count()];
-        MDLField *  fieldInfo=MDL->fieldInfo(table,field);
+        MDLField *  fieldInfo=UDL->fieldInfo(table,field);
         if(role==Qt::EditRole||role==Qt::DisplayRole||role==SORT_ROLE){
             return QVariant();
         }else if(role == Qt::BackgroundColorRole ){
@@ -107,7 +107,7 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
             QVariant value=QSqlTableModel::data(this->index(index.row(),col));
             return value;
         }
-        MDLField *  fieldInfo=MDL->fieldInfo(tableName,fieldName);
+        MDLField *  fieldInfo=UDL->fieldInfo(tableName,fieldName);
         if(role==SORT_ROLE){
             return QSqlTableModel::data(index,Qt::EditRole);
         }else if(role==Qt::EditRole || role==Qt::DisplayRole||role==DATA_ROLE){
@@ -201,7 +201,7 @@ bool QWMTableModel::setData(const QModelIndex &index, const QVariant &value, int
     }else {
         QString fieldName=this->record().fieldName(index.column());
         QString tableName=this->tableName();
-        MDLField *  fieldInfo=MDL->fieldInfo(tableName,fieldName);
+        MDLField *  fieldInfo=UDL->fieldInfo(tableName,fieldName);
 
         QVariant v=value;
         if(role==Qt::CheckStateRole && fieldInfo!=nullptr && fieldInfo->PhysicalType()==MDLDao::Boolean)//booelan
@@ -243,7 +243,7 @@ Qt::ItemFlags QWMTableModel::flags( const QModelIndex &index ) const
         QVariant v=QSqlTableModel::data(index);
         QString fieldName=this->record().fieldName(index.column());
         QString tableName=this->tableName();
-        MDLField *  fieldInfo=MDL->fieldInfo(tableName,fieldName);
+        MDLField *  fieldInfo=UDL->fieldInfo(tableName,fieldName);
         if(fieldInfo!=nullptr){
             if(fieldInfo->PhysicalType()==MDLDao::Boolean)//booelan
             {
@@ -345,7 +345,6 @@ int QWMTableModel::columnCount(const QModelIndex &parent) const
 const QString QWMTableModel::fieldInPosByOrder(int pos)
 {
     QSqlRecord rec=this->record();
-    int recn=rec.count();
     if(pos<_fieldsInOrder.size()&&pos>=0)
         return _fieldsInOrder[pos];
     else
@@ -365,7 +364,7 @@ int QWMTableModel::fieldIndexEx(const QString &fieldName)
     int result=fieldIndex(fieldName);
     if(result<0){
         if(!_fieldsCalcMap.contains(fieldName.toLower())){
-            MDLField * fieldInfo=MDL->fieldInfo(this->tableName(),fieldName);
+            MDLField * fieldInfo=UDL->fieldInfo(this->tableName(),fieldName);
             if(fieldInfo!=nullptr&& fieldInfo->Calculated()==true){
                 _fieldsCalcMap.insert(fieldName.toLower(),this->record().count()+_fieldsCalcMap.size());
                 _fieldsCalcInOrder.append(fieldName);
@@ -403,7 +402,7 @@ QModelIndex QWMTableModel::createIndex(int row, int col)
 //    return QSqlRelationalTableModel::updateRowInTable(row,values);
 //}
 
-void QWMTableModel::init_record_on_prime_insert(int row, QSqlRecord &record)
+void QWMTableModel::init_record_on_prime_insert(int /*row*/, QSqlRecord &/*record*/)
 {
 
 }

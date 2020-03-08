@@ -11,6 +11,8 @@
 #include "udllibgroup.h"
 #include "udllibtab.h"
 #include "udllibtabfield.h"
+#include "mdlfield.h"
+#include "mdlunit.h"
 class UDLDao : public QObject
 {
     Q_OBJECT
@@ -32,12 +34,29 @@ public:
     QList<UDLLibGroup*> lookupTables(QString group);
     QList<UDLLibTab *> lookupTableTabs(QString set,QString lib);
     QList<UDLLibTabField*> lookupTableFieldsOfTab(QString set,QString lib,QString tab);
+    QStringList fieldOfGroup(QString table,QString field);
+
+    MDLTable * tableInfo(QString Table);
+    QList<MDLField*> tableFields(QString table);
+    QStringList tableHeaders(QString table);
+    QString tableOrderKey(QString table);
+    QSqlQuery tableFieldsQuery(QString table);
+    bool tableHasField(QString table,QString field);
+    MDLUnitType* baseUnitOfField(QString table,QString field);
+    MDLField * fieldInfo(QString table,QString field);
+    QStringList fieldGroup(QString table);
+//    QString filedCapl(QString table,QString field);
+    MDLField * fieldByLookup(QString table,QString lib,QString libfld);
+
+
+    static void resetCache();
 signals:
 private:
     QSqlDatabase  _db;
     static QHash<QString,QString> _sql;
     static UDLDao* _instance;
     static QHash<QString ,QVariant> _cache;
+
 public slots:
 };
 #endif // UDLDAO_H

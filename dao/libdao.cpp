@@ -98,3 +98,8 @@ QSqlQueryModel *LIBDao::libLookup(QString table,QString lib, QString tab, QStrin
     model->setQuery(SQL(select_table_by_tab_of_fields).arg(lib).arg(where).arg(fields.join(",")),APP->lib());
     CI(key,model)
 }
+
+void LIBDao::resetCache()
+{
+    _cache.clear();
+}

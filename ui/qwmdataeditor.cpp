@@ -182,7 +182,7 @@ QList<QWMRotatableProxyModel *> QWMDataEditor::dirtyTables(QModelIndex index)
 void QWMDataEditor::closeEvent(QCloseEvent *event)
 {
 
-    bool canceled=false;
+//    bool canceled=false;
     if(isDirty()){
         int result=QMessageBox::warning(this, tr("提示"),tr("是否保存之前已经修改过的数据？"),QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
         if(result==QMessageBox::Yes){
@@ -290,7 +290,7 @@ QString QWMDataEditor::nodeParentID(const QModelIndex &index,QString &lastError)
     if(index.data(CAT_ROLE)==QWMApplication::TABLE){
         QString tableName=index.data(TABLE_NAME_ROLE).toString();
         QString parentTableName=MDL->parentTable(tableName);
-        MDLTable * tableInfo=MDL->tableInfo(tableName);
+//        MDLTable * tableInfo=UDL->tableInfo(tableName);
         if(!parentTableName.isNull()  && !parentTableName.isEmpty()){
             if(index.parent().isValid() && index.parent().data(CAT_ROLE)==QWMApplication::TABLE)//如果有父节点
             {
@@ -321,7 +321,7 @@ MDLTable *QWMDataEditor::nodeTableInfo(const QModelIndex &index)
     if(index.data(CAT_ROLE)==QWMApplication::TABLE){
         QString tableName=index.data(TABLE_NAME_ROLE).toString();
         QString parentTableName=MDL->parentTable(tableName);
-        MDLTable * tableInfo=MDL->tableInfo(tableName);
+        MDLTable * tableInfo=UDL->tableInfo(tableName);
         return tableInfo;
     }
     return nullptr;
@@ -329,7 +329,7 @@ MDLTable *QWMDataEditor::nodeTableInfo(const QModelIndex &index)
 
 void QWMDataEditor::clearChildSelection(const QModelIndex &index)
 {
-    QItemSelectionModel*  selection= ui->trvTables->selectionModel();
+//    QItemSelectionModel*  selection= ui->trvTables->selectionModel();
     QAbstractItemModel * model=ui->trvTables->model();
 
 
@@ -367,12 +367,6 @@ void QWMDataEditor::editTable(const QModelIndex &tableNodeIndex)
         SX(sourceModel,model);
         PX(sortableProxyModel,model);
 
-        if(sourceModel->tableName()=="wvJobReport"){
-            //qDebug()<<"error"<<proxyModel->filterRegExp();
-            QModelIndex index =sortableProxyModel->index(0,0,QModelIndex());
-        }
-
-
         this->_tbvData->setModel(model);
 
         disconnect(_tbvData->selectionModel(),&QItemSelectionModel::currentRowChanged,nullptr,nullptr);
@@ -382,8 +376,8 @@ void QWMDataEditor::editTable(const QModelIndex &tableNodeIndex)
         disconnect(_tbvData->selectionModel(),&QItemSelectionModel::currentChanged,nullptr,nullptr);
         connect(_tbvData->selectionModel(),&QItemSelectionModel::currentChanged,this, &QWMDataEditor::on_current_record_changed);
 
-        int sourceCount=sourceModel->rowCount();
-        int proxyCount=sortableProxyModel->rowCount();
+//        int sourceCount=sourceModel->rowCount();
+//        int proxyCount=sortableProxyModel->rowCount();
         //        qDebug()<<"Table:"<<sourceModel->tableName()<<",Filter:"<<parentID<<",SourceCNT:"<<sourceCount<<",ProxyCNT:"<<proxyCount;
         MDLTable * tableInfo=nodeTableInfo(tableNodeIndex);
         if(sortableProxyModel->rowCount()>0){
@@ -554,7 +548,7 @@ void QWMDataEditor::on_current_record_changed(const QModelIndex &current, const 
         QSqlRecord record=model->record(current);
         PK_VALUE(pk,record);
         QString tableName=sourceModel->tableName();
-        MDLTable * tableInfo=MDL->tableInfo(tableName);
+        MDLTable * tableInfo=UDL->tableInfo(tableName);
         QString des=WELL->recordDes(tableName,record);
         QString dispText=tableInfo->CaptionLongP();
         if(!des.isNull()&& !des.isEmpty())
@@ -608,7 +602,7 @@ void QWMDataEditor::on_actionDelete_triggered()
     }
 }
 
-void QWMDataEditor::init_record_on_prime_insert(int row, QSqlRecord &record)
+void QWMDataEditor::init_record_on_prime_insert(int /*row*/, QSqlRecord &record)
 {
     if(record.indexOf(CFG(ParentID))>=0){
         record.setValue(record.indexOf(CFG(ParentID)),_parentID);
@@ -618,7 +612,7 @@ void QWMDataEditor::init_record_on_prime_insert(int row, QSqlRecord &record)
     }
 }
 
-void QWMDataEditor::on_data_record_changed(int oldCount, int newCount)
+void QWMDataEditor::on_data_record_changed(int /*oldCount*/, int newCount)
 {
     MDLTable * tableInfo=nodeTableInfo(ui->trvTables->currentIndex());
     if(tableInfo->OneToOne()){
@@ -681,7 +675,7 @@ void QWMDataEditor::on_actionSort_triggered(bool checked)
     sortableModel->sort(1,checked?Qt::DescendingOrder:Qt::AscendingOrder);
 }
 
-void QWMDataEditor::before_update_record(int row, QSqlRecord &record)
+void QWMDataEditor::before_update_record(int /*row*/, QSqlRecord &record)
 {
      int sysMDIndex=record.indexOf(CFG(SysMD));
      if(sysMDIndex>=0){

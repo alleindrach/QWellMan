@@ -176,6 +176,7 @@
    <addaction name="actionGroup"/>
    <addaction name="actionListColumn"/>
    <addaction name="separator"/>
+   <addaction name="actionRefresh"/>
   </widget>
   <action name="actionNew">
    <property name="icon">
@@ -398,6 +399,18 @@
    </property>
    <property name="toolTip">
     <string>Rotate </string>
+   </property>
+  </action>
+  <action name="actionRefresh">
+   <property name="icon">
+    <iconset resource="resource/resource.qrc">
+     <normaloff>:/images/icons/item-relationship.png</normaloff>:/images/icons/item-relationship.png</iconset>
+   </property>
+   <property name="text">
+    <string>Refresh</string>
+   </property>
+   <property name="toolTip">
+    <string>Reload DB</string>
    </property>
   </action>
  </widget>

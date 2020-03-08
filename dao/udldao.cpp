@@ -58,6 +58,16 @@ DECL_SQL(select_libs_of_lookup_group,"select  * from pceUDLSetLibGroup g   where
 DECL_SQL(select_tabs_of_lookup_lib,"select  * from pceUDLSetLibTab t   where t.KeySet=:set COLLATE  NOCASE and t.KeyTbl=:table  COLLATE  NOCASE  order by DisplayOrder")
 DECL_SQL(select_fields_of_lookup_tab,"select  * from pceUDLSetLibTabField f   where f.KeySet=:set COLLATE  NOCASE and f.KeyTbl=:lib  COLLATE  NOCASE and f.KeyTab=:tab  COLLATE  NOCASE  order by DisplayOrder")
 
+DECL_SQL(select_fields_of_group,"select  * from pceListTblFld where KeyTbl=:table  COLLATE NOCASE and GroupName=:groupName  COLLATE NOCASE order by DisplayOrder ")
+DECL_SQL(select_table_fields,"select  * from pceListTblFld where KeyTbl=:table COLLATE NOCASE order by DisplayOrder ")
+DECL_SQL(select_table_long_headers,"select  CaptionLong from pceListTblFld where KeyTbl=:table COLLATE NOCASE order by DisplayOrder ")
+DECL_SQL(select_table_order,"select  SQLOrderBy from pceListTbl where KeyTbl=:table COLLATE NOCASE")
+DECL_SQL(select_table_field_count,"select count(1) as cnt from pceListTblFld f where f.KeyTbl=:table COLLATE NOCASE and KeyFld=:field COLLATE NOCASE ")
+DECL_SQL(select_table_field,"select  * from pceListTblFld where KeyTbl=:table  COLLATE NOCASE  and KeyFld=:field COLLATE NOCASE order by DisplayOrder ")
+DECL_SQL(select_field_groups,"select KeyTbl,GroupName,DisplayOrder   from pceUDLGenTblFldGroup g where g.KeyTbl=:table COLLATE NOCASE order by DisplayOrder ")
+DECL_SQL(select_field_by_lookup,"select f.* from pceListTblFld f where f.LookupTableName=:lib COLLATE NOCASE and f.LookupFieldName=:fld COLLATE NOCASE  and f.KeyTbl=:table COLLATE NOCASE")
+DECL_SQL(select_table_info,"select  * from pceListTbl where KeyTbl=:table COLLATE NOCASE")
+
 END_SQL_DECLARATION
 
 void outputMessage(QtMsgType type, const QMessageLogContext &context, const QString &msg);
@@ -190,9 +200,11 @@ QStringList UDLDao::fieldsVisibleInOrder(QString profile, QString table)
     QString key=QString("fieldsVisibleInOrder.%1.%2").arg(profile).arg(table);
     CS(key,QStringList);
     QStringList result;
-
+    if(table=="wvDepthAnnotation"){
+        qDebug()<<"wvDepthAnnotation";
+    }
     QSqlQuery q(APP->udl());
-    QStringList groups=MDL->fieldGroup(table);
+    QStringList groups=UDL->fieldGroup(table);
     if(groups.size()>0){
         foreach(QString group,groups){
             QStringList fields=fieldsVisibleInOrderByGroup(profile,table,group);
@@ -312,4 +324,208 @@ QList<UDLLibTabField *> UDLDao::lookupTableFieldsOfTab(QString set, QString lib,
     PRINT_ERROR(q);
     auto r=Record::fromSqlQuery<UDLLibTabField>(UDLLibTabField::staticMetaObject.className(),q,this);
     CI(key,r);
+}
+
+QStringList UDLDao::fieldOfGroup(QString table, QString group)
+{
+    QString key=QString("fieldOfGroup.%1.%2").arg(table).arg(group);
+    CS(key,QStringList);
+    QStringList result;
+    QSqlQuery q(APP->udl());
+    q.prepare(SQL(select_fields_of_group));
+    q.bindValue(":table",table);
+    q.bindValue(":groupName",group);
+    q.exec();
+    PRINT_ERROR(q);
+    while(q.next()){
+        result<<q.value("KeyFld").toString();
+    }
+    if(result.isEmpty()){
+        return MDL->fieldOfGroup(table,group);
+    }
+    CI(key,result)
+}
+
+QList<MDLField *> UDLDao::tableFields(QString table)
+{
+    QString key="tableFields."+table;
+    CS_LIST(key,MDLField);
+
+    QSqlQuery q(APP->udl());
+    q.prepare(SQL(select_table_fields));
+    q.bindValue(":table",table);
+    q.exec();
+    PRINT_ERROR(q);
+    QList<MDLField*> result=Record::fromSqlQuery<MDLField>(MDLField::staticMetaObject.className(),q,this);
+    if(result.size()<=0)
+        result=MDL->tableFields(table);
+    CI(key,result);
+}
+
+QStringList UDLDao::tableHeaders(QString table)
+{
+    QString key="tableHeaders."+table;
+    CS(key,QStringList)
+            QSqlQuery q(APP->udl());
+    q.prepare(SQL(select_table_long_headers));
+    q.bindValue(":table",table);
+    q.exec();
+    PRINT_ERROR(q);
+    QStringList result;
+    while(q.next()){
+        result<<q.value("CaptionLong").toString();
+    }
+    if(result.size()<=0)
+        result=MDL->tableHeaders(table);
+    CI(key,result)
+}
+
+QString UDLDao::tableOrderKey(QString table)
+{
+    QString key="tableOrderKey."+table;
+    CS(key,QString)
+            QSqlQuery q(APP->udl());
+    q.prepare(SQL(select_table_order));
+    q.bindValue(":table",table);
+    q.exec();
+    PRINT_ERROR(q);
+    //    qDebug()<<"OrderKey of table["<<table<<"],isActive:"<<q.isActive()<<",Size:"<<q.size()<<","<<q.lastQuery();
+    //    qDebug()<<"Driver:has QSqlDriver::QuerySize|"<<APP->mdl().driver()->hasFeature(QSqlDriver::QuerySize);
+    QString result=QString();
+    if(q.next()){
+        result=q.value(0).toString();
+    }else{
+        result=MDL->tableOrderKey(table);
+    }
+    CI(key,result)
+}
+QSqlQuery UDLDao::tableFieldsQuery(QString table)
+{
+
+    QSqlQuery q(APP->udl());
+    q.prepare(SQL(select_table_fields));
+    q.bindValue(":table",table);
+    q.exec();
+    PRINT_ERROR(q);
+
+    return q;
+}
+bool UDLDao::tableHasField(QString table,QString field){
+    QString key=QString("tableHasField.%1.%2").arg(table).arg(field);
+    CS(key,bool);
+
+    QSqlQuery q(APP->udl());
+    q.prepare(SQL(select_table_field_count));
+    q.bindValue(":table",table);
+    q.bindValue(":field",field);
+    q.exec();
+    PRINT_ERROR(q);
+    bool result=false;
+    if(q.next()){
+        result= QS(q,cnt).toInt()>0;
+    }
+    CI(key,result);
+}
+MDLUnitType* UDLDao::baseUnitOfField(QString table, QString field)
+{
+
+    QString key=QString("baseUnitOfField.%1.%2").arg(table).arg(field);
+    CS(key,MDLUnitType*);
+
+    QSqlQuery q(APP->udl());
+    q.prepare(SQL(select_base_unit_of_field));
+    q.bindValue(":table",table);
+    q.bindValue(":field",field);
+    q.exec();
+    PRINT_ERROR(q);
+    MDLUnitType *result=nullptr;
+    if(q.next())
+    {
+        result=R(q.record(),MDLUnitType);
+    }
+    else {
+        result=MDL->baseUnitOfField(table,field);
+    }
+    CI(key,result);
+}
+MDLField * UDLDao::fieldInfo(QString table, QString field)
+{
+    QString key=QString("fieldInfo.%1.%2").arg(table).arg(field);
+    CS(key,MDLField*);
+
+    QSqlQuery q(APP->udl());
+    q.prepare(SQL(select_table_field));
+    q.bindValue(":table",table);
+    q.bindValue(":field",field);
+    q.exec();
+    PRINT_ERROR(q);
+    MDLField * result=nullptr;
+    if(q.next()){
+        result=R(q.record(),MDLField);
+    }else{
+        result=MDL->fieldInfo(table,field);
+    }
+    CI(key,result);
+}
+QStringList UDLDao::fieldGroup(QString table)
+{
+    QString key=QString("fieldGroup.%1").arg(table);
+    CS(key,QStringList);
+    QStringList result;
+    QSqlQuery q(APP->udl());
+    q.prepare(SQL(select_field_groups));
+    q.bindValue(":table",table);
+    q.exec();
+    PRINT_ERROR(q);
+    while(q.next()){
+        result<<q.value("GroupName").toString();
+    }
+    if(result.isEmpty())
+        result=MDL->fieldGroup(table);
+    CI(key,result)
+}
+
+MDLField *UDLDao::fieldByLookup(QString table,QString lib, QString fld)
+{
+    QString key=QString("fieldByLookup.%1.%2.%3").arg(table).arg(lib).arg(fld);
+    CS(key,MDLField*);
+
+    QSqlQuery q(APP->udl());
+    q.prepare(SQL(select_field_by_lookup));
+    q.bindValue(":table",table);
+    q.bindValue(":lib",lib);
+    q.bindValue(":fld",fld);
+    q.exec();
+    PRINT_ERROR(q);
+    MDLField * result=nullptr;
+    if(q.next()){
+        result=R(q.record(),MDLField);
+    }else
+    {
+        result=MDL->fieldByLookup(table,lib,fld);
+    }
+    CI(key,result);
+}
+MDLTable* UDLDao::tableInfo(QString table)
+{
+    QString key=QString("tableInfo.%1").arg(table);
+    CS(key,MDLTable*);
+
+    QSqlQuery q(APP->udl());
+    q.prepare(SQL(select_table_info));
+    q.bindValue(":table",table);
+    q.exec();
+    PRINT_ERROR(q);
+    MDLTable * result=nullptr;
+    if(q.next()){
+        result=R(q.record(),MDLTable);
+    }else{
+        result=MDL->tableInfo(table);
+    }
+    CI(key,result);
+}
+
+void UDLDao::resetCache()
+{
+    _cache.clear();
 }

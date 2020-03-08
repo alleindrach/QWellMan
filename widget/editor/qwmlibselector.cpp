@@ -184,12 +184,12 @@ bool QWMLibSelector::eventFilter(QObject *watched, QEvent *event)
     //    return true;
 }
 
-void QWMLibSelector::showEvent(QShowEvent *event)
+void QWMLibSelector::showEvent(QShowEvent */*event*/)
 {
 
 }
 
-void QWMLibSelector::focusInEvent(QFocusEvent *event)
+void QWMLibSelector::focusInEvent(QFocusEvent */*event*/)
 {
     ui->lineEdit->setFocus();
 }
@@ -242,8 +242,6 @@ void QWMLibSelector::on_text_changed(const QString & text)
 void QWMLibSelector::on_return_pressed()
 {
     QSortFilterProxyModel * proxyModel=(QSortFilterProxyModel*)ui->tableView->model();
-    int qc=proxyModel->rowCount();
-    //    qDebug()<<"RowCount:"<<proxyModel->rowCount();
     if(proxyModel->rowCount()>0){
         QModelIndex index=proxyModel->index(0,0);
         QItemSelectionModel * selectModel= ui->tableView->selectionModel();
@@ -251,9 +249,6 @@ void QWMLibSelector::on_return_pressed()
         ui->tableView->setFocus();
         //        emit this->accepted(this);
     }
-
-    //    emit this->accepted(this);
-
 }
 
 void QWMLibSelector::on_item_doubleclick(const QModelIndex &)

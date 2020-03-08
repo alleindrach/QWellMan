@@ -22,6 +22,14 @@
     uo=o==Qt::Horizontal?Qt::Vertical:Qt::Horizontal;\
     }
 
+#define SOURCE_COLUMN(section,index) \
+    if(_mode==H){ \
+        section=index.column(); \
+    }else \
+    { \
+        section=index.row(); \
+    }
+
 QWMRotatableProxyModel::QWMRotatableProxyModel(QString idWell,Mode mode ,QObject *parent)
     : QAbstractProxyModel(parent),_idWell(idWell),_mode(mode),_showGroup(mode==QWMRotatableProxyModel::V)
 {
@@ -95,8 +103,6 @@ QModelIndex QWMRotatableProxyModel::mapFromSource(const QModelIndex &sourceIndex
 {
     if(!sourceIndex.isValid())
         return QModelIndex();
-
-    P(model);
     if(_mode==H){
         return createIndex(sourceIndex.row(),sourceIndex.column());
     }else
@@ -109,13 +115,11 @@ int QWMRotatableProxyModel::mapToSourceTable(QModelIndex index)
 {
     P(pmodel);
     QModelIndex pIndex=this->mapToSource(index);
-    return pmodel->mapToSource(pIndex.row());
+    return pmodel->mapRowToSource(pIndex.row());
 }
 
 Qt::ItemFlags QWMRotatableProxyModel::flags(const QModelIndex &index) const
 {
-    P(model);
-    //    QModelIndex sourceIndex=mapToSource(index);
     return QAbstractProxyModel::flags(index);
 }
 
@@ -137,16 +141,9 @@ QItemSelection QWMRotatableProxyModel::mapSelectionFromSource(const QItemSelecti
     return convertedSelection;
 }
 
-QModelIndex QWMRotatableProxyModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex QWMRotatableProxyModel::index(int row, int column, const QModelIndex &/*parent*/) const
 {
     return createIndex(row,column);
-    //    if(_mode==H){
-    //    return QAbstractProxyModel::index(row,column,parent);
-    //    }else
-    //    {
-    //        return QExSortFilterProxyModel::index(column,row,parent);
-    //    }
-
 }
 
 QModelIndex QWMRotatableProxyModel::parent(const QModelIndex &child) const
@@ -181,13 +178,7 @@ int QWMRotatableProxyModel::columnCount(const QModelIndex &parent) const
         return model->columnCount(source_parent);
     }else
     {
-        if(sourceModel->tableName()=="wvJobReport"){
-            //               qDebug()<<"error";
-            int i=0;
-
-        }
         int columnCount=model->rowCount(source_parent);
-        //        qDebug()<<"column:"<<columnCount;
         return columnCount;
     }
 }
@@ -197,26 +188,59 @@ QVariant QWMRotatableProxyModel::headerData(int section, Qt::Orientation orienta
     P(model);
     if(_mode==H)
     {
+        if(orientation==Qt::Horizontal&& role==Qt::DecorationRole){
+            QString table=tableName();
+            QString field=this->fieldName(this->index(0,section));
+            MDLField *  fieldInfo=UDL->fieldInfo(table,field);
+            if(fieldInfo!=nullptr&& (fieldInfo->LookupTyp()==MDLDao::Icon||
+                                     fieldInfo->LookupTyp()==MDLDao::Foreign||
+                                     fieldInfo->LookupTyp()==MDLDao::LibEdit||
+                                     fieldInfo->LookupTyp()==MDLDao::LibOnly||
+                                     fieldInfo->LookupTyp()==MDLDao::List||
+                                     fieldInfo->LookupTyp()==MDLDao::DateAndTime)
+                    )
+            {
+                return APP->icon("lookup");
+            }
+        }
         return model->headerData(section,orientation,role);
     }else
     {
+        if(orientation==Qt::Vertical&& role==Qt::DecorationRole){
+                QString table=tableName();
+                QString field=this->fieldName(this->index(section,0));
+                MDLField *  fieldInfo=UDL->fieldInfo(table,field);
+                if(fieldInfo!=nullptr&& (fieldInfo->LookupTyp()==MDLDao::Icon||
+                                         fieldInfo->LookupTyp()==MDLDao::Foreign||
+                                         fieldInfo->LookupTyp()==MDLDao::LibEdit||
+                                         fieldInfo->LookupTyp()==MDLDao::LibOnly||
+                                         fieldInfo->LookupTyp()==MDLDao::List||
+                                         fieldInfo->LookupTyp()==MDLDao::DateAndTime)
+                        )
+                {
+                    return APP->icon("lookup");
+                }
+            }
+
         return model->headerData(section,orientation==Qt::Horizontal?Qt::Vertical:Qt::Horizontal,role);
     }
 }
 
-QString QWMRotatableProxyModel::fieldName(QModelIndex index)
+QString QWMRotatableProxyModel::fieldName(QModelIndex index) const
 {
     P(model);
-    QModelIndex preProxyIndex=mapToSource(index);
-    QVariant fieldInfo= model->headerData(preProxyIndex.column(),Qt::Horizontal,FIELD_ROLE);
+    int section=-1;
+    SOURCE_COLUMN(section,index);
+    QVariant fieldInfo= model->headerData(section,Qt::Horizontal,FIELD_ROLE);
     return fieldInfo.toString();
 }
 
 QString QWMRotatableProxyModel::fieldTitle(QModelIndex index)
 {
     P(model);
-    QModelIndex preProxyIndex=mapToSource(index);
-    QVariant fieldInfo= model->headerData(preProxyIndex.column(),Qt::Horizontal,Qt::DisplayRole);
+    int section=-1;
+    SOURCE_COLUMN(section,index);
+    QVariant fieldInfo= model->headerData(section,Qt::Horizontal,Qt::DisplayRole);
     return fieldInfo.toString();
 }
 
@@ -237,7 +261,7 @@ QModelIndex QWMRotatableProxyModel::indexOfSameRecord(QModelIndex index, QString
 
     return QModelIndex();
 }
-QString QWMRotatableProxyModel::tableName()
+QString QWMRotatableProxyModel::tableName() const
 {
     S(model);
     return model->tableName();
@@ -387,7 +411,7 @@ void QWMRotatableProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
     connect(pmodel,&QWMSortFilterProxyModel::rowsChanged,this,&QWMRotatableProxyModel::on_rows_changed);
 }
 
-QWMRotatableProxyModel::Mode QWMRotatableProxyModel::mode()
+QWMRotatableProxyModel::Mode QWMRotatableProxyModel::mode() const
 {
     return _mode;
 }
@@ -514,7 +538,7 @@ void QWMRotatableProxyModel::sourceHeaderDataChanged(Qt::Orientation orientation
     }
 }
 
-void QWMRotatableProxyModel::sourceRowsAboutToBeInserted(const QModelIndex &source_parent, int start, int end)
+void QWMRotatableProxyModel::sourceRowsAboutToBeInserted(const QModelIndex &/*source_parent*/, int /*start*/, int /*end*/)
 {
     //no mapping ,do nothing
 }
@@ -558,7 +582,7 @@ void QWMRotatableProxyModel::sourceColumnsRemoved(const QModelIndex &source_pare
     source_items_removed(source_parent, start, end, Qt::Horizontal);
 }
 
-void QWMRotatableProxyModel::sourceRowsAboutToBeMoved(const QModelIndex &sourceParent, int sourceStart, int sourceEnd, const QModelIndex &destParent, int dest)
+void QWMRotatableProxyModel::sourceRowsAboutToBeMoved(const QModelIndex &/*sourceParent*/, int /*sourceStart*/, int /*sourceEnd*/, const QModelIndex &/*destParent*/, int /*dest*/)
 {
 
 }
@@ -608,10 +632,9 @@ void QWMRotatableProxyModel::source_items_about_to_be_removed(const QModelIndex 
     remove_source_items(source_parent,start,end,orient,true);
 }
 
-void QWMRotatableProxyModel::source_items_removed(const QModelIndex &source_parent, int start, int end, Qt::Orientation orient)
+void QWMRotatableProxyModel::source_items_removed(const QModelIndex &/*source_parent*/, int /*start*/, int /*end*/, Qt::Orientation /*orient*/)
 {
     this->reset();
-    //no mapping ,do nothing
 }
 
 void QWMRotatableProxyModel::remove_source_items( const QModelIndex &source_parent,  int start, int end,Qt::Orientation orient, bool emit_signal)

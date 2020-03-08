@@ -22,6 +22,7 @@ public:
 //    QSqlQueryModel * libLookup(QString table,QString tab);
     QSqlQueryModel * libLookup(QString table,QString lib,QString tab,QStringList fields);
     static QVector<QString> hiddenFields;
+    static void resetCache();
 signals:
 private:
     QSqlDatabase  _db;

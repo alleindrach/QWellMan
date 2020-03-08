@@ -459,21 +459,21 @@ QList<MDLTable*> MDLDao::childTables(QString table,QStringList hidden, QString p
     CI(key,result)
 }
 
-QList<MDLTable *> MDLDao::topTables(QStringList hidden, QString profile)
-{
-    QString key=QString("topTables.%1").arg(profile);
-    CS_LIST(key,MDLTable);
+//QList<MDLTable *> MDLDao::topTables(QStringList hidden, QString profile)
+//{
+//    QString key=QString("topTables.%1").arg(profile);
+//    CS_LIST(key,MDLTable);
 
-    QSqlQuery q(APP->mdl());
-    QStringList critieal=hidden.replaceInStrings(QRegExp("^(\\w)"), "'\\1")
-            .replaceInStrings(QRegExp("(\\w)$"), "\\1'");
-    q.prepare(SQL(select_child_tables).arg(critieal.join(",")));
-    q.exec();
-    PRINT_ERROR(q);
-    QList<MDLTable*> result;
-    result=Q(q,MDLTable);
-    CI(key,result)
-}
+//    QSqlQuery q(APP->mdl());
+//    QStringList critieal=hidden.replaceInStrings(QRegExp("^(\\w)"), "'\\1")
+//            .replaceInStrings(QRegExp("(\\w)$"), "\\1'");
+//    q.prepare(SQL(select_child_tables).arg(critieal.join(",")));
+//    q.exec();
+//    PRINT_ERROR(q);
+//    QList<MDLTable*> result;
+//    result=Q(q,MDLTable);
+//    CI(key,result)
+//}
 
 QString MDLDao::idField(QString table)
 {
@@ -640,4 +640,9 @@ QStringList MDLDao::lookupFields(QString table, QString lib)
         result<<q.value("LookupFieldName").toString();
     }
     CI(key,result)
+}
+
+void MDLDao::resetCache()
+{
+    _cache.clear();
 }

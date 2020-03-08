@@ -29,6 +29,7 @@ public:
     QString referenceDatumName(QString value);
     QString referenceDatumValue(QString name);
     QMap<QString,QIcon> & icons();
+    QIcon  icon(QString) const;
     void loadPreference();
     QString profile();
     void setProfile(QString v);
@@ -43,6 +44,9 @@ public:
     enum Catalog{ RECENT,ALL,FAVORITE,QUERY,QUICK_QUERY,GROUP,TABLE,RECORD,NA};
     Q_ENUM(Catalog)
     inline QString style(){return _style;};
+
+    void refresh();
+
 signals:
     void shutdown(int  code);
 public slots:
@@ -120,9 +124,7 @@ private:
 }  \
             \
             QHeaderView::section { \
-            color:white;\
             font-size:10px ;\
-            background-color: rgb(50,50,50); \
             selection-background-color: darkblue; \
             padding-left: 4px; \
             border-right: 1px solid lightgray; \
@@ -147,51 +149,17 @@ private:
             image: url(:/images/icons/checkbox-on.svg);\
 }\
             QTreeView::item:selected:active{\
-                background: rgb(155, 0, 2);\
-                color:white; \
-            }\
+            background: rgb(155, 0, 2);\
+            color:white; \
+}\
             QTreeView::item:selected:!active{\
-                background: rgb(155, 0, 2);\
-                color:white;\
-            }\
+            background: rgb(155, 0, 2);\
+            color:white;\
+}\
             QTabBar::tab:selected, QTabBar::tab:hover { \
-                background: rgb(155, 0, 2);\
-            }\
-//            QTabWidget::pane { /* The tab widget frame */ \
-//                border-top: 2px solid #C2C7CB; \
-//                position: absolute; \
-//                top: -0.5em; \
-//            } \
-//            \
-//            QTabWidget::tab-bar { \
-//                alignment: center; \
-//            }\
-//            \
-//            /* Style the tab using the tab sub-control. Note that \
-//                it reads QTabBar _not_ QTabWidget */\
-//            QTabBar::tab { \
-//                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, \
-//                                            stop: 0 #E1E1E1, stop: 0.4 #DDDDDD, \
-//                                            stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3); \
-//                border: 2px solid #C4C4C3; \
-//                border-bottom-color: #C2C7CB; /* same as the pane color */ \
-//                border-top-left-radius: 4px; \
-//                border-top-right-radius: 4px; \
-//                min-width: 8ex; \
-//                padding: 2px; \
-//            } \
-//             \
-//            QTabBar::tab:selected, QTabBar::tab:hover { \
-//                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, \
-//                                            stop: 0 #fafafa, stop: 0.4 #f4f4f4, \
-//                                            stop: 0.5 #e7e7e7, stop: 1.0 #fafafa); \
-//            } \
-//            \
-//            QTabBar::tab:selected { \
-//                border-color: #9B9B9B; \
-//                border-bottom-color: #C2C7CB; /* same as pane color */ \
-//            } \
-            ";
+                                                    background: rgb(155, 0, 2);\
+}\
+";
 
 };
 

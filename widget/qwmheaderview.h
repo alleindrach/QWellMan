@@ -11,6 +11,7 @@ public:
     explicit QWMHeaderView(Qt::Orientation orientation, QWidget *parent = nullptr);
     virtual ~QWMHeaderView();
     virtual void setModel(QAbstractItemModel *model) override;
+    virtual void paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const;
 protected  Q_SLOTS:
     void sectionsInserted(const QModelIndex &parent, int logicalFirst, int logicalLast);
 };

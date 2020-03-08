@@ -177,12 +177,12 @@ void QWMLibTabSelector::setLookupFld(QString fld)
 }
 
 
-void QWMLibTabSelector::on_tab_accepted(QWidget *tab)
+void QWMLibTabSelector::on_tab_accepted(QWidget */*tab*/)
 {
     emit accepted(this);
 }
 
-void QWMLibTabSelector::on_tab_recjected(QWidget * tab)
+void QWMLibTabSelector::on_tab_recjected(QWidget * /*tab*/)
 {
     emit rejected(this);
 }

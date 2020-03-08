@@ -79,23 +79,19 @@ QWMTableModel *WellDao::table(QString tablename,QString idWell)
 {
     QString key=QString("table.%1.%2").arg(tablename).arg(idWell);
     CS(key,QWMTableModel*);
-
-
     QWMTableModel *  model=new QWMTableModel(idWell,this,APP->well());
     QString filter=QString(" %1='%2' ").arg(CFG(IDWell)).arg(idWell);
     model->setEditStrategy(QSqlTableModel::OnManualSubmit);
     model->setTable(tablename);
     model->setFilter(filter);
-    model->setSort(model->fieldIndex( MDL->tableOrderKey(tablename)),Qt::AscendingOrder);
+    model->setSort(model->fieldIndex( UDL->tableOrderKey(tablename)),Qt::AscendingOrder);
     //    model->select();
     if(model->lastError().isValid())
     {
         QString e=model->lastError().text();
         qDebug()<<e;
     }
-
     CI(key,model);
-
 }
 //获取table，并设置过滤，
 //如果是顶级节点，则只过滤IDWell
@@ -119,33 +115,7 @@ QWMRotatableProxyModel *WellDao::tableForEdit(const QString tablename,const QStr
 
     //如果有parentid，则根据IDRecParent字段进行过滤
     QSqlRecord record=sourceModel->record();
-    //    if(!parentID.isEmpty()){
-    //        QString additionalWhere=QString(" %1='%2' ").arg(CFG(ParentID)).arg(parentID);
-    //        if(record.indexOf(CFG(ParentID))>=0){
-    //            QString filter=sourceModel->filter();
-    //            filter+=additionalWhere;
-    //            proxyModel->setFilterKeyColumn(record.indexOf(CFG(ParentID)));
-    //            proxyModel->setFilterFixedString(parentID);
 
-    //        }
-    //    }
-    //    proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    //    if(!parentID.isNull() && !parentID.isEmpty()){
-
-    //        if(record.indexOf(CFG(ParentID))>=0)
-    //        {
-    //            proxyModel->setFilterKeyColumn(record.indexOf(CFG(ParentID)));
-    //            proxyModel->setFilterFixedString(parentID);
-
-    //        }else{
-    //            proxyModel->setFilterFixedString(parentID);
-    //            proxyModel->setFilterKeyColumn(record.indexOf(CFG(IDWell)));
-    //        }
-    //    }else
-    //    {
-    //        proxyModel->setFilterFixedString(IDWell);
-    //        proxyModel->setFilterKeyColumn(record.indexOf(CFG(IDWell)));
-    //    }
 
     proxyModel->setFilterFunction( [=](int sourceRow, const QModelIndex &sourceParent)->bool {
         //        QModelIndex index0 = model->index(sourceRow, 0, sourceParent);
@@ -171,7 +141,7 @@ QWMRotatableProxyModel *WellDao::tableForEdit(const QString tablename,const QStr
     //    QVariant l = (source_left.model() ? source_left.model()->data(source_left, d->sort_role) : QVariant());
     //    QVariant r = (source_right.model() ? source_right.model()->data(source_right, d->sort_role) : QVariant());
     //        return QAbstractItemModelPrivate::isVariantLessThan(l, r, d->sort_casesensitivity, d->sort_localeaware);
-    MDLTable * tableInfo=MDL->tableInfo(tablename);
+    MDLTable * tableInfo=UDL->tableInfo(tablename);
     QStringList sortFieldsList,sortFieldsListTrimed;
     QString strOrderby=tableInfo->SQLOrderBy();
     if(!strOrderby.isNull()){
@@ -291,7 +261,7 @@ bool WellDao::isDeletedRecord(QString idWell, QString idRec)
         return  QS(q,cnt).toUInt()>0;
     return false;
 }
-int WellDao::addRecord(QString table, QString parentId)
+int WellDao::addRecord(QString , QString )
 {
     return 0;
 }
@@ -367,7 +337,7 @@ int WellDao::deleteItem(QString idWell, QString idRec,QString table)
 //选中的记录的显示信息，比如<NSDist>(<NSDist.unit>) -->25(m)
 QString WellDao::recordDes(QString table, QSqlRecord record)
 {
-    MDLTable* tableInfo=MDL->tableInfo(table);
+    MDLTable* tableInfo=UDL->tableInfo(table);
     QString rd=tableInfo->RecordDes();
     QString rdResult=rd;
     QHash<QString,QVariant> cachedValue;
@@ -384,7 +354,7 @@ QString WellDao::recordDes(QString table, QSqlRecord record)
             }else{
                 if(!var.contains(".unit")){
                     QVariant value=record.value(record.indexOf(var));
-                    MDLField * fieldInfo=MDL->fieldInfo(table,var);
+                    MDLField * fieldInfo=UDL->fieldInfo(table,var);
                     if(fieldInfo!=nullptr){
                         value=fieldInfo->refValue(value.toString());
                         if(Utility::isNumber(value))
@@ -399,7 +369,7 @@ QString WellDao::recordDes(QString table, QSqlRecord record)
                 }else{
                     QString refVarName=var;
                     refVarName.replace(".unit","");
-                    MDLUnitType *unitType=MDL->baseUnitOfField(table,refVarName);
+                    MDLUnitType *unitType=UDL->baseUnitOfField(table,refVarName);
                     QString baseUnit=unitType->BaseUnits();
                     MDLUnitTypeSet* userUnitInfo=MDL->userUnitKey(APP->unit(),unitType->KeyType());
                     if(userUnitInfo!=nullptr){
@@ -454,7 +424,7 @@ QAbstractItemModel*  WellDao::wells(int type)
 
     QWMTableModel *  model=new QWMTableModel(QString(),this,APP->well());
     model->setTable(CFG(KeyTblMain));
-    model->setSort(model->fieldIndex( MDL->tableOrderKey(CFG(KeyTblMain))),Qt::AscendingOrder);
+    model->setSort(model->fieldIndex( UDL->tableOrderKey(CFG(KeyTblMain))),Qt::AscendingOrder);
     model->select();
 
     if(model->lastError().isValid())
@@ -536,7 +506,7 @@ QStringList WellDao::distinctValue(QString table,QString field){
 
 QSqlQuery WellDao::records(QString table,QString idWell,QString parentID)
 {
-    MDLTable * tableInfo=MDL->tableInfo(table);
+    MDLTable * tableInfo=UDL->tableInfo(table);
     QSqlRecord record=aRecord(table);
     PARENT_ID_FLD(parentFld,record);
     PK_FLD(idFld,record);
@@ -558,7 +528,7 @@ QSqlQuery WellDao::records(QString table,QString idWell,QString parentID)
         additionalCri=QString(" and w.%1='%2' COLLATE NOCASE  ").arg(CFG(IDWell)).arg(idWell);
     }
 
-    QSqlQueryModel* model=new QSqlQueryModel(this);
+//    QSqlQueryModel* model=new QSqlQueryModel(this);
     //    DECL_SQL(select_records,"select  w.* from %1  w  where  not exists(select * from %2 d where  w.%3=d.IDRec COLLATE NOCASE) and w.%4=:parentID  COLLATE NOCASE %6  order by %5")
     QSqlQuery q(APP->well());
     q.prepare(SQL(select_records)
@@ -594,5 +564,10 @@ bool WellDao::hasRecord(QString table, QString idrec)
         return q.value("c").toInt()>0;
     }
     return false;
+}
+
+void WellDao::resetCache()
+{
+    _cache.clear();
 }
 

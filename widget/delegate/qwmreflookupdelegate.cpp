@@ -39,15 +39,15 @@ QWidget *QWMRefLookupDelegate::createEditor(QWidget *parent,
 
     QWMRotatableProxyModel * model=(QWMRotatableProxyModel *)index.model();
     SX(sourceModel,model);
-    PX(filterModel,model);
+//    PX(filterModel,model);
     QString table=sourceModel->tableName();
     QString field=model->fieldName(index);
-    MDLField * fieldInfo=MDL->fieldInfo(table,field);
+    MDLField * fieldInfo=UDL->fieldInfo(table,field);
     QString lib=fieldInfo->LookupTableName();
     QString group=UDL->lookupGroup(APP->profile(),table);
     if(!group.isNull()&&!group.isEmpty() && fieldInfo->LookupTyp()==MDLDao::LibEdit){//BiTable
         QString key=QString("%1.%2.%3").arg(QWMLibTabSelector::staticMetaObject.className(), table,lib);
-        qDebug()<<"===="<<key;
+//        qDebug()<<"===="<<key;
         EC(key,QWMLibTabSelector,editor);
         if(editor!=nullptr){
             //            editor->setParent(parent);
@@ -174,7 +174,7 @@ void QWMRefLookupDelegate::setEditorData(QWidget *editor,
     //    PX(filterModel,model);
     QString table=sourceModel->tableName();
     QString field=model->fieldName(index);
-    MDLField * fieldInfo=MDL->fieldInfo(table,field);
+    MDLField * fieldInfo=UDL->fieldInfo(table,field);
     QString lookupFld=fieldInfo->LookupFieldName();
     QString tableLookup=fieldInfo->lookupTable();
     if(instanceof<QWMAbstractEditor>(editor)){
@@ -199,7 +199,7 @@ void QWMRefLookupDelegate::setEditorData(QWidget *editor,
                 selector->setValue(strValue);
         }else if(type==QWMAbstractEditor::BiTree){
             QSqlRecord rec=model->record(index);
-            MDLField *  fieldInfo=MDL->fieldInfo(model->tableName(),model->fieldName(index));
+            MDLField *  fieldInfo=UDL->fieldInfo(model->tableName(),model->fieldName(index));
             //对于需要从多个表引用IDREC的字段，需要找出此id对应的表名，
             //            有两种情况，
             //            1 如果是IDRecParent，则为同一行的TblKeyParent的值
@@ -244,12 +244,12 @@ void QWMRefLookupDelegate::setModelData(QWidget *editor,QAbstractItemModel *mode
                 //                PX(filterModel,rmodel);
                 QString table=rmodel->tableName();
                 QString field=rmodel->fieldName(index);
-                MDLField * fieldInfo=MDL->fieldInfo(table,field);
+                MDLField * fieldInfo=UDL->fieldInfo(table,field);
                 for(int i=0;i<selectRecord.count();i++){
                     QString namedLibTable=fieldInfo->LookupTableName();
                     //                    QString libTable=selector->libName();
                     QString libField=selectRecord.fieldName(i);
-                    MDLField * baseFieldInfo=MDL->fieldByLookup(table, namedLibTable,libField);
+                    MDLField * baseFieldInfo=UDL->fieldByLookup(table, namedLibTable,libField);
                     if(baseFieldInfo!=nullptr){
                         //                        QModelIndex aIndex=rmodel->indexOfSameRecord(index,baseFieldInfo->KeyFld());
                         spv.append(QPair<QString,QVariant>(baseFieldInfo->KeyFld(),selectRecord.value(i)));

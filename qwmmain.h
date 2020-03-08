@@ -79,6 +79,8 @@ private slots:
 
     void on_actionAbout_triggered();
 
+    void on_actionRefresh_triggered();
+
 private:
     Ui::QWMMain *ui;
     QStandardItemModel * _catalogModel;

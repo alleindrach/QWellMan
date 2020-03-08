@@ -125,7 +125,7 @@ QString MDLField::caption()
                     QList<MDLFieldLookup *> fl=MDL->fieldLookupinfo(this->KeyTbl(),this->KeyFld());
                     if(!fl.isEmpty()){
                         MDLFieldLookup *fli=fl.first();
-                        MDLTable * refTable=MDL->tableInfo(fli->LookupItem());
+                        MDLTable * refTable=UDL->tableInfo(fli->LookupItem());
                         if(refTable!=nullptr){
                             QString value=refTable->CaptionLongS();
                             cachedValue.insert(var,value);

@@ -37,21 +37,12 @@ void QWMIconSelector::init()
     emit ui->comboBox->currentTextChanged(ui->comboBox->currentText());
 }
 
-bool QWMIconSelector::eventFilter(QObject *watched, QEvent *event)
+bool QWMIconSelector::eventFilter(QObject */*watched*/, QEvent */*event*/)
 {
-//    if(IS_KEY_EVENT(event)){
-//        if(IS_KEY(event,Qt::Key_Return)||IS_KEY(event,Qt::Key_Enter)){
-//            emit this->accepted(this);
-//            event->accept();
-//            return true;
-//        }
-//    }
-//    bool result = QWMAbstractEditor::eventFilter(watched,event);
-//    return result;
     return false;
 }
 
-void QWMIconSelector::showEvent(QShowEvent *event)
+void QWMIconSelector::showEvent(QShowEvent */*event*/)
 {
     if(ui->listWidget->selectionModel()->hasSelection()&& ui->listWidget->selectionModel()->currentIndex().isValid()){
         QModelIndex index=ui->listWidget->selectionModel()->currentIndex();
@@ -163,7 +154,7 @@ QList<QWidget *> QWMIconSelector::taborders()
 }
 
 
-void QWMIconSelector::on_comboBox_currentTextChanged(const QString &text)
+void QWMIconSelector::on_comboBox_currentTextChanged(const QString &/*text*/)
 {
     ui->listWidget->clear();
     if(ui->comboBox->currentIndex()>=0){

@@ -18,7 +18,7 @@ QWMDistinctValueDelegate::~QWMDistinctValueDelegate()
     qDebug()<<"delegate destructor";
 }
 
-QWidget *QWMDistinctValueDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+QWidget *QWMDistinctValueDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &/*option*/, const QModelIndex &/*index*/) const
 {
     QComboBox *editor = new QComboBox(parent);
     editor->setEditable(true);
@@ -53,7 +53,7 @@ void QWMDistinctValueDelegate::setModelData(QWidget *editor, QAbstractItemModel 
     }
 }
 
-void QWMDistinctValueDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void QWMDistinctValueDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &/*index*/) const
 {
     editor->setGeometry(option.rect);
 }

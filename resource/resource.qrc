@@ -226,5 +226,6 @@
         <file>images/icons/calculator.svg</file>
         <file>images/icons/rotate.svg</file>
         <file>images/About.png</file>
+        <file>images/icons/lookup.svg</file>
     </qresource>
 </RCC>

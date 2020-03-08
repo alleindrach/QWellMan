@@ -11,13 +11,13 @@ SpinBoxDelegate::SpinBoxDelegate(int decimals,QObject *parent)
 {
 }
 QWidget *SpinBoxDelegate::createEditor(QWidget *parent,
-                                       const QStyleOptionViewItem & option ,
+                                       const QStyleOptionViewItem & /*option*/ ,
                                        const QModelIndex & index ) const
 {
 
     QWMRotatableProxyModel * model= ( QWMRotatableProxyModel *)index.model();
-    SX(sourceModel,model);
-    MDLField *  fieldInfo=MDL->fieldInfo(model->tableName(),model->fieldName(index));
+//    SX(sourceModel,model);
+//    MDLField *  fieldInfo=UDL->fieldInfo(model->tableName(),model->fieldName(index));
 
     QWidget *widget = nullptr;
     if(m_decimals>0)

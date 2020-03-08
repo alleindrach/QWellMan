@@ -58,7 +58,7 @@ QWMTableModel *QWMRecordEditCommand::model()
     return _model;
 }
 
-void QWMRecordEditCommand::init_record_on_prime_insert(int row, QSqlRecord &record)
+void QWMRecordEditCommand::init_record_on_prime_insert(int /*row*/, QSqlRecord &/*record*/)
 {
 
 }

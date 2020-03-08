@@ -38,10 +38,10 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-    QString fieldName(QModelIndex  index);
+    QString fieldName(QModelIndex  index) const;
     QString fieldTitle(QModelIndex  index);
     QModelIndex indexOfSameRecord(QModelIndex  index,QString fieldName);
-    QString tableName();
+    QString tableName() const;
     QModelIndex firstEditableCell() ;
     bool showGroup();
     void setShowGroup(bool show);
@@ -51,7 +51,7 @@ public:
     int  visibleFieldsCount();
     bool isFieldVisible(const QString & field);
     virtual void setSourceModel(QAbstractItemModel *sourceModel)  override;
-    Mode mode();
+    Mode mode() const;
     void setMode(Mode m);
     void reset();
     QSqlError  lastError() ;

@@ -97,7 +97,6 @@ void QWMMain::on_trvCatalogs_clicked(const QModelIndex &index)
     case QWMApplication::QUICK_QUERY:
         break;
     }
-    QWMSortFilterProxyModel * model=static_cast<QWMSortFilterProxyModel*>(ui->tbvWells->model());
 
 }
 
@@ -122,10 +121,9 @@ void QWMMain::on_actionFavorite_triggered()
     return;
 }
 
-void QWMMain::resizeEvent(QResizeEvent *event)
+void QWMMain::resizeEvent(QResizeEvent */*event*/)
 {
     //列宽随窗口大小改变而改变，每列平均分配，充满整个表，但是此时列宽不能拖动进行改变
-    QWMSortFilterProxyModel * model=static_cast<QWMSortFilterProxyModel *>( ui->tbvWells->model());
     ui->tbvWells->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
@@ -365,7 +363,7 @@ bool QWMMain::eventFilter(QObject *watched, QEvent *event)
     }
 }
 
-void QWMMain::on_tbvWells_entered(const QModelIndex &index)
+void QWMMain::on_tbvWells_entered(const QModelIndex &/*index*/)
 {
     //设置列宽可拖动
     ui->tbvWells->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
@@ -454,15 +452,15 @@ void QWMMain::on_actionEdit_triggered()
 void QWMMain::on_actionNew_triggered()
 {
 
-    QItemSelectionModel * selection=ui->tbvWells->selectionModel();
+//    QItemSelectionModel * selection=ui->tbvWells->selectionModel();
 
-    int role=ui->trvCatalogs->currentIndex().data(CAT_ROLE).toInt();
+//    int role=ui->trvCatalogs->currentIndex().data(CAT_ROLE).toInt();
     switch(ui->trvCatalogs->currentIndex().data(CAT_ROLE).toInt()){
 
     case QWMApplication::ALL:
         QWMSortFilterProxyModel * model=static_cast<QWMSortFilterProxyModel*>(ui->tbvWells->model());
-        PA(proxyModel,ui->tbvWells->model());
-        SA(tableModel,ui->tbvWells->model());
+//        PA(proxyModel,ui->tbvWells->model());
+//        SA(tableModel,ui->tbvWells->model());
         QSqlRecord record=model->record();
         WELL->initRecord(record);
         bool success=model->insertRecordDirect(0,record);
@@ -486,7 +484,7 @@ void QWMMain::on_actionNew_triggered()
 
 }
 
-void QWMMain::init_record_on_prime_insert(int row, QSqlRecord &record){
+void QWMMain::init_record_on_prime_insert(int /*row*/, QSqlRecord &/*record*/){
     //    QUuid uuid=QUuid::createUuid();
     //    QString idwell=UUIDToString(uuid);
     //    QString id=record.value("IDWell").toString();
@@ -496,13 +494,12 @@ void QWMMain::init_record_on_prime_insert(int row, QSqlRecord &record){
 
 void QWMMain::on_actionDelete_triggered()
 {
-    int role=ui->trvCatalogs->currentIndex().data(CAT_ROLE).toInt();
     switch(ui->trvCatalogs->currentIndex().data(CAT_ROLE).toInt()){
 
     case QWMApplication::ALL:
     case QWMApplication::RECENT:
     case QWMApplication::FAVORITE:
-        PA(proxyModel,ui->tbvWells->model());
+//        PA(proxyModel,ui->tbvWells->model());
         SA(sourceModel,ui->tbvWells->model());
         QItemSelectionModel* selection=ui->tbvWells->selectionModel();
         foreach(QModelIndex index,selection->selectedRows())
@@ -524,4 +521,9 @@ void QWMMain::on_actionAbout_triggered()
     QWMAbout * aboutBox=new QWMAbout(this);
     aboutBox->setModal(true);
     aboutBox->showNormal();
+}
+
+void QWMMain::on_actionRefresh_triggered()
+{
+    APP->refresh();
 }

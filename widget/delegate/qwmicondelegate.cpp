@@ -19,7 +19,7 @@ QWMIconDelegate::~QWMIconDelegate()
     qDebug()<<"delegate destructor";
 }
 
-QWidget *QWMIconDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+QWidget *QWMIconDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &/*option*/, const QModelIndex &index) const
 {
     QString key=QWMIconSelector::staticMetaObject.className();
     EC(key,QWMIconSelector,editor);
@@ -29,7 +29,6 @@ QWidget *QWMIconDelegate::createEditor(QWidget *parent, const QStyleOptionViewIt
     }
     connect(editor,&QWMIconSelector::rejected,this,&QWMIconDelegate::closeEditorAndRevert);
     connect(editor,&QWMIconSelector::accepted,this,&QWMIconDelegate::commitAndCloseEditor);
-    QWMRotatableProxyModel  *  model=(QWMRotatableProxyModel*)index.model();
     {EDITOR_TITLE};
     return editor;
 }

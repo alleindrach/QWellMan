@@ -26,8 +26,8 @@ public:
     virtual QSize sizeHint() override;
     virtual Type type() override;
     virtual void init() override;;
-    virtual QVariant value();
-    virtual void  setValue(QVariant v);
+    virtual QVariant value()  override;
+    virtual void  setValue(QVariant v) override;
 private:
     Ui::QWMRecordSingleStepSelector *ui;
     QString _selectedValue;
