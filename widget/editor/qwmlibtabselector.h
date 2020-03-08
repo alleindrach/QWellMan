@@ -31,6 +31,9 @@ public:
     inline void setEditable(bool v){
         _editable=v;
     }
+    inline QWMLibSelector *selector(){
+        return currentWidget();
+    }
     void setLookupFld(QString fld);
 private:
     void  setText(QString text);

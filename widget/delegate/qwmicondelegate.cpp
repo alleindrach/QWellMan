@@ -27,9 +27,7 @@ QWidget *QWMIconDelegate::createEditor(QWidget *parent, const QStyleOptionViewIt
         editor= new QWMIconSelector( APP->mainWindow());
         EI(key,editor);
     }
-    connect(editor,&QWMIconSelector::rejected,this,&QWMIconDelegate::closeEditorAndRevert);
-    connect(editor,&QWMIconSelector::accepted,this,&QWMIconDelegate::commitAndCloseEditor);
-    {EDITOR_TITLE};
+    {SET_EDITOR(QWMIconSelector,QWMIconDelegate)};
     return editor;
 }
 

@@ -118,6 +118,7 @@ void QWMAbstractDelegate::destroyEditor(QWidget *editor, const QModelIndex &inde
         if(!selector->key().isNull()&&!selector->key().isEmpty()){
             if(APP->editorCached(selector->key()))
             {
+//                {DISABLE_EDITOR;}
                 return ;
             }
         }

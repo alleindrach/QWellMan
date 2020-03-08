@@ -298,18 +298,17 @@ void QWMMain::init()
 
 void QWMMain::initEditors()
 {
-    QWMDateTimeEditor *editor = new QWMDateTimeEditor(this);
     QString key=QWMDateTimeEditor::staticMetaObject.className();
-    APP->cachEditor(key,editor);
-    editor->setKey(key);
+    QWMDateTimeEditor *timeSelector = new QWMDateTimeEditor();
+    EI(key,timeSelector);
+
     key=QWMIconSelector::staticMetaObject.className();
-    QWMIconSelector *icoSelector = new QWMIconSelector( this);
-    editor->setKey(key);
-    APP->cachEditor(key,icoSelector);
+    QWMIconSelector *icoSelector = new QWMIconSelector( );
+    EI(key,icoSelector);
+
     key=QString("%1.wvCasComp.libCasComp").arg(QWMLibTabSelector::staticMetaObject.className());
-    QWMLibTabSelector * lts=new QWMLibTabSelector("wvCasComp","libCasComp",this);
-    APP->cachEditor(key,lts);
-    lts->setKey(key);
+    QWMLibTabSelector * lts=new QWMLibTabSelector("wvCasComp","libCasComp");
+    EI(key,lts);
 
 }
 
@@ -452,15 +451,15 @@ void QWMMain::on_actionEdit_triggered()
 void QWMMain::on_actionNew_triggered()
 {
 
-//    QItemSelectionModel * selection=ui->tbvWells->selectionModel();
+    //    QItemSelectionModel * selection=ui->tbvWells->selectionModel();
 
-//    int role=ui->trvCatalogs->currentIndex().data(CAT_ROLE).toInt();
+    //    int role=ui->trvCatalogs->currentIndex().data(CAT_ROLE).toInt();
     switch(ui->trvCatalogs->currentIndex().data(CAT_ROLE).toInt()){
 
     case QWMApplication::ALL:
         QWMSortFilterProxyModel * model=static_cast<QWMSortFilterProxyModel*>(ui->tbvWells->model());
-//        PA(proxyModel,ui->tbvWells->model());
-//        SA(tableModel,ui->tbvWells->model());
+        //        PA(proxyModel,ui->tbvWells->model());
+        //        SA(tableModel,ui->tbvWells->model());
         QSqlRecord record=model->record();
         WELL->initRecord(record);
         bool success=model->insertRecordDirect(0,record);
@@ -499,7 +498,7 @@ void QWMMain::on_actionDelete_triggered()
     case QWMApplication::ALL:
     case QWMApplication::RECENT:
     case QWMApplication::FAVORITE:
-//        PA(proxyModel,ui->tbvWells->model());
+        //        PA(proxyModel,ui->tbvWells->model());
         SA(sourceModel,ui->tbvWells->model());
         QItemSelectionModel* selection=ui->tbvWells->selectionModel();
         foreach(QModelIndex index,selection->selectedRows())

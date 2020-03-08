@@ -46,7 +46,7 @@ QWidget *QWMDateDelegate::createEditor(QWidget *parent,
         editor->setModal(true);
         connect(editor,&QWMDateTimeEditor::rejected,this,&QWMDateDelegate::closeEditorAndRevert);
         connect(editor,&QWMDateTimeEditor::accepted,this,&QWMDateDelegate::commitAndCloseEditor);
-        {EDITOR_TITLE};
+        {SET_EDITOR(QWMDateTimeEditor,QWMDateDelegate)};
         return editor;
     }
         break;

@@ -86,53 +86,20 @@ void QWMDataTableView::bindDelegate()
         fieldInfo=UDL->fieldInfo(tableName,fieldName);
 
         if(fieldInfo!=nullptr){
-            if( fieldInfo->PhysicalType()==MDLDao::DateTime )
-            {
-                if(fieldInfo->LookupTyp()==MDLDao::DateAndTime){
-                    (this->*func)(i,new QWMDateDelegate(QWMDateDelegate::DATETIME,"yyyy-MM-dd HH:mm:ss",this));
-                }else if(fieldInfo->LookupTyp()==MDLDao::Date){
-                    (this->*func)(i,new QWMDateDelegate(QWMDateDelegate::DATE,"yyyy-MM-dd",this));
-                }else if(fieldInfo->LookupTyp()==MDLDao::Date){
-                    (this->*func)(i,new QWMDateDelegate(QWMDateDelegate::TIME,"HH:mm:ss",this));
-                }
+            if( fieldInfo->PhysicalType()==MDLDao::DateTime ){
+                (this->*func)(i,_reflookupDelegate);
             }else if( fieldInfo->LookupTyp()==MDLDao::LibEdit){
                 (this->*func)(i,_reflookupDelegate);
-            }
-            else if(fieldInfo->LookupTyp()==MDLDao::LibOnly){
+            }else if(fieldInfo->LookupTyp()==MDLDao::LibOnly){
                 (this->*func)(i,_reflookupDelegate);
-            }
-            else if(fieldInfo->LookupTyp()==MDLDao::DBDistinctValues){
-                (this->*func)(i,new QWMDistinctValueDelegate(tableName,fieldName,this));
-            }
-            else if(fieldInfo->LookupTyp()==MDLDao::Icon){
-                (this->*func)(i,new QWMIconDelegate(this));
+            }else if(fieldInfo->LookupTyp()==MDLDao::DBDistinctValues){
+                (this->*func)(i,_reflookupDelegate);
+            }else if(fieldInfo->LookupTyp()==MDLDao::Icon){
+                (this->*func)(i,_reflookupDelegate);
             }else if(fieldInfo->LookupTyp()==MDLDao::List){
-                QList<MDLFieldLookup *> fls=MDL->fieldLookupinfo(fieldInfo->KeyTbl(),fieldInfo->KeyFld());
-                QList<QPair<QString,QVariant>> options{{tr("<空白>"),""}};
-                foreach(MDLFieldLookup * l,fls){
-                    if(!l->TableKey())
-                    {
-                        QPair<QString,QVariant> p(l->LookupItem(),l->LookupItem());
-                        options<<p;
-                    }
-                }
-                (this->*func)(i,new QWMComboBoxDelegate(options,true,this));
+               (this->*func)(i,_reflookupDelegate);
             }else if(fieldInfo->LookupTyp()==MDLDao::TabList){
-                QList<MDLFieldLookup *> fls=MDL->fieldLookupinfo(fieldInfo->KeyTbl(),fieldInfo->KeyFld());
-                QList<QPair<QString,QVariant>> options{{tr("<空白>"),""}};
-                foreach(MDLFieldLookup * l,fls){
-                    if(!l->TableKey())
-                    {
-                        QPair<QString,QVariant> p(l->LookupItem(),l->LookupItem());
-                        options<<p;
-                    }else {
-                        QString tableName=l->LookupItem();
-                        QString caption=UDL->tableInfo(tableName)->CaptionLongP();
-                        QPair<QString,QVariant> p(caption,tableName);
-                        options<<p;
-                    }
-                }
-                (this->*func)(i,new QWMComboBoxDelegate(options,true,this));
+               (this->*func)(i,_reflookupDelegate);
             }else if (fieldInfo->LookupTyp()==MDLDao::Foreign){
                     (this->*func)(i,_reflookupDelegate);
             }

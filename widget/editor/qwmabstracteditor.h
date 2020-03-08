@@ -12,7 +12,7 @@ class QWMAbstractEditor : public QDialog
 {
     Q_OBJECT
 public:
-    enum Type{Simple,Tab,BiTab,Tree,BiTree,Icon,DateTime};
+    enum Type{Simple,Tab,BiTab,Tree,BiTree,Icon,DateTime,Values};
     template<typename Base, typename T>
     inline bool instanceof(const T *ptr) {
         return dynamic_cast<const Base*>(ptr) != nullptr;

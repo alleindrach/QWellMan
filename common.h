@@ -191,13 +191,35 @@ if(x!=nullptr && x->metaObject()->className()==tp::staticMetaObject.className())
 #define KEY_MATCHED(event ,seq)\
     (((QKeyEvent*) event)->matches(seq))
 
-#define EDITOR_TITLE \
+#define SET_EDITOR(T,D) \
+    disconnect(editor,0,0,0); \
+    connect(editor,&T::rejected,this,&D::closeEditorAndRevert); \
+    connect(editor,&T::accepted,this,&D::commitAndCloseEditor); \
     editor->setParent(parent);\
     editor->setModal(true);\
     editor->setWindowFlag(Qt::Dialog);\
     QWMRotatableProxyModel  *  model=(QWMRotatableProxyModel*)index.model();\
     QString title=  model->fieldTitle(index);\
-    editor->setWindowTitle(title);
+    editor->setWindowTitle(title);\
+    editor->setObjectName("WMEditor");\
+    editor->setProperty("TYPE",T::staticMetaObject.className());
+
+#define DISABLE_EDITOR \
+     disconnect(editor,0,0,0);
+
+#define SET_PRIMARY_EDITOR(T) \
+    editor->setObjectName("WMEditor");\
+    editor->setProperty("TYPE",T::staticMetaObject.className());
+
+#define IS_EDITOR(W) \
+(W->objectName().startsWith("WMEditor"))
+
+#define IS_EDITOR_OF(W,T) \
+ (W->property("TYPE").toString().compare(T::staticMetaObject.className())==0)
+
+
+#define EDITOR_TYPE(W,V) \
+    QString V=editor->property("TYPE").toString();
 
 #define IS_SPEC_REF_FIELD(fieldInfo)\
     (fieldInfo->KeyFld().compare(CFG(ParentID),Qt::CaseInsensitive)==0)
