@@ -19,7 +19,7 @@ QWMAbstractDelegate::~QWMAbstractDelegate()
 
 void QWMAbstractDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    if(!IS_PRIMARY_EDITOR(editor)){
+    if(IS_EDITOR(editor)&&!IS_PRIMARY_EDITOR(editor)){
         QWMAbstractEditor  * absEditor=qobject_cast<QWMAbstractEditor*>(editor);
         //    QWidget * view=DOC->dataView();//editor->parentWidget();//
         QWidget * view=editor->parentWidget();//

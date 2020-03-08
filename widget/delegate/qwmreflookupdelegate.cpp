@@ -32,17 +32,19 @@ QWMRefLookupDelegate::QWMRefLookupDelegate(QObject *parent):
 }
 
 void QWMRefLookupDelegate::destroyEditor(QWidget *editor, const QModelIndex &index) const {
-    if(instanceof<QWMAbstractEditor>(editor)){
+    if(IS_EDITOR(editor)&&!IS_PRIMARY_EDITOR(editor)){
         QWMAbstractEditor * selector=dynamic_cast<QWMAbstractEditor*>(editor);
-        if(APP->editorCached(selector->key()))
-        {
-            return ;
+        if(!selector->key().isNull()&&!selector->key().isEmpty()){
+            if(APP->editorCached(selector->key()))
+            {
+                return ;
+            }
         }
     }
     QAbstractItemDelegate::destroyEditor(editor,index);
 }
 QWidget *QWMRefLookupDelegate::createEditor(QWidget *parent,
-                                            const QStyleOptionViewItem &/*option*/,
+                                            const QStyleOptionViewItem &option,
                                             const QModelIndex &index) const{
 
     QWMRotatableProxyModel * model=(QWMRotatableProxyModel *)index.model();
@@ -204,7 +206,7 @@ QWidget *QWMRefLookupDelegate::createEditor(QWidget *parent,
         {SET_PRIMARY_EDITOR(QComboBox);}
         return editor;
     }
-    return nullptr;
+    return QStyledItemDelegate::createEditor(parent,option,index);
 }
 
 bool QWMRefLookupDelegate::eventFilter(QObject *watched, QEvent *event) {
@@ -331,7 +333,15 @@ void QWMRefLookupDelegate::setEditorData(QWidget *editor,
         }
     }else
     {
-        return QStyledItemDelegate::setEditorData(editor,index);
+        QVariant v = index.data(DATA_ROLE);
+        QByteArray n = editor->metaObject()->userProperty().name();
+
+        if (!n.isEmpty()) {
+            if (!v.isValid())
+                v = QVariant(editor->property(n).userType(), (const void *)0);
+            editor->setProperty(n, v);
+        }
+        //        return QStyledItemDelegate::setEditorData(editor,index);
     }
 }
 

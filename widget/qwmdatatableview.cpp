@@ -26,8 +26,8 @@
 
 QWMDataTableView::QWMDataTableView(QWidget *parent):QTableView(parent)
 {
-    _itemDelegate=new QWMStyledItemDelegate(this);
-    _reflookupDelegate=new QWMRefLookupDelegate(this);
+    _itemDelegate=new QWMRefLookupDelegate(this);
+//    _reflookupDelegate=new QWMRefLookupDelegate(this);
     QWMHeaderView *vertical = new QWMHeaderView(Qt::Vertical, this);
     vertical->setSectionsClickable(true);
     vertical->setHighlightSections(true);
@@ -61,50 +61,43 @@ void QWMDataTableView::setVerticalHeader(QHeaderView *header)
 
 void QWMDataTableView::bindDelegate()
 {
-    typedef  void (QAbstractItemView::* DelegateSettor)(int, QAbstractItemDelegate *) ;
-    QWMRotatableProxyModel * model=static_cast<QWMRotatableProxyModel*>(this->model());
-    SX(sourcemodel,this->model());
-    DelegateSettor  func;
-    int counter=0;
+//    typedef  void (QAbstractItemView::* DelegateSettor)(int, QAbstractItemDelegate *) ;
+//    QWMRotatableProxyModel * model=static_cast<QWMRotatableProxyModel*>(this->model());
+//    SX(sourcemodel,this->model());
+//    DelegateSettor  func;
+//    int counter=0;
     CLEAR_DELEGATES(this);
-    if(model->mode()==QWMRotatableProxyModel::H){
-        func =& QWMDataTableView::setItemDelegateForColumn;
-        counter=model->columnCount();
-        //        connect(this->horizontalHeader(),&QHeaderView::sectionDoubleClicked,this,&QWMDataTableView::on_header_clicked);
-    }else{
-        func = & QWMDataTableView::setItemDelegateForRow;
-        counter=model->rowCount();
-        //        connect(this->verticalHeader(),&QHeaderView::sectionDoubleClicked,this,&QWMDataTableView::on_header_clicked);
-    }
-    for(int i=0;i< counter;i++)
-    {
-        MDLField * fieldInfo;
-        QString fieldName=model->fieldName(
-                    model->mode()==QWMRotatableProxyModel::H?model->index(0,i): model->index(i,0)
-                                                             );
-        QString tableName=sourcemodel->tableName();
-        fieldInfo=UDL->fieldInfo(tableName,fieldName);
+//    if(model->mode()==QWMRotatableProxyModel::H){
+//        func =& QWMDataTableView::setItemDelegateForColumn;
+//        counter=model->columnCount();
+//        //        connect(this->horizontalHeader(),&QHeaderView::sectionDoubleClicked,this,&QWMDataTableView::on_header_clicked);
+//    }else{
+//        func = & QWMDataTableView::setItemDelegateForRow;
+//        counter=model->rowCount();
+//        //        connect(this->verticalHeader(),&QHeaderView::sectionDoubleClicked,this,&QWMDataTableView::on_header_clicked);
+//    }
+//    for(int i=0;i< counter;i++)
+//    {
+//        MDLField * fieldInfo;
+//        QString fieldName=model->fieldName(
+//                    model->mode()==QWMRotatableProxyModel::H?model->index(0,i): model->index(i,0)
+//                                                             );
+//        QString tableName=sourcemodel->tableName();
+//        fieldInfo=UDL->fieldInfo(tableName,fieldName);
 
-        if(fieldInfo!=nullptr){
-            if( fieldInfo->PhysicalType()==MDLDao::DateTime ){
-                (this->*func)(i,_reflookupDelegate);
-            }else if( fieldInfo->LookupTyp()==MDLDao::LibEdit){
-                (this->*func)(i,_reflookupDelegate);
-            }else if(fieldInfo->LookupTyp()==MDLDao::LibOnly){
-                (this->*func)(i,_reflookupDelegate);
-            }else if(fieldInfo->LookupTyp()==MDLDao::DBDistinctValues){
-                (this->*func)(i,_reflookupDelegate);
-            }else if(fieldInfo->LookupTyp()==MDLDao::Icon){
-                (this->*func)(i,_reflookupDelegate);
-            }else if(fieldInfo->LookupTyp()==MDLDao::List){
-               (this->*func)(i,_reflookupDelegate);
-            }else if(fieldInfo->LookupTyp()==MDLDao::TabList){
-               (this->*func)(i,_reflookupDelegate);
-            }else if (fieldInfo->LookupTyp()==MDLDao::Foreign){
-                    (this->*func)(i,_reflookupDelegate);
-            }
-        }
-    }
+//        if(fieldInfo!=nullptr){
+//            if( fieldInfo->PhysicalType()==MDLDao::DateTime ||
+//                    fieldInfo->LookupTyp()==MDLDao::LibEdit||
+//                    fieldInfo->LookupTyp()==MDLDao::LibOnly||
+//                    fieldInfo->LookupTyp()==MDLDao::DBDistinctValues||
+//                    fieldInfo->LookupTyp()==MDLDao::Icon||
+//                    fieldInfo->LookupTyp()==MDLDao::List||
+//                    fieldInfo->LookupTyp()==MDLDao::TabList||
+//                    fieldInfo->LookupTyp()==MDLDao::Foreign){
+//                    (this->*func)(i,_reflookupDelegate);
+//            }
+//        }
+//    }
 }
 
 void QWMDataTableView::setModel(QAbstractItemModel *model)
