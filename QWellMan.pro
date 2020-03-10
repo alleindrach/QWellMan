@@ -16,8 +16,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    aux/qwmcalculator.cpp \
     aux/qwmuserdata.cpp \
     aux/utility.cpp \
+    dao/edldao.cpp \
     dao/libdao.cpp \
     dao/mdldao.cpp \
     dao/udldao.cpp \
@@ -60,9 +62,11 @@ SOURCES += \
     widget/qwmheaderview.cpp
 
 HEADERS += \
+    aux/qwmcalculator.h \
     aux/qwmuserdata.h \
     aux/utility.h \
     common.h \
+    dao/edldao.h \
     dao/libdao.h \
     dao/mdldao.h \
     dao/udldao.h \

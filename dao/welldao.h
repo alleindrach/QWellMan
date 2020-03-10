@@ -38,7 +38,12 @@ public:
     QSqlQuery records(QString table,QString idWell,QString parentID);
     QSqlRecord aRecord(QString table);
     bool hasRecord(QString table,QString idrec);
+
+    QString PBTDAll(QString idWell);
+    QString TDAll(QString idWell);
+    double TD(QString idWell);
     static void resetCache();
+
 signals:
 private:
     QSqlDatabase  _db;

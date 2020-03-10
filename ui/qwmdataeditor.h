@@ -21,7 +21,7 @@ class QWMDataEditor : public QMainWindow
 public:
     explicit QWMDataEditor(QString idWell,QString name,QWidget *parent = nullptr);
     ~QWMDataEditor();
-
+    void init();
     void addUndoCommand(QUndoCommand * command);
     QUndoStack& undoStack();
     void loadDataTree();
@@ -60,13 +60,14 @@ private Q_SLOTS:
     void on_current_record_changed(const QModelIndex &current, const QModelIndex &previous);
     void on_actionNew_triggered();
     void on_actionDelete_triggered();
-    void init_record_on_prime_insert(int row, QSqlRecord &record);
     void on_data_record_changed(int , int );
     void on_actionSave_triggered();
     void on_actionExit_triggered();
     void on_actionSaveAll_triggered();
     void on_actionSort_triggered(bool checked);
-    void before_update_record(int row, QSqlRecord &record);
+
+//    void init_record_on_prime_insert(int row, QSqlRecord &record);
+//    void before_update_record(int row, QSqlRecord &record);
 
 private:
     Ui::QWMDataEditor *ui;

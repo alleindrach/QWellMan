@@ -39,6 +39,9 @@ DECL_SQL(select_distinct_value,"select  distinct %2 as fv from %1  w  where fv i
                                " order by fv ")
 DECL_SQL(select_a_record ,"select * from %1 limit 1")
 DECL_SQL(select_record_count_even_deleted,"select count(*) as c from %1 w where w.%2=:id COLLATE NOCASE")
+DECL_SQL(select_pbtd_all,"select  depth, b.des,max(dttm) from wvWellborePBTD  p,wvWellbore b where b.idrec=p.idrecparent and b.idwell=:idwell ")
+DECL_SQL(select_td_all,"select b.des,max(DepthBtmActual)  depth from wvWellboreSize s,wvWellbore  b"
+        " where b.idwell=:idwell and b.IDRec=s.IDRecParent")
 
 END_SQL_DECLARATION
 
@@ -91,6 +94,7 @@ QWMTableModel *WellDao::table(QString tablename,QString idWell)
         QString e=model->lastError().text();
         qDebug()<<e;
     }
+    model->connectSignals();
     CI(key,model);
 }
 //获取table，并设置过滤，
@@ -570,4 +574,49 @@ void WellDao::resetCache()
 {
     _cache.clear();
 }
+
+QString WellDao::PBTDAll(QString idWell)
+{
+    QSqlQuery q(APP->well());
+    q.prepare(SQL(select_pbtd_all));
+    q.bindValue(":idwell",idWell);
+    q.exec();
+    PRINT_ERROR(q);
+    QString result;
+
+    if(q.next()){
+        result=QString("%1-%2").arg(q.value("des").toString()).arg(q.value("depth").toString());
+    }
+    return result;
+}
+
+QString WellDao::TDAll(QString idWell)
+{
+    QSqlQuery q(APP->well());
+    q.prepare(SQL(select_td_all));
+    q.bindValue(":idwell",idWell);
+    q.exec();
+    PRINT_ERROR(q);
+    QString result;
+
+    if(q.next()){
+        result=QString("%1-%2").arg(q.value("des").toString()).arg(q.value("depth").toString());
+    }
+    return result;
+}
+double WellDao::TD(QString idWell)
+{
+    QSqlQuery q(APP->well());
+    q.prepare(SQL(select_td_all));
+    q.bindValue(":idwell",idWell);
+    q.exec();
+    PRINT_ERROR(q);
+    double result;
+
+    if(q.next()){
+        result=q.value("depth").toDouble();
+    }
+    return result;
+}
+
 

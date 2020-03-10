@@ -9,6 +9,7 @@
 #include "QMetaType"
 #include "QMetaObject"
 #include "QMetaProperty"
+#include <QDebug>
 #include "QGenericArgument"
 class MDLTable;
 class Record : public QObject
@@ -31,7 +32,34 @@ public:
         auto o = metaObject->newInstance(Q_ARG(QObject *, parent));
 
         for(int i = o->metaObject()->propertyOffset(); i < o->metaObject()->propertyCount(); i++)
-            o->setProperty(o->metaObject()->property(i).name(), record.value(record.indexOf(o->metaObject()->property(i).name()))) ;
+        {
+
+            QString name=QString(o->metaObject()->property(i).name());
+            QVariant v=record.value(record.indexOf(o->metaObject()->property(i).name()));
+            bool success=o->setProperty(name.toStdString().c_str(),v);
+            if(!success){
+                qDebug()<<" set Property Error:"<<name<<",v="<<v;
+            }
+//            QVariant::Type type=o->metaObject()->property(i).type();
+//            if(name.compare("Calculated")==0
+//                    ){
+//                if(v.isNull()||!v.isValid()){
+//                    //                   if(type==QVariant::Int||type==QVariant::UInt||type==QVariant::LongLong||type==QVariant::ULongLong||type==QVariant::Double||type==QMetaType::Float){
+//                    //                       v=0;
+//                    //                   }
+//                    if(type==QVariant::Bool){
+//                        v=false;
+//                    }else if(type==QVariant::Int||type==QVariant::UInt||type==QVariant::LongLong||type==QVariant::ULongLong||type==QVariant::Double||type==QMetaType::Float){
+//                        v=0;
+//                    }
+//                }else{
+//                    v=v.toBool();
+//                }
+//                bool success=o->setProperty(name.toStdString().c_str(),v) ;
+//                bool result=o->property(name.toStdString().c_str()).toBool();
+//                qDebug()<<"name:"<<name<<"="<< v<<","<<success<<",va="<<result;
+//            }
+        }
         return static_cast<T*>(o);
     }
 
@@ -48,9 +76,9 @@ public:
 
 signals:
 private :
-//    static int typeId;
-//    static int ptypeId;
-//    static int pltypeid;
+    //    static int typeId;
+    //    static int ptypeId;
+    //    static int pltypeid;
 };
 DECLARE(Record)
 #endif // RECORD_H

@@ -12,10 +12,12 @@
 
 #define MDLDB_PATH_SETTING_ENTRY "mdl_path"
 #define LIBDB_PATH_SETTING_ENTRY "lib_path"
+#define EDLDB_PATH_SETTING_ENTRY "lib_path"
 #define UDLDB_PATH_SETTING_ENTRY "udl_path"
 #define WELLDB_PATH_SETTING_ENTRY "well_path"
 #define MDLDB_CONNECTION_NAME "mdl"
 #define LIBDB_CONNECTION_NAME "lib"
+#define EDLDB_CONNECTION_NAME "lib"
 #define UDLDB_CONNECTION_NAME "udl"
 #define WELLDB_CONNECTION_NAME "well"
 #define UNIT_SETTING_ENTRY "unit_setting"
@@ -247,5 +249,11 @@ if(x!=nullptr && x->metaObject()->className()==tp::staticMetaObject.className())
 #define EI(key,editor) \
     editor->setKey(key); \
     APP->cachEditor(key,editor)
+#define DPRING_RECORD(record,tag)\
+    qDebug()<<"******** record start ********"<<tag;\
+    for(int i=0;i<record.count();i++){\
+        qDebug()<<"**"<<"\t"<<record.fieldName(i)<<","<<record.isGenerated(i)<<"="<<record.value(i);\
+    }\
+     qDebug()<<"******** record end ********"<<tag;
 
 #endif // COMMON_H

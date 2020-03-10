@@ -54,6 +54,7 @@ void QWMMain::loadAllWells()
     ui->tbvWells->setModel(model);
     SA(tableModel,model);
     tableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    connect(tableModel,&QWMTableModel::beforeInsert,this,&QWMMain::before_insert);
     showWellGrid(static_cast<QWMSortFilterProxyModel*>(model));
 }
 
@@ -291,9 +292,11 @@ void QWMMain::init()
         this->loadAllWells();
         ui->tbvWells->installEventFilter(this);
     }
+
     initEditors();
     _splash->hide();
     this->showMaximized();
+
 }
 
 void QWMMain::initEditors()
@@ -327,6 +330,7 @@ void QWMMain::editWell(QString idWell)
 
     QWMDataEditor * editor=new QWMDataEditor(idwell,wellName,this);
     this->_currentEditor=editor;
+    _currentEditor->init();
     editor->showMaximized();
     this->hide();
     WELL->addRecentWell(idwell);
@@ -462,11 +466,14 @@ void QWMMain::on_actionNew_triggered()
         //        SA(tableModel,ui->tbvWells->model());
         QSqlRecord record=model->record();
         WELL->initRecord(record);
+        DPRING_RECORD(record,"A");
         bool success=model->insertRecordDirect(0,record);
         if(!success)
             QMessageBox::information(this,"插入井数据错误",model->lastError().text());
 
         QString idWell=record.value(CFG(IDWell)).toString();
+
+        DPRING_RECORD(record,"B");
         success=model->submitAll();
         if(!success)
             QMessageBox::information(this,"保存井数据错误",model->lastError().text());
@@ -474,7 +481,7 @@ void QWMMain::on_actionNew_triggered()
         if(model->lastError().isValid()){
             qDebug()<<" Submit all:"<<model->lastError().text();
         }
-
+        DPRING_RECORD(record,"C");
         if(!idWell.isNull()&&!idWell.isEmpty()){
             editWell(idWell);
         }
@@ -525,4 +532,7 @@ void QWMMain::on_actionAbout_triggered()
 void QWMMain::on_actionRefresh_triggered()
 {
     APP->refresh();
+}
+void QWMMain::before_insert(QSqlRecord &record){
+    DPRING_RECORD(record,"X");
 }

@@ -36,12 +36,13 @@ QModelIndex QWMSortFilterProxyModel::mapToSource(const QModelIndex &proxyIndex) 
     if(realCol<0)
         return QModelIndex();
     //2     对应的原始字段
-    QString sourceColName= model->fieldInPosByOrder(realCol);
+    QString sourceColName= model->fieldInVisibleOrder(realCol);
     if(sourceColName.isNull()||sourceColName.isEmpty()){
         return QModelIndex();
     }
     // 3    对应的原始列号
     //    计算字段没有field对应，这里sourceColPos就可能等于-1
+    int cols=this->columnCount();
     int sourceColPos=model->fieldIndexEx(sourceColName);
 
     //    QModelIndex index=this->index(proxyIndex.row(),sourceColPos);
@@ -66,7 +67,7 @@ QModelIndex QWMSortFilterProxyModel::mapFromSource(const QModelIndex &sourceInde
     //    1   取原始列名
     QString sourceColName= model->fieldNameEx(sourceIndex.column());
     //    2 取显示的列号
-    int visiblePos=model->fieldPosByOrder(sourceColName);
+    int visiblePos=model->fieldVisibleOrder(sourceColName);
     if(visiblePos<0)
         return QModelIndex();
     //    3   取加上分栏列 后的列号
@@ -92,7 +93,7 @@ int QWMSortFilterProxyModel::mapColumnToSource(const int  col) const
     if(realCol<0)
         return -1;
     //2     对应的原始字段
-    QString sourceColName= model->fieldInPosByOrder(realCol);
+    QString sourceColName= model->fieldInVisibleOrder(realCol);
     if(sourceColName.isNull()||sourceColName.isEmpty()){
         return -1;
     }

@@ -39,7 +39,15 @@ QWMDataEditor::QWMDataEditor(QString idWell,QString name,QWidget *parent) :
     ui(new Ui::QWMDataEditor)
 {
     ui->setupUi(this);
+}
 
+QWMDataEditor::~QWMDataEditor()
+{
+    delete ui;
+}
+
+void QWMDataEditor::init()
+{
     _tbvData = new QWMDataTableView(ui->splitter);
     _tbvData->setObjectName(QString::fromUtf8("tbvData"));
     ui->splitter->addWidget(_tbvData);
@@ -82,11 +90,6 @@ QWMDataEditor::QWMDataEditor(QString idWell,QString name,QWidget *parent) :
     connect(ui->actionUndo,&QAction::triggered,this,&QWMDataEditor::undo);
     connect(_tbvData,&QWMDataTableView::RecordCountChanged,this,&QWMDataEditor::on_data_record_changed);
     CHECK_UNDO_STATE
-}
-
-QWMDataEditor::~QWMDataEditor()
-{
-    delete ui;
 }
 
 void QWMDataEditor::undo()
@@ -271,7 +274,9 @@ bool QWMDataEditor::isDirty()
 bool QWMDataEditor::isCurrentTableDirty()
 {
     QWMRotatableProxyModel * model=(QWMRotatableProxyModel*)_tbvData->model();
-    return  model->isDirty();
+    if(model!=nullptr)
+        return  model->isDirty();
+    return false;
 }
 void QWMDataEditor::on_actionSaveExit_triggered()
 {
@@ -415,12 +420,13 @@ void QWMDataEditor::editTable(const QModelIndex &tableNodeIndex)
             QItemSelectionModel * selection=_tbvData->selectionModel();
             selection->setCurrentIndex(_tbvData->model()->index(pos.x(),pos.y()),QItemSelectionModel::SelectCurrent);
         }
-        if(!sourceModel->isSignalConnected(QMetaMethod::fromSignal(&QWMTableModel::primeInsert))){
-            connect(sourceModel,&QWMTableModel::primeInsert,this,&QWMDataEditor::init_record_on_prime_insert);
-        }
-        if(!sourceModel->isSignalConnected(QMetaMethod::fromSignal(&QWMTableModel::beforeUpdate))){
-            connect(sourceModel,&QWMTableModel::beforeUpdate,this,&QWMDataEditor::before_update_record);
-        }
+//        if(!sourceModel->isSignalConnected(QMetaMethod::fromSignal(&QWMTableModel::primeInsert))){
+//            connect(sourceModel,&QWMTableModel::primeInsert,this,&QWMDataEditor::init_record_on_prime_insert);
+//        }
+//        if(!sourceModel->isSignalConnected(QMetaMethod::fromSignal(&QWMTableModel::beforeUpdate))){
+//            connect(sourceModel,&QWMTableModel::beforeUpdate,this,&QWMDataEditor::before_update_record);
+//        }
+
 
         if(model->isDirty()){
             ui->actionSave->setEnabled(false);
@@ -448,20 +454,18 @@ QUndoStack& QWMDataEditor::undoStack()
 
 void QWMDataEditor::addRecord(const QModelIndex &index)
 {
-    _parentID=QString();
+    QWMRotatableProxyModel * model=(QWMRotatableProxyModel*)_tbvData->model();
+    SX(sourceModel,model);
+     sourceModel->setParentID(QString());
     if(index.data(CAT_ROLE)==QWMApplication::TABLE){
         QString lastError;
         QString parentID=nodeParentID(index,lastError);
-        _parentID=parentID;
+        sourceModel->setParentID(QString());
         if(parentID.isNull()&& !lastError.isEmpty()){
             QMessageBox::information(this,tr("错误"),lastError);
             return ;
         }
-
         QString tableName=index.data(TABLE_NAME_ROLE).toString();
-        QWMRotatableProxyModel * model=(QWMRotatableProxyModel*)_tbvData->model();
-        SX(sourceModel,model);
-        //        PX(proxyModel,model);
 
         MDLTable * tableInfo=nodeTableInfo(index);
         if(tableInfo->OneToOne()){//1:1的情况，默认选择首行
@@ -602,15 +606,6 @@ void QWMDataEditor::on_actionDelete_triggered()
     }
 }
 
-void QWMDataEditor::init_record_on_prime_insert(int /*row*/, QSqlRecord &record)
-{
-    if(record.indexOf(CFG(ParentID))>=0){
-        record.setValue(record.indexOf(CFG(ParentID)),_parentID);
-    }
-    if(record.indexOf(CFG(IDWell))>=0){
-        record.setValue(record.indexOf((CFG(IDWell))),_idWell);
-    }
-}
 
 void QWMDataEditor::on_data_record_changed(int /*oldCount*/, int newCount)
 {
@@ -675,11 +670,11 @@ void QWMDataEditor::on_actionSort_triggered(bool checked)
     sortableModel->sort(1,checked?Qt::DescendingOrder:Qt::AscendingOrder);
 }
 
-void QWMDataEditor::before_update_record(int /*row*/, QSqlRecord &record)
-{
-     int sysMDIndex=record.indexOf(CFG(SysMD));
-     if(sysMDIndex>=0){
-         record.setValue(sysMDIndex,QDateTime::currentDateTime());
-         record.setGenerated(sysMDIndex,true);
-     }
-}
+//void QWMDataEditor::before_update_record(int /*row*/, QSqlRecord &record)
+//{
+//     int sysMDIndex=record.indexOf(CFG(SysMD));
+//     if(sysMDIndex>=0){
+//         record.setValue(sysMDIndex,QDateTime::currentDateTime());
+//         record.setGenerated(sysMDIndex,true);
+//     }
+//}

@@ -81,6 +81,7 @@ private slots:
 
     void on_actionRefresh_triggered();
 
+    void before_insert(QSqlRecord &record);
 private:
     Ui::QWMMain *ui;
     QStandardItemModel * _catalogModel;

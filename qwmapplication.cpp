@@ -248,6 +248,40 @@ bool QWMApplication::initLIBDB()
     return true;
 }
 
+bool QWMApplication::initEDLDB()
+{
+    QSettings settings;
+    QString error;
+    QString strMdlDbPath=settings.value(EDLDB_PATH_SETTING_ENTRY).toString();
+    if(!QFile::exists(strMdlDbPath)){
+        int select=QMessageBox::information(nullptr,tr("提示"),tr("未找到计算列配置数据库，请选择数据库的位置"),"选择","退出",0);
+        if(select==0){
+            if(selectDB(_mdlDB,_edlUserName,_edlPassword, error,EDLDB_CONNECTION_NAME)){
+                settings.setValue(EDLDB_PATH_SETTING_ENTRY,_mdlDB.databaseName());
+            }else
+            {
+                QMessageBox::warning(nullptr,tr("错误"),tr("计算列配置数据库打开失败")+" "+error,"退出");
+                emit this->shutdown(0);
+                return false;
+            }
+
+        }else
+        {
+            emit this->shutdown(0);
+            return false;
+        }
+    }else{
+        _edlDB=openDB(strMdlDbPath,_edlUserName,_edlPassword,error,EDLDB_CONNECTION_NAME);
+        if(!error.isEmpty()){
+            QMessageBox::warning(nullptr,tr("错误"),tr("计算列配置数据库打开失败")+" "+error,"退出");
+            settings.setValue(EDLDB_PATH_SETTING_ENTRY,"");
+            emit this->shutdown(0);
+            return false;
+        }
+    }
+    return true;
+}
+
 bool QWMApplication::initWellDB()
 {
     QSettings settings;
@@ -300,6 +334,11 @@ QSqlDatabase &QWMApplication::udl()
 QSqlDatabase &QWMApplication::well()
 {
     return _wellDB;
+}
+
+QSqlDatabase &QWMApplication::edl()
+{
+    return _edlDB;
 }
 
 QHash<QString, QString> &QWMApplication::config()
