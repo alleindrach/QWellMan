@@ -52,6 +52,8 @@ public:
     inline QString idWell(){
         return _idWell;
     }
+    void calc(int row);
+    void calcAll();
 signals:
     void rowsChanged();
 public  slots:

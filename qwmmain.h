@@ -37,7 +37,8 @@ public:
     inline QWMAbout * splash(){
         return _splash;
     }
-    void  showSplash();
+    void showSplash();
+    void hideSplash();
     void init();
     void initEditors();
 protected:

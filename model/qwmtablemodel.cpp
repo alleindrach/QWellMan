@@ -7,9 +7,14 @@
 #include "QSqlQuery"
 #include "QSqlError"
 #include "QDebug"
+#include <QScriptEngine>
+#include <QScriptValue>
 #include "QUuid"
 #include "QDateTime"
 #include "utility.h"
+#include "edldao.h"
+#include "qwmcalculator.h"
+#include "QSqlField"
 QWMTableModel::QWMTableModel(QString idWell,QObject *parent,QSqlDatabase db)
     : QSqlTableModel(parent,db),_idWell(idWell)
 {
@@ -67,14 +72,22 @@ void QWMTableModel::setTable(const QString &tableName){
     this->initFields(tableName);
 }
 
+bool QWMTableModel::select()
+{
+    return QSqlTableModel::select();
+}
+
 void QWMTableModel::connectSignals()
 {
+    disconnect(this,&QWMTableModel::primeInsert,this,&QWMTableModel::init_record_on_prime_insert);
     if(!this->isSignalConnected(QMetaMethod::fromSignal(&QWMTableModel::primeInsert))){
         connect(this,&QWMTableModel::primeInsert,this,&QWMTableModel::init_record_on_prime_insert);
     }
+    disconnect(this,&QWMTableModel::beforeUpdate,this,&QWMTableModel::before_update_record);
     if(!this->isSignalConnected(QMetaMethod::fromSignal(&QWMTableModel::beforeUpdate))){
         connect(this,&QWMTableModel::beforeUpdate,this,&QWMTableModel::before_update_record);
     }
+    disconnect(this,&QWMTableModel::beforeInsert,this,&QWMTableModel::before_insert);
     if(!this->isSignalConnected(QMetaMethod::fromSignal(&QWMTableModel::beforeInsert))){
         connect(this,&QWMTableModel::beforeInsert,this,&QWMTableModel::before_insert);
     }
@@ -102,12 +115,9 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
         if(role==SORT_ROLE){
             return QVariant();
         }else if(role == Qt::BackgroundColorRole ){
-
             return QColor(218, 170, 170);
         }else if(role==Qt::TextColorRole){
-
             return QColor(0,0, 0);
-
         }
     }
 
@@ -121,9 +131,25 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
     }
 
     if(role==SORT_ROLE){
+        if(fieldInfo->Calculated()==true){
+            if(_calcData.contains(index.row())){
+                return _calcData[index.row()].value(index.column()-_natureFieldCount);
+            }
+            return  QVariant();
+        }
         return QSqlTableModel::data(index,Qt::EditRole);
     }else if(role==Qt::EditRole || role==Qt::DisplayRole||role==DATA_ROLE){
-        QVariant value= QSqlTableModel::data(index,Qt::EditRole);
+        QVariant value;
+        if(fieldInfo!=nullptr && fieldInfo->Calculated()==true){
+            if(_calcData.contains(index.row())){
+                value= _calcData[index.row()].value(index.column()-_natureFieldCount);
+            }else
+            {
+                value=QVariant();
+            }
+        }else{
+            value= QSqlTableModel::data(index,Qt::EditRole);
+        }
         if(fieldInfo!=nullptr){
             if(fieldInfo->PhysicalType()==MDLDao::Boolean)//booelan
             {
@@ -165,10 +191,6 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
                         value=fieldInfo->refValue(value.toString(),this->record(index.row()));
                     }
                 }
-                //                    if(fieldName=="SzODNom"){
-                //                        qDebug()<<"SzDrift";
-                //                    }
-                //单位转换,只有在显示和用户编辑的时候才需要进行转换
                 if(Utility::isNumber(value) && (role==Qt::DisplayRole||role==DATA_ROLE) )
                     value=fieldInfo->displayValue(value);
             }
@@ -181,11 +203,13 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
             {
                 if(fieldInfo->PhysicalType()==MDLDao::Boolean)//booelan
                 {
-                    QVariant value= QSqlTableModel::data(index,Qt::EditRole);
-                    bool b=value.toBool();
-                    QString  v=value.toString();
-                    //                    qDebug()<<"V:"<<v<<",B:"<<b;
-                    return  b ? Qt::Checked : Qt::Unchecked;
+                    if(!fieldInfo->Calculated()){
+                        QVariant value= QSqlTableModel::data(index,Qt::EditRole);
+                        bool b=value.toBool();
+                        QString  v=value.toString();
+                        //                    qDebug()<<"V:"<<v<<",B:"<<b;
+                        return  b ? Qt::Checked : Qt::Unchecked;
+                    }
                 }
             }
         }
@@ -199,16 +223,6 @@ bool QWMTableModel::setData(const QModelIndex &index, const QVariant &value, int
     Q_UNUSED(role)
     if(!index.isValid())
         return false;
-
-
-    QSqlQuery q=this->query();
-
-    QSqlRecord record=q.record();
-
-    //    if(index.column()>=record.count()){
-    //        //计算列
-    //        return true;
-    //    }else {
     QString fieldName=fieldNameEx(index.column());
     QString tableName=this->tableName();
     MDLField *  fieldInfo=UDL->fieldInfo(tableName,fieldName);
@@ -227,9 +241,21 @@ bool QWMTableModel::setData(const QModelIndex &index, const QVariant &value, int
             role=Qt::EditRole;
         }
     }
-    bool success= QSqlTableModel::setData(index, v,  role);
-    if(!success){
-        qDebug()<<"ERROR:"<<this->lastError().text();
+    bool success=true;;
+    if(fieldInfo->Calculated()){
+        if(!_calcData.contains(index.row())){
+            QSqlRecord record(_calcRecord);
+            _calcData.insert(index.row(),record);
+        }
+        if(role==Qt::EditRole){
+            _calcData[index.row()].setValue(index.column()-_natureFieldCount,v);
+            emit dataChanged(index,index);
+        }
+    }else{
+        success= QSqlTableModel::setData(index, v,  role);
+        if(!success){
+            qDebug()<<"ERROR:"<<this->lastError().text();
+        }
     }
     return success;
     //    }
@@ -244,29 +270,21 @@ Qt::ItemFlags QWMTableModel::flags( const QModelIndex &index ) const
     if(_readonly)
         return flags;
 
-    QSqlRecord record=this->record();
-    //    if(index.column()>=record.count()){
-    //        //计算列
-    //        QString  fieldName=_fieldsCalcInOrder[index.column()-record.count()];
-    //        return  flags;
-    //    }else
-    {
-        QVariant v=QSqlTableModel::data(index);
-        QString fieldName=this->record().fieldName(index.column());
-        QString tableName=this->tableName();
-        MDLField *  fieldInfo=UDL->fieldInfo(tableName,fieldName);
-        if(fieldInfo!=nullptr){
-            if(fieldInfo->PhysicalType()==MDLDao::Boolean)//booelan
-            {
-                return flags|Qt::ItemIsUserCheckable|Qt::ItemIsEditable;
-            }else if(fieldInfo->Calculated()){
-                return Qt::ItemIsEnabled|Qt::ItemIsSelectable;
-            }else{
-                return flags|Qt::ItemIsEditable;
-            }
+    QVariant v=QSqlTableModel::data(index);
+    QString fieldName=this->fieldNameEx(index.column());
+    QString tableName=this->tableName();
+    MDLField *  fieldInfo=UDL->fieldInfo(tableName,fieldName);
+    if(fieldInfo!=nullptr){
+        if(fieldInfo->PhysicalType()==MDLDao::Boolean)//booelan
+        {
+            return flags|Qt::ItemIsUserCheckable|Qt::ItemIsEditable;
+        }else if(fieldInfo->Calculated()){
+            return Qt::ItemIsEnabled|Qt::ItemIsSelectable;
+        }else{
+            return flags|Qt::ItemIsEditable;
         }
-        return flags;
     }
+    return flags;
 }
 
 bool QWMTableModel::readonly()
@@ -305,14 +323,22 @@ void QWMTableModel::initFields(const QString &tableName)
             QString table=tableName;
             MDLField * fieldInfo=UDL->fieldInfo(table,field);
             if(fieldInfo!=nullptr&& fieldInfo->Calculated()==true){//非物理存在的，只有计算字段才是正常的，其他多出的字段不计入内
-                _calFields.append(field.toLower());
                 _fieldsInNatureOrder.append(field);
-                _fieldsNameToNatureOrderMap.insert(field.toLower(),rec.count());
+                _fieldsNameToNatureOrderMap.insert(field.toLower(),_natureFieldCount+_calFields.size());
                 _fieldsInDisplayOrder.append(field);
-                _fieldsNameToDisplayOrderMap.insert(field.toLower(),rec.count());
-                bool success=this->insertColumns(rec.count(),1);
+                _fieldsNameToDisplayOrderMap.insert(field.toLower(),_natureFieldCount+_calFields.size());
+                _calFields.append(field.toLower());
+                //                bool success=this->insertColumns(this->columnCount(),1);
+                //                qDebug()<<"REC Count:"<<this->record().count()<<","<<this->columnCount();
             }
         }
+    }
+    foreach(QString calcField,_calFields){
+        QSqlField field;
+        field.setName(calcField);
+        field.setGenerated(false);
+        field.setReadOnly(false);
+        _calcRecord.insert(_calcRecord.count(),field);
     }
     setVisibleFields(visibleFieldsList);
 }
@@ -366,7 +392,7 @@ int QWMTableModel::fieldsCount()
 int QWMTableModel::columnCount(const QModelIndex &parent) const
 {
     //    return _visibleFields;
-    return QSqlTableModel::columnCount(parent);
+    return QSqlTableModel::columnCount(parent)+_calFields.size();
 }
 
 //显示顺序
@@ -413,12 +439,31 @@ QModelIndex QWMTableModel::createIndex(int row, int col)
 
 }
 
+void QWMTableModel::calc(int curRow,int preRow)
+{
+    QSqlRecord rec=record(curRow);
+    QSqlRecord preRec=record(preRow);
+    foreach(QString calField,_calFields){
+        QString express=EDL->equation(tableName(),calField);
+//        MDLField * fieldInfo=UDL->fieldInfo(tableName(),calField);
+        int pos=fieldIndexEx(calField);
+        QVariant value;
+        if(!express.isNull()&& !express.isEmpty()){
+            QScriptEngine engin;
+            //            auto r=engin.evaluate("2-1");
+            auto r=QWMCalculator::evaluate(calField,rec,idWell(),tableName(),express);
+            setData(createIndex(curRow,pos),r);
+
+        }
+    }
+}
+
 //bool QWMTableModel::updateRowInTable(int row, const QSqlRecord &values)
 //{
 //    return QSqlRelationalTableModel::updateRowInTable(row,values);
 //}
 
-void QWMTableModel::init_record_on_prime_insert(int row, QSqlRecord &record)
+void QWMTableModel::init_record_on_prime_insert(int /*row*/, QSqlRecord &record)
 {
     if(record.indexOf(CFG(ParentID))>=0 && !_parentID.isNull()&& !_parentID.isEmpty()){
         record.setValue(record.indexOf(CFG(ParentID)),_parentID);

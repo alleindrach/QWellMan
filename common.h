@@ -12,12 +12,12 @@
 
 #define MDLDB_PATH_SETTING_ENTRY "mdl_path"
 #define LIBDB_PATH_SETTING_ENTRY "lib_path"
-#define EDLDB_PATH_SETTING_ENTRY "lib_path"
+#define EDLDB_PATH_SETTING_ENTRY "edl_path"
 #define UDLDB_PATH_SETTING_ENTRY "udl_path"
 #define WELLDB_PATH_SETTING_ENTRY "well_path"
 #define MDLDB_CONNECTION_NAME "mdl"
 #define LIBDB_CONNECTION_NAME "lib"
-#define EDLDB_CONNECTION_NAME "lib"
+#define EDLDB_CONNECTION_NAME "edl"
 #define UDLDB_CONNECTION_NAME "udl"
 #define WELLDB_CONNECTION_NAME "well"
 #define UNIT_SETTING_ENTRY "unit_setting"
@@ -65,6 +65,7 @@ if(q.lastError().isValid()) qDebug()<<" Query["<<q.lastQuery()<<"] Error["<<q.la
 #define LIB (LIBDao::instance())
 #define UDL (UDLDao::instance())
 #define WELL (WellDao::instance())
+#define EDL (EDLDao::instance())
 //#define SYS_DEL_REC "wvSysRecDel"
 //#define SYS_RECENT_WELL"wvSys01"
 //#define SYS_FAVORITE_WELL "wvSys02"
@@ -233,8 +234,9 @@ if(x!=nullptr && x->metaObject()->className()==tp::staticMetaObject.className())
 #define SPEC_REF_TABLE_FLD CFG(TblKeyParent)
 
 #define USER_PROPERTY "UserProperty"
-#define TIMESTAMP(tag) \
-    qDebug()<<"==="<< QTime::currentTime().toString("HH:mm:ss.zzz")<<"==="<<__FILE__<<"|"<<__LINE__<< "|"<<#tag<<"  ";
+#define TIMESTAMP(tag)
+//\
+//    qDebug()<<"==="<< QTime::currentTime().toString("HH:mm:ss.zzz")<<"==="<<__FILE__<<"|"<<__LINE__<< "|"<<#tag<<"  ";
 
 #define ICON_SUFFIX ".svg"
 #define ICON_ROOT "pceicons"

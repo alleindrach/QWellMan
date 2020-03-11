@@ -15,6 +15,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
     void setTable(const QString &tableName) override;
+    virtual bool select() override;
     void connectSignals();
     bool readonly();
     void setReadonly(bool v);
@@ -42,10 +43,11 @@ public:
     inline void setParentID(QString v){
         _parentID=v;
     }
+    void calc(int curRow,int preRow);
 signals:
     void  rowsChanged();
 protected:
-//    virtual bool updateRowInTable(int row, const QSqlRecord &values) override;
+    //    virtual bool updateRowInTable(int row, const QSqlRecord &values) override;
 public slots:
     void init_record_on_prime_insert(int row, QSqlRecord &record);
     void before_update_record(int row, QSqlRecord &record);
@@ -59,11 +61,13 @@ private :
     QStringList _fieldsInNatureOrder;//自然顺序，大小写区分
     QStringList _calFields;//计算字段列表、全小写
     int _natureFieldCount;//物理字段数
-//    QHash<QString,int> _fieldsCalcMap;
-//    QList<QString> _fieldsOrigin;
+    //    QHash<QString,int> _fieldsCalcMap;
+    //    QList<QString> _fieldsOrigin;
     int _visibleFields{0};
     QString _idWell;
     friend class QWMDataEditor;
+    QSqlRecord _calcRecord;
+    QHash<int ,QSqlRecord> _calcData;
 };
 Q_DECLARE_METATYPE(QWMTableModel*)
 #endif // QWMTABLEMODEL_H

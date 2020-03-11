@@ -420,13 +420,6 @@ void QWMDataEditor::editTable(const QModelIndex &tableNodeIndex)
             QItemSelectionModel * selection=_tbvData->selectionModel();
             selection->setCurrentIndex(_tbvData->model()->index(pos.x(),pos.y()),QItemSelectionModel::SelectCurrent);
         }
-//        if(!sourceModel->isSignalConnected(QMetaMethod::fromSignal(&QWMTableModel::primeInsert))){
-//            connect(sourceModel,&QWMTableModel::primeInsert,this,&QWMDataEditor::init_record_on_prime_insert);
-//        }
-//        if(!sourceModel->isSignalConnected(QMetaMethod::fromSignal(&QWMTableModel::beforeUpdate))){
-//            connect(sourceModel,&QWMTableModel::beforeUpdate,this,&QWMDataEditor::before_update_record);
-//        }
-
 
         if(model->isDirty()){
             ui->actionSave->setEnabled(false);
@@ -443,7 +436,9 @@ void QWMDataEditor::editTable(const QModelIndex &tableNodeIndex)
         else{
             item->setIcon(APP->icons()["file@4x"]);
         }
-        sortableProxyModel->sort(1, ui->actionSort->isChecked()?Qt::DescendingOrder:Qt::AscendingOrder);
+        ui->actionSort->setChecked(sortableProxyModel->sortOrder()==Qt::DescendingOrder);
+
+//        sortableProxyModel->sort(1, ui->actionSort->isChecked()?Qt::DescendingOrder:Qt::AscendingOrder);
     }
 }
 
@@ -678,3 +673,11 @@ void QWMDataEditor::on_actionSort_triggered(bool checked)
 //         record.setGenerated(sysMDIndex,true);
 //     }
 //}
+
+void QWMDataEditor::on_actionCalc_triggered()
+{
+    QWMRotatableProxyModel * model=qobject_cast<QWMRotatableProxyModel*>( _tbvData->model());
+    PX(sortableModel,model);
+    SX(sourceModel,model);
+    model->calc();
+}

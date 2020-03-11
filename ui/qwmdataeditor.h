@@ -69,6 +69,8 @@ private Q_SLOTS:
 //    void init_record_on_prime_insert(int row, QSqlRecord &record);
 //    void before_update_record(int row, QSqlRecord &record);
 
+    void on_actionCalc_triggered();
+
 private:
     Ui::QWMDataEditor *ui;
     QString _idWell;

@@ -12,6 +12,7 @@
 #include "udldao.h"
 #include "libdao.h"
 #include "welldao.h"
+#include "edldao.h"
 #include "record.h"
 #include "mdltable.h"
 #include "mdlfieldlookup.h"
@@ -75,6 +76,7 @@ QWMApplication::~QWMApplication()
     CLOSEDB(_udlDB);
     CLOSEDB(_wellDB);
     CLOSEDB(_libDB);
+    CLOSEDB(_edlDB);
 }
 
 bool QWMApplication::selectDB(QSqlDatabase  &db,QString username,QString password ,QString & error,QString connectionName)
@@ -133,6 +135,7 @@ bool QWMApplication::initMDLDB()
     //    qDebug()<<" Setting file:"<<settings.fileName();
     QString strMdlDbPath=settings.value(MDLDB_PATH_SETTING_ENTRY).toString();
     if(!QFile::exists(strMdlDbPath)){
+        this->mainWindow()->hideSplash();
         int select=QMessageBox::information(nullptr,tr("提示"),tr("未找到MDL数据库，请选择数据库的位置"),"选择","退出",0);
         if(select==0){
             if(selectDB(_mdlDB,_mdlUserName,_mdlPassword, error,MDLDB_CONNECTION_NAME)){
@@ -177,6 +180,7 @@ bool QWMApplication::initUDLDB()
     //    qDebug()<<" Setting file:"<<settings.fileName();
     QString strUdlDbPath=settings.value(UDLDB_PATH_SETTING_ENTRY).toString();
     if(!QFile::exists(strUdlDbPath)){
+        this->mainWindow()->hideSplash();
         int select=QMessageBox::information(nullptr,tr("提示"),tr("未找到UDL数据库，请选择数据库的位置"),"选择","退出",0);
         if(select==0){
             if(selectDB(_udlDB,_udlUserName,_udlPassword, error,UDLDB_CONNECTION_NAME)){
@@ -220,6 +224,7 @@ bool QWMApplication::initLIBDB()
     QString error;
     QString strMdlDbPath=settings.value(LIBDB_PATH_SETTING_ENTRY).toString();
     if(!QFile::exists(strMdlDbPath)){
+        this->mainWindow()->hideSplash();
         int select=QMessageBox::information(nullptr,tr("提示"),tr("未找到LIB数据库，请选择数据库的位置"),"选择","退出",0);
         if(select==0){
             if(selectDB(_mdlDB,_mdlUserName,_mdlPassword, error,LIBDB_CONNECTION_NAME)){
@@ -252,11 +257,12 @@ bool QWMApplication::initEDLDB()
 {
     QSettings settings;
     QString error;
-    QString strMdlDbPath=settings.value(EDLDB_PATH_SETTING_ENTRY).toString();
-    if(!QFile::exists(strMdlDbPath)){
+    QString strEdlDbPath=settings.value(EDLDB_PATH_SETTING_ENTRY).toString();
+    if(!QFile::exists(strEdlDbPath)){
+        this->mainWindow()->hideSplash();
         int select=QMessageBox::information(nullptr,tr("提示"),tr("未找到计算列配置数据库，请选择数据库的位置"),"选择","退出",0);
         if(select==0){
-            if(selectDB(_mdlDB,_edlUserName,_edlPassword, error,EDLDB_CONNECTION_NAME)){
+            if(selectDB(_edlDB,_edlUserName,_edlPassword, error,EDLDB_CONNECTION_NAME)){
                 settings.setValue(EDLDB_PATH_SETTING_ENTRY,_mdlDB.databaseName());
             }else
             {
@@ -271,7 +277,7 @@ bool QWMApplication::initEDLDB()
             return false;
         }
     }else{
-        _edlDB=openDB(strMdlDbPath,_edlUserName,_edlPassword,error,EDLDB_CONNECTION_NAME);
+        _edlDB=openDB(strEdlDbPath,_edlUserName,_edlPassword,error,EDLDB_CONNECTION_NAME);
         if(!error.isEmpty()){
             QMessageBox::warning(nullptr,tr("错误"),tr("计算列配置数据库打开失败")+" "+error,"退出");
             settings.setValue(EDLDB_PATH_SETTING_ENTRY,"");
@@ -453,12 +459,15 @@ void QWMApplication::refresh()
     CLOSEDB(_udlDB);
     CLOSEDB(_wellDB);
     CLOSEDB(_libDB);
+    CLOSEDB(_edlDB);
      initMDLDB();
      initUDLDB();
      initLIBDB();
      initWellDB();
+     initEDLDB();
      MDLDao::resetCache();
      UDLDao::resetCache();
      LIBDao::resetCache();
      WellDao::resetCache();
+     EDLDao::resetCache();
 }

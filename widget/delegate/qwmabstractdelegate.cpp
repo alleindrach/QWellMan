@@ -111,7 +111,7 @@ bool QWMAbstractDelegate::eventFilter(QObject *watched, QEvent *event) {
 
 bool QWMAbstractDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index)
 {
-    qDebug()<<"editorEvent:"<<event->type()<<",index["<<index.row()<<","<<index.column()<<"]";
+//    qDebug()<<"editorEvent:"<<event->type()<<",index["<<index.row()<<","<<index.column()<<"]";
     return QStyledItemDelegate::editorEvent(event,model,option,index);
 }
 

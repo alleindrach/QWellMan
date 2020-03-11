@@ -54,6 +54,7 @@ public:
     Mode mode() const;
     void setMode(Mode m);
     void reset();
+    void calc();
     QSqlError  lastError() ;
     bool isDirty();
     void source_items_inserted(const QModelIndex &source_parent,

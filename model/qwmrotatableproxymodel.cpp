@@ -433,6 +433,12 @@ void QWMRotatableProxyModel::reset()
     //    emit modeChanged();
 }
 
+void QWMRotatableProxyModel::calc()
+{
+    P(model);
+    model->calcAll();
+}
+
 QSqlError QWMRotatableProxyModel::lastError()
 {
     S(model);

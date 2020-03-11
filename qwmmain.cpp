@@ -167,6 +167,12 @@ void QWMMain::showSplash()
     init();
 }
 
+void QWMMain::hideSplash()
+{
+    _splash->hide();
+//    _splash->deleteLater();
+}
+
 void QWMMain::init()
 {
     ui->splitter->setStretchFactor(0,1);
@@ -200,7 +206,7 @@ void QWMMain::init()
     ui->statusbar->addPermanentWidget(_lblMessage,1);
 
 
-    if(APP->initMDLDB()&&APP->initUDLDB()&&APP->initLIBDB()&&APP->initWellDB()){
+    if(APP->initMDLDB()&&APP->initUDLDB()&&APP->initLIBDB()&&APP->initWellDB()&&APP->initEDLDB()){
         MDL->readConfig(APP->config());
         APP->loadPreference();
         this->setWindowTitle(APP->applicationName()+" "+APP->well().databaseName());
@@ -208,8 +214,9 @@ void QWMMain::init()
                <<"\nUDL:"<<APP->udl().databaseName()
               <<"\nMDL:"<<APP->mdl().databaseName()
              <<"\nLIB:" <<APP->lib().databaseName()
-            <<"\nwell:"<<APP->well().databaseName()
-           <<"\n************************";
+            <<"\nEDL:"<<APP->edl().databaseName()
+           <<"\nwell:"<<APP->well().databaseName()
+          <<"\n************************";
 
         //        ui->trvCatalogs->model()->removeRows(0,ui->trvCatalogs->model()->rowCount());
         ui->trvCatalogs->setIconSize(QSize(16,16));
@@ -294,7 +301,7 @@ void QWMMain::init()
     }
 
     initEditors();
-    _splash->hide();
+    hideSplash();
     this->showMaximized();
 
 }
@@ -512,8 +519,6 @@ void QWMMain::on_actionDelete_triggered()
         {
             QString idWell=index.data(PK_ROLE).toString();
             int effectRows=WELL->deleteItem(idWell,idWell,CFG(KeyTblMain));
-            //            qDebug()<<"Delete:"<<idWell<<":"<<effectRows;
-            //            proxyModel->removeRow(index.row());
         }
         sourceModel->select();
         //        proxyModel->submitAll();
@@ -532,6 +537,7 @@ void QWMMain::on_actionAbout_triggered()
 void QWMMain::on_actionRefresh_triggered()
 {
     APP->refresh();
+    QMessageBox::information(this,tr("提示"),tr("成功加载数据库!"));
 }
 void QWMMain::before_insert(QSqlRecord &record){
     DPRING_RECORD(record,"X");

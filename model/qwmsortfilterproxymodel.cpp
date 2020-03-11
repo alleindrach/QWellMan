@@ -452,6 +452,24 @@ bool QWMSortFilterProxyModel::setData(const QModelIndex &item, const QVariant &v
 
 }
 
+void QWMSortFilterProxyModel::calc(int row)
+{
+
+    int sourceRow=mapRowToSource(row);
+    int preRow=row-1;
+    int sourcePreRow=mapRowToSource(preRow);
+
+    S1(model);
+    model->calc(sourceRow,sourcePreRow);
+}
+
+void QWMSortFilterProxyModel::calcAll()
+{
+    for(int i=0;i<rowCount();i++){
+        calc(i);
+    }
+}
+
 void QWMSortFilterProxyModel::on_source_model_data_changed(QModelIndex lefttop, QModelIndex rightbottom, QVector<int> roles)
 {
     QModelIndex proxyLeftTop=mapFromSource(lefttop);

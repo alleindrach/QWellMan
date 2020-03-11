@@ -39,9 +39,9 @@ DECL_SQL(select_distinct_value,"select  distinct %2 as fv from %1  w  where fv i
                                " order by fv ")
 DECL_SQL(select_a_record ,"select * from %1 limit 1")
 DECL_SQL(select_record_count_even_deleted,"select count(*) as c from %1 w where w.%2=:id COLLATE NOCASE")
-DECL_SQL(select_pbtd_all,"select  depth, b.des,max(dttm) from wvWellborePBTD  p,wvWellbore b where b.idrec=p.idrecparent and b.idwell=:idwell ")
+DECL_SQL(select_pbtd_all,"select  depth, b.des,max(p.dttm) dttm,count(*) c from wvWellborePBTD  p,wvWellbore b where b.idrec=p.idrecparent and b.idwell=:idwell ")
 DECL_SQL(select_td_all,"select b.des,max(DepthBtmActual)  depth from wvWellboreSize s,wvWellbore  b"
-        " where b.idwell=:idwell and b.IDRec=s.IDRecParent")
+                       " where b.idwell=:idwell and b.IDRec=s.IDRecParent")
 
 END_SQL_DECLARATION
 
@@ -70,10 +70,6 @@ bool WellDao::processWells(QWMTableModel * model)
 }
 bool WellDao::processTable(QWMTableModel *sourceModel)
 {
-    sourceModel->select();
-
-    while(sourceModel->canFetchMore())
-        sourceModel->fetchMore();
 
     return true;
 }
@@ -88,6 +84,12 @@ QWMTableModel *WellDao::table(QString tablename,QString idWell)
     model->setTable(tablename);
     model->setFilter(filter);
     model->setSort(model->fieldIndex( UDL->tableOrderKey(tablename)),Qt::AscendingOrder);
+    int cols=model->columnCount();
+    model->select();
+    int cols2=model->columnCount();
+    while(model->canFetchMore())
+        model->fetchMore();
+
     //    model->select();
     if(model->lastError().isValid())
     {
@@ -175,7 +177,7 @@ QWMRotatableProxyModel *WellDao::tableForEdit(const QString tablename,const QStr
         }
         return false;
     });
-
+    proxyModel->sort(1);
     processTable(sourceModel);
     //    proxyModel->sort(1);
     CI(key,rotateProxy);
@@ -532,7 +534,7 @@ QSqlQuery WellDao::records(QString table,QString idWell,QString parentID)
         additionalCri=QString(" and w.%1='%2' COLLATE NOCASE  ").arg(CFG(IDWell)).arg(idWell);
     }
 
-//    QSqlQueryModel* model=new QSqlQueryModel(this);
+    //    QSqlQueryModel* model=new QSqlQueryModel(this);
     //    DECL_SQL(select_records,"select  w.* from %1  w  where  not exists(select * from %2 d where  w.%3=d.IDRec COLLATE NOCASE) and w.%4=:parentID  COLLATE NOCASE %6  order by %5")
     QSqlQuery q(APP->well());
     q.prepare(SQL(select_records)
@@ -557,7 +559,7 @@ QSqlRecord WellDao::aRecord(QString table)
 
 bool WellDao::hasRecord(QString table, QString idrec)
 {
-//    select count(*) as c from %1 w where w.%2=:id COLLATE NOCASE
+    //    select count(*) as c from %1 w where w.%2=:id COLLATE NOCASE
     QStringList result;
     QSqlQuery q(APP->well());
     q.prepare(SQL(select_record_count_even_deleted).arg(table).arg(CFG(ID)));
@@ -585,7 +587,12 @@ QString WellDao::PBTDAll(QString idWell)
     QString result;
 
     if(q.next()){
-        result=QString("%1-%2").arg(q.value("des").toString()).arg(q.value("depth").toString());
+        int count=q.value("c").toInt();
+        QString des=q.value("des").toString();
+        QString depth=q.value("depth").toString();
+        if(count>0){
+            result=QString("%1-%2").arg(q.value("des").toString()).arg(q.value("depth").toString());
+        }
     }
     return result;
 }
