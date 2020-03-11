@@ -21,6 +21,7 @@
 #include "udllibtab.h"
 #include "udllibtabfield.h"
 #include "qwmtablemodel.h"
+#include <QDir>
 QWMApplication::QWMApplication(int &argc, char **argv):QApplication(argc,argv)
 {
     REGISTER_ALL(Record);
@@ -81,6 +82,7 @@ QWMApplication::~QWMApplication()
 
 bool QWMApplication::selectDB(QSqlDatabase  &db,QString username,QString password ,QString & error,QString connectionName)
 {
+
     QString curPath=QDir::currentPath();//获取系统当前目录
     //获取应用程序的路径
     QString dlgTitle=tr("选择数据库位置"); //对话框标题
@@ -100,7 +102,7 @@ bool QWMApplication::selectDB(QSqlDatabase  &db,QString username,QString passwor
 
 bool QWMApplication::selectWellDB(QString& error,QWidget * parent)
 {
-    QSettings settings;
+    SETTINGS;
     if(selectDB(_wellDB,_mdlUserName,_mdlPassword,error, WELLDB_CONNECTION_NAME)){
         settings.setValue(WELLDB_PATH_SETTING_ENTRY,_wellDB.databaseName());
     }else
@@ -130,7 +132,7 @@ QSqlDatabase QWMApplication::openDB( QString path,QString username,QString passw
 }
 bool QWMApplication::initMDLDB()
 {
-    QSettings settings;
+    SETTINGS;
     QString error;
     //    qDebug()<<" Setting file:"<<settings.fileName();
     QString strMdlDbPath=settings.value(MDLDB_PATH_SETTING_ENTRY).toString();
@@ -175,7 +177,7 @@ bool QWMApplication::initMDLDB()
 
 bool QWMApplication::initUDLDB()
 {
-    QSettings settings;
+    SETTINGS;
     QString error;
     //    qDebug()<<" Setting file:"<<settings.fileName();
     QString strUdlDbPath=settings.value(UDLDB_PATH_SETTING_ENTRY).toString();
@@ -220,15 +222,15 @@ bool QWMApplication::initUDLDB()
 
 bool QWMApplication::initLIBDB()
 {
-    QSettings settings;
+    SETTINGS;
     QString error;
-    QString strMdlDbPath=settings.value(LIBDB_PATH_SETTING_ENTRY).toString();
-    if(!QFile::exists(strMdlDbPath)){
+    QString strLibDbPath=settings.value(LIBDB_PATH_SETTING_ENTRY).toString();
+    if(!QFile::exists(strLibDbPath)){
         this->mainWindow()->hideSplash();
         int select=QMessageBox::information(nullptr,tr("提示"),tr("未找到LIB数据库，请选择数据库的位置"),"选择","退出",0);
         if(select==0){
-            if(selectDB(_mdlDB,_mdlUserName,_mdlPassword, error,LIBDB_CONNECTION_NAME)){
-                settings.setValue(LIBDB_PATH_SETTING_ENTRY,_mdlDB.databaseName());
+            if(selectDB(_libDB,_mdlUserName,_mdlPassword, error,LIBDB_CONNECTION_NAME)){
+                settings.setValue(LIBDB_PATH_SETTING_ENTRY,_libDB.databaseName());
             }else
             {
                 QMessageBox::warning(nullptr,tr("错误"),tr("LIB数据库打开失败")+" "+error,"退出");
@@ -242,7 +244,7 @@ bool QWMApplication::initLIBDB()
             return false;
         }
     }else{
-        _libDB=openDB(strMdlDbPath,_mdlUserName,_mdlPassword,error,LIBDB_CONNECTION_NAME);
+        _libDB=openDB(strLibDbPath,_mdlUserName,_mdlPassword,error,LIBDB_CONNECTION_NAME);
         if(!error.isEmpty()){
             QMessageBox::warning(nullptr,tr("错误"),tr("LIB数据库打开失败")+" "+error,"退出");
             settings.setValue(LIBDB_PATH_SETTING_ENTRY,"");
@@ -255,7 +257,7 @@ bool QWMApplication::initLIBDB()
 
 bool QWMApplication::initEDLDB()
 {
-    QSettings settings;
+    SETTINGS;
     QString error;
     QString strEdlDbPath=settings.value(EDLDB_PATH_SETTING_ENTRY).toString();
     if(!QFile::exists(strEdlDbPath)){
@@ -263,7 +265,7 @@ bool QWMApplication::initEDLDB()
         int select=QMessageBox::information(nullptr,tr("提示"),tr("未找到计算列配置数据库，请选择数据库的位置"),"选择","退出",0);
         if(select==0){
             if(selectDB(_edlDB,_edlUserName,_edlPassword, error,EDLDB_CONNECTION_NAME)){
-                settings.setValue(EDLDB_PATH_SETTING_ENTRY,_mdlDB.databaseName());
+                settings.setValue(EDLDB_PATH_SETTING_ENTRY,_edlDB.databaseName());
             }else
             {
                 QMessageBox::warning(nullptr,tr("错误"),tr("计算列配置数据库打开失败")+" "+error,"退出");
@@ -290,14 +292,14 @@ bool QWMApplication::initEDLDB()
 
 bool QWMApplication::initWellDB()
 {
-    QSettings settings;
+    SETTINGS;
     QString error;
-    QString strMdlDbPath=settings.value(WELLDB_PATH_SETTING_ENTRY).toString();
-    if(!QFile::exists(strMdlDbPath)){
+    QString strWellDbPath=settings.value(WELLDB_PATH_SETTING_ENTRY).toString();
+    if(!QFile::exists(strWellDbPath)){
         int select=QMessageBox::information(nullptr,tr("提示"),tr("未找到井数据库，请选择数据库的位置"),"选择","退出",0);
         if(select==0){
-            if(selectDB(_mdlDB,_mdlUserName,_mdlPassword, error,WELLDB_CONNECTION_NAME)){
-                settings.setValue(WELLDB_PATH_SETTING_ENTRY,_mdlDB.databaseName());
+            if(selectDB(_wellDB,_mdlUserName,_mdlPassword, error,WELLDB_CONNECTION_NAME)){
+                settings.setValue(WELLDB_PATH_SETTING_ENTRY,_wellDB.databaseName());
             }else
             {
                 QMessageBox::warning(nullptr,tr("错误"),tr("井数据库打开失败")+" "+error,"退出");
@@ -311,7 +313,7 @@ bool QWMApplication::initWellDB()
             return false;
         }
     }else{
-        _wellDB=openDB(strMdlDbPath,_mdlUserName,_mdlPassword,error,WELLDB_CONNECTION_NAME);
+        _wellDB=openDB(strWellDbPath,_mdlUserName,_mdlPassword,error,WELLDB_CONNECTION_NAME);
         if(!error.isEmpty()){
             QMessageBox::warning(nullptr,tr("错误"),tr("井数据库打开失败")+" "+error,"退出");
             settings.setValue(WELLDB_PATH_SETTING_ENTRY,"");
@@ -386,11 +388,11 @@ QString QWMApplication::referenceDatumValue(QString name){
 
 void QWMApplication::loadPreference()
 {
-    QSettings settings;
+    SETTINGS;
     _unit=settings.value(UNIT_SETTING_ENTRY,UNIT_SETTING_DEFAULT).toString();
     _profile=settings.value(PROFILE_SETTING_ENTRY,PROFILE_SETTING_DEFAULT).toString();
     _datumPreference =settings.value(REFERENCE_DATUM_ENTRY,REFERENCE_DATUM_DEFAULT).toString();
-    _wellDisplayFields=settings.value(WELL_DISPLAY_FIELDS_ENTRY,MDL->tableMainHeadersVisibleKeys()).toStringList();
+    _wellDisplayFields=settings.value(WELL_DISPLAY_FIELDS_ENTRY,MDL->tableMainHeadersVisible()).toStringList();
 
 }
 
@@ -402,7 +404,7 @@ QString QWMApplication::profile()
 void QWMApplication::setProfile(QString v)
 {
     _profile=v;
-    QSettings settings;
+    SETTINGS;
     settings.setValue(PROFILE_SETTING_ENTRY,v);
 }
 
@@ -414,7 +416,7 @@ QString QWMApplication::unit()
 void QWMApplication::setUnit(QString v)
 {
     _unit=v;
-    QSettings settings;
+    SETTINGS;
     settings.setValue(UNIT_SETTING_ENTRY,v);
 }
 
@@ -426,20 +428,20 @@ QString QWMApplication::datumPreference()
 void QWMApplication::setDatumPref(QString v)
 {
     _datumPreference=v;
-    QSettings settings;
+    SETTINGS;
     settings.setValue(REFERENCE_DATUM_ENTRY,v);
 }
 
 QStringList QWMApplication::wellDisplayList(){
     if(_wellDisplayFields.isEmpty())
-        _wellDisplayFields=MDL->tableMainHeadersVisibleKeys();
+        _wellDisplayFields=MDL->tableMainHeadersVisible();
     _wellDisplayFields.removeAll("");
     _wellDisplayFields.removeDuplicates();
     return _wellDisplayFields;
 }
 void QWMApplication::setWellDisplayList(QStringList list){
     _wellDisplayFields=list;
-    QSettings settings;
+    SETTINGS;
     settings.setValue(WELL_DISPLAY_FIELDS_ENTRY,_wellDisplayFields);
 }
 

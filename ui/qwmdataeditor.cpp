@@ -61,6 +61,7 @@ void QWMDataEditor::init()
     _lblStatus = new QLabel(this);
     QFont font=_lblStatus->font();
     font.setPixelSize(10);
+    ui->trvTables->setFont(font);
     _lblStatus->setFont(font);
     _lblProfile = new QLabel(this);
     _lblProfile->setFont(font);

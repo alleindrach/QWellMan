@@ -7,7 +7,7 @@
 #include <QStandardItem>
 #include <QLabel>
 #include <QSortFilterProxyModel>
-#include <qwmsortfilterproxymodel.h>
+#include "qwmsortfilterproxymodel.h"
 #include "qwmdataeditor.h"
 #include "qwmabout.h"
 #include "qwmapplication.h"

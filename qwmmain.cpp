@@ -186,7 +186,7 @@ void QWMMain::init()
     ui->trvCatalogs->setStyleSheet(APP->style());
     ui->tbvWells->setStyleSheet(APP->style());
     ui->tbvWells->verticalHeader()->setDefaultSectionSize(12);
-
+    ui->trvCatalogs->setFont(font);
     // create objects for the label and progress bar
     _lblStatus = new QLabel(this);
     _lblStatus->setFont(font);
@@ -345,6 +345,8 @@ void QWMMain::editWell(QString idWell)
 
 void QWMMain::showWellGrid(QWMSortFilterProxyModel * model)
 {
+    SA(smodel,model);
+    smodel->setVisibleFields(APP->wellDisplayList());
     for(int j=0;j<model->columnCount();j++){
         if(j<model->visibleFieldsCount()){
             ui->tbvWells->setColumnHidden(j,false);

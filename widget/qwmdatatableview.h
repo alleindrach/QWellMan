@@ -3,7 +3,6 @@
 #include <QTableView>
 #include <QObject>
 #include "qwmrotatableproxymodel.h"
-#include "qrotatabletableview.h"
 #include "qwmreflookupdelegate.h"
 class QWMDataTableView : public QTableView
 {

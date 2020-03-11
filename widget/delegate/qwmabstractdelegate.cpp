@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QComboBox>
 #include <QKeyEvent>
+#include <QDir>
 #include "common.h"
 //#include "qwmiconselector.h"
 #include "qwmdatatableview.h"
@@ -32,7 +33,7 @@ void QWMAbstractDelegate::updateEditorGeometry(QWidget *editor, const QStyleOpti
         if(left<0)        left=0;
         if(top<0)        top=0;
         QPoint topleft=view->mapToParent(QPoint(left,top));
-        QSettings settings;
+        SETTINGS;
         QString objectName=editor->metaObject()->className();
         QString entry=QString("%1.%2").arg(EDITOR_POS_ENTRY,objectName);
         topleft=settings.value(entry,topleft).value<QPoint>();

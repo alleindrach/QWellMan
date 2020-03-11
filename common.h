@@ -2,6 +2,7 @@
 #define COMMON_H
 #include <QDebug>
 #include <QTime>
+#include <QDir>
 #define CLOSEDB(db)   \
     if(db.isValid() && db.isOpen() && db.isOpenError()){ \
     db.close(); \
@@ -258,4 +259,6 @@ if(x!=nullptr && x->metaObject()->className()==tp::staticMetaObject.className())
     }\
      qDebug()<<"******** record end ********"<<tag;
 
+#define SETTINGS\
+ QSettings settings(APP->applicationDirPath()+QDir::separator()+"settings.ini",QSettings::IniFormat);
 #endif // COMMON_H

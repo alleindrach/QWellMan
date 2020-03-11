@@ -27,8 +27,8 @@ public:
     void readConfig(QHash<QString,QString>& );
 
 
-    QList<MDLFieldVisible*> tableMainHeadersVisible();
-    QStringList tableMainHeadersVisibleKeys();
+    QStringList tableMainHeadersVisible();
+
     QStringList units();
     QStringList datumPref();
     QString parentTable(QString table);

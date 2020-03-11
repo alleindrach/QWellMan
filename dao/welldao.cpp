@@ -15,7 +15,8 @@
 #include "QUuid"
 #include "QDateTime"
 #include <QSettings>
-#include  <QSqlDriver>
+#include <QSqlDriver>
+#include <QDir>
 WellDao * WellDao::_instance=nullptr;
 QHash<QString ,QVariant> WellDao::_cache={};
 
@@ -64,7 +65,6 @@ WellDao *WellDao::instance()
 //model是QWMTableModel
 bool WellDao::processWells(QWMTableModel * model)
 {
-    QList<MDLFieldVisible*> visibleFieldsList=MDL->tableMainHeadersVisible();
     model->setVisibleFields(APP->wellDisplayList());
     return true;
 }
@@ -113,7 +113,7 @@ QWMRotatableProxyModel *WellDao::tableForEdit(const QString tablename,const QStr
     QWMSortFilterProxyModel * proxyModel=new QWMSortFilterProxyModel(idWell,sourceModel);
     proxyModel->setSourceModel(sourceModel);
     //    proxy->setShowGroup(true);
-    QSettings settings;
+    SETTINGS;
     int mode= settings.value(QString(EDITOR_TABLE_ENTRY_PREFIX).arg(tablename),QWMRotatableProxyModel::V).toInt();
     proxyModel->setShowGroup(mode==QWMRotatableProxyModel::V);
     QWMRotatableProxyModel * rotateProxy=new QWMRotatableProxyModel(idWell,(QWMRotatableProxyModel::Mode)mode,proxyModel);

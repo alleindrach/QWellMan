@@ -64,7 +64,7 @@ void QWMAbstractEditor::on_btn_clicked()
 QSize QWMAbstractEditor::sizeHint()
 {
     //    return QSize(350,350);
-    QSettings settings;
+    SETTINGS;
     QString objectName=this->metaObject()->className();
     QString entry=QString("%1.%2").arg(EDITOR_SIZE_ENTRY,objectName);
     QSize size= settings.value(entry,QSize(350,350)).value<QSize>();
@@ -73,7 +73,7 @@ QSize QWMAbstractEditor::sizeHint()
 
 void QWMAbstractEditor::resizeEvent(QResizeEvent *)
 {
-    QSettings settings;
+    SETTINGS;
     QString objectName=this->metaObject()->className();
     QString entry=QString("%1.%2").arg(EDITOR_SIZE_ENTRY,objectName);
     QSize size=this->size();
@@ -82,7 +82,7 @@ void QWMAbstractEditor::resizeEvent(QResizeEvent *)
 
 void QWMAbstractEditor::moveEvent(QMoveEvent */*event*/)
 {
-    QSettings settings;
+    SETTINGS;
     QString objectName=this->metaObject()->className();
     QString entry=QString("%1.%2").arg(EDITOR_POS_ENTRY,objectName);
     QPoint pos=this->pos();

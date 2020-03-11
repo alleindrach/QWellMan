@@ -16,9 +16,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    aux/qwmcalculator.cpp \
-    aux/qwmuserdata.cpp \
-    aux/utility.cpp \
+    util/qwmcalculator.cpp \
+    util/qwmuserdata.cpp \
+    util/utility.cpp \
     dao/edldao.cpp \
     dao/libdao.cpp \
     dao/mdldao.cpp \
@@ -62,9 +62,9 @@ SOURCES += \
     widget/qwmheaderview.cpp
 
 HEADERS += \
-    aux/qwmcalculator.h \
-    aux/qwmuserdata.h \
-    aux/utility.h \
+    util/qwmcalculator.h \
+    util/qwmuserdata.h \
+    util/utility.h \
     common.h \
     dao/edldao.h \
     dao/libdao.h \
@@ -137,9 +137,9 @@ TRANSLATIONS +=  \
 DISTFILES += \
     resource/i18n/QWellMan_zh_CN.ts
 
-RC_ICONS = logo128.png
+#RC_ICONS = logo128.png
 
-INCLUDEPATH += $$PWD/dao $$PWD/widget $$PWD/widget/delegate $$PWD/widget/editor $$PWD/ui $$PWD/undo $$PWD/aux $$PWD/model $$PWD/dto  $$PWD/model/qt
+INCLUDEPATH += $$PWD/dao $$PWD/widget $$PWD/widget/delegate $$PWD/widget/editor $$PWD/ui $$PWD/undo $$PWD/util $$PWD/model $$PWD/dto  $$PWD/model/qt
 
 #INCLUDEPATH += /Users/Allein/Qt/5.14.0/lib/QtCore.framework/Versions/5/Headers/5.14.0
 #INCLUDEPATH += /Users/Allein/Qt/5.14.0/lib/QtCore.framework/Versions/5/Headers/5.14.0/QtCore

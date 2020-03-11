@@ -6,6 +6,7 @@
 #include <QTextStream>
 #include <QDateTime>
 #include <qwmabout.h>
+#include <QMutex>
 void outputMessage(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
 

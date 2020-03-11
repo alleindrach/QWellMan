@@ -115,7 +115,7 @@ void QWMDataTableView::onModeChange()
 {
     QWMRotatableProxyModel * model=(QWMRotatableProxyModel*)this->model();
     SX(smodel,this->model());
-    QSettings settings;
+    SETTINGS;
     settings.setValue(QString(EDITOR_TABLE_ENTRY_PREFIX).arg(smodel->tableName()),model->mode());
     bindDelegate();
     this->resize(this->size()+QSize(1,1));

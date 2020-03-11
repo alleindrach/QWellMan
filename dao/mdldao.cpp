@@ -20,9 +20,9 @@ DECL_SQL(select_ini,"select  * from pceMDLINI ")
 DECL_SQL(select_table_of_group,"select t.* from pceMDLTableGrpLink l,pceMDLTable t where KeyGrp=:group and l.KeyTbl=t.KeyTbl COLLATE NOCASE order by l.DisplayOrder ")
 DECL_SQL(select_table_order,"select  SQLOrderBy from pceMDLTable where KeyTbl=:table COLLATE NOCASE")
 DECL_SQL(select_table_long_headers,"select  CaptionLong from pceMDLTableField where KeyTbl=:table COLLATE NOCASE order by DisplayOrder ")
-DECL_SQL(select_main_table_headers,"select  t.*, case ifnull(m.KeyFld,'0') when '0' then 0 else 1 end as Visible "
-                                   "from pceMDLTableField t left join pceMDLTableMainIDFields m  on "
-                                   "t.KeyTbl=:table  COLLATE NOCASE and t.KeyFld=m.KeyFld COLLATE NOCASE order by m.DisplayOrder ")
+DECL_SQL(select_main_table_visible_headers,"select  t.* "
+                                           "from pceMDLTableField t , pceMDLTableMainIDFields m   "
+                                           " where t.KeyTbl=:table  COLLATE NOCASE and t.KeyFld=m.KeyFld COLLATE NOCASE order by m.DisplayOrder ")
 DECL_SQL(select_unit_set,"select  * from pceMDLUnitSet s   "
                          "order by s.DisplayOrder")
 DECL_SQL(select_profile_set,"select  * from pceMDLUnitSet s   "
@@ -77,10 +77,8 @@ MDLDao *MDLDao::instance()
 QStringList MDLDao::tableGroup()
 {
     QStringList result;
-    CS("tableGroup",QStringList)
-
-
-            QSqlQuery q(SQL(select_table_group),APP->mdl());
+    CS("tableGroup",QStringList);
+    QSqlQuery q(SQL(select_table_group),APP->mdl());
     q.exec();
     while(q.next()){
         result<<q.value("KeyGrp").toString();
@@ -166,34 +164,21 @@ QStringList MDLDao::tableHeaders(QString table)
     CI(key,result)
 }
 
-QList<MDLFieldVisible*> MDLDao::tableMainHeadersVisible()
+QStringList MDLDao::tableMainHeadersVisible()
 {
     QString key="tableMainHeadersVisible";
-    CS_LIST(key,MDLFieldVisible);
+    CS(key,QStringList);
 
     QSqlQuery q(APP->mdl());
-    q.prepare(SQL(select_main_table_headers));
+    q.prepare(SQL(select_main_table_visible_headers));
     q.bindValue(":table",CFG(KeyTblMain));
     q.exec();
     PRINT_ERROR(q);
-    QList<MDLFieldVisible*> result=Record::fromSqlQuery<MDLFieldVisible >(MDLFieldVisible::staticMetaObject.className(),q,this );
-    CI(key,result);
-}
-
-QStringList MDLDao::tableMainHeadersVisibleKeys()
-{
-    QStringList list;
-
-    QString key="tableMainHeadersVisibleKeys";
-    CS(key,QStringList);
-
-    QList<MDLFieldVisible*> v=tableMainHeadersVisible();
-    foreach(MDLFieldVisible * f,v){
-        //        qDebug()<<" field :"<<q.value("KeyFld" ).toString()<<","<<q.value("VisableFld").toString();
-        if(f->Visible()>0)
-            list<<f->KeyFld();
+    QStringList result;
+    while(q.next()){
+        result<<QS(q,KeyFld);
     }
-    CI(key,list);
+    CI(key,result);
 }
 
 QStringList MDLDao::units()
