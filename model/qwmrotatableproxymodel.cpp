@@ -183,6 +183,12 @@ int QWMRotatableProxyModel::columnCount(const QModelIndex &parent) const
     }
 }
 
+int QWMRotatableProxyModel::recordCount()
+{
+     P(model);
+     return model->rowCount();
+}
+
 QVariant QWMRotatableProxyModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     P(model);

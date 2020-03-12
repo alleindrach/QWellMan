@@ -51,6 +51,7 @@ protected:
     void breadcrumbInfo(const  QModelIndex &index);
 private:
     void checkUndoStacks(QWMTableModel * commitedModel);
+    void parentRecordNavigate(int step);
 signals:
     void RecordCountChanged(int ,int);
 public Q_SLOTS:
@@ -96,7 +97,10 @@ private:
     QSqlRecord _wellRec;
     QString _wellDes;
     QToolBar*  _tableOpToolBar;
-    QLabel * _lblParentTable;
+//    QLabel * _lblParentTable{nullptr};
+    QList<QAction *> _navActions;
+
+    void showRecordNav();
     QHash<QString,QWMTableModel*> _dirtyTables;
     QHash<QString,QUndoStack *> _undoStacks;//key:idWell.tablename.parentId,为每一个编辑的可见的grid增加一个undostack
     //    QString _TableStyle="/*tablewidget 样式*/ \

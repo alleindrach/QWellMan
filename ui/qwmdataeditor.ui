@@ -516,6 +516,11 @@
     <string>Next Record</string>
    </property>
   </action>
+  <action name="actionParent">
+   <property name="text">
+    <string>parent</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../resource/resource.qrc"/>

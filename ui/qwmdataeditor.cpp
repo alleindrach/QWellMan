@@ -68,8 +68,6 @@ void QWMDataEditor::init()
     ui->splitter->setStretchFactor(1,8);
     ui->trvTables->setStyle(QStyleFactory::create("windows"));
 
-    this->loadDataTree();
-
     _tableOpToolBar=new QToolBar(this);
     _tableOpToolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     _tableOpToolBar->setIconSize(QSize(12,12));
@@ -80,12 +78,17 @@ void QWMDataEditor::init()
     _tableOpToolBar->addAction(ui->actionDelete);
     _tableOpToolBar->addAction(ui->actionSave);
     _tableOpToolBar->addSeparator();
+    _navActions<<ui->actionactPrevRec;
     _tableOpToolBar->addAction(ui->actionactPrevRec);
-    _lblParentTable=new QLabel(this);
-    _lblParentTable->setText("...");
-    _tableOpToolBar->addWidget(_lblParentTable);
+    _tableOpToolBar->addAction(ui->actionParent);
+    _navActions<<ui->actionParent;
+    //    _lblParentTable=new QLabel(this);
+    //    _lblParentTable->setText("");
+    //    _lblParentTable->setVisible(false);
+    //    _tableOpToolBar->addWidget(_lblParentTable);
+    _navActions<<ui->actionactNextRec;
     _tableOpToolBar->addAction(ui->actionactNextRec);
-    _tableOpToolBar->addSeparator();
+    _navActions<<_tableOpToolBar->addSeparator();
     _tableOpToolBar->addAction(ui->actionCalc);
     _tableOpToolBar->addSeparator();
     _tableOpToolBar->addAction(ui->actionUndo);
@@ -128,6 +131,8 @@ void QWMDataEditor::init()
     connect(ui->actionRedo,&QAction::triggered,this,&QWMDataEditor::redo);
     connect(ui->actionUndo,&QAction::triggered,this,&QWMDataEditor::undo);
     connect(_tbvData,&QWMDataTableView::RecordCountChanged,this,&QWMDataEditor::on_data_record_changed);
+
+    this->loadDataTree();
     CHECK_UNDO_STATE
 }
 
@@ -296,6 +301,7 @@ bool QWMDataEditor::nodeParentInfo(const QModelIndex &index, QString &parentTabl
                     return false;
                 }else{
                     parentID=pv;
+                    return true;
                 }
             }else{//如果无父节点，则认为 其父为wvWellheader
                 //                parentDes=WELL->recordDes(parentTable,)
@@ -566,6 +572,9 @@ void QWMDataEditor::editTable(const QModelIndex &tableNodeIndex)
         //排序按钮的状态恢复
         ui->actionSort->setChecked(sortableProxyModel->sortOrder()==Qt::DescendingOrder);
 
+        showRecordNav();
+
+        CHECK_UNDO_STATE;
         //        sortableProxyModel->sort(1, ui->actionSort->isChecked()?Qt::DescendingOrder:Qt::AscendingOrder);
     }
 }
@@ -644,6 +653,49 @@ void QWMDataEditor::checkUndoStacks(QWMTableModel *commitedModel)
     }
 
 }
+
+void QWMDataEditor::parentRecordNavigate(int step)
+{
+    QItemSelectionModel * selection= ui->trvTables->selectionModel();
+    QModelIndex  curTableNodeIndex=selection->currentIndex();
+    QString  parentTable,parentDes,parentId,lastError;
+    QAbstractItemModel * catModel=ui->trvTables->model();
+    QWMRotatableProxyModel *  model=(QWMRotatableProxyModel*)_tbvData->model();
+    PX(proxyModel,model);
+    //如果有父节点，且父节点的记录数>1 ，且当前记录位置<记录数
+    bool hasParent=this->nodeParentInfo(selection->currentIndex(),parentTable,parentDes,parentId,lastError);
+    if(hasParent){
+        QModelIndex parentTableIndex=curTableNodeIndex.parent();
+        if(parentTableIndex.isValid() && parentTableIndex.data(CAT_ROLE)==QWMApplication::TABLE){
+            QWMRotatableProxyModel * parentModel=parentTableIndex.data(MODEL_ROLE).value<QWMRotatableProxyModel*>();
+
+            QPoint curPos;
+            if(parentTableIndex.data(SELECT_ROLE).isNull()){
+                curPos=QPoint(0,0);
+            }else{
+                curPos=parentTableIndex.data(SELECT_ROLE).value<QPoint>();
+            }
+
+            if(parentModel->recordCount()>1 && (curPos.x()+step) <= parentModel->recordCount() && (curPos.x()+step) >=  0){
+                PX(proxyParentModel,parentModel);
+                QPoint nextPos=QPoint(curPos.x()+step,curPos.y());
+                QSqlRecord parentRecord=proxyParentModel->record(proxyParentModel->index(nextPos.x(),nextPos.y()));
+                QString parentRecordDes=WELL->recordDes(parentModel->tableName(),parentRecord);
+                MDLTable *  parentTableInfo=UDL->tableInfo(parentModel->tableName());
+                PK_VALUE(pk,parentRecord);
+
+                QString dispText=QString("%1  [%2]").arg(parentTableInfo->CaptionLongP()).arg(parentRecordDes);
+                catModel->setData(parentTableIndex,nextPos,SELECT_ROLE);
+                catModel->setData(parentTableIndex,parentRecordDes,RECORD_DES_ROLE);
+                catModel->setData(parentTableIndex,dispText,Qt::DisplayRole);
+                catModel->setData(parentTableIndex,pk,PK_VALUE_ROLE);
+                editTable(curTableNodeIndex);
+            }
+        }
+    }
+    //    ui->actionactNextRec->setEnabled(false);
+}
+
 bool QWMDataEditor::saveDirtTables(QModelIndex index,QStringList & errors){
     //此处要获取已经脏了的数据库表，更新
     if(!index.isValid())
@@ -851,17 +903,66 @@ void QWMDataEditor::on_actionSort_triggered(bool checked)
 void QWMDataEditor::on_actionCalc_triggered()
 {
     QWMRotatableProxyModel * model=qobject_cast<QWMRotatableProxyModel*>( _tbvData->model());
-    PX(sortableModel,model);
-    SX(sourceModel,model);
+    //    PX(sortableModel,model);
+    //    SX(sourceModel,model);
     model->calc();
 }
 
 void QWMDataEditor::on_actionactNextRec_triggered()
 {
-
+    this->parentRecordNavigate(1);
 }
 
 void QWMDataEditor::on_actionactPrevRec_triggered()
 {
+    this->parentRecordNavigate(-1);
+}
 
+void QWMDataEditor::showRecordNav()
+{
+    QItemSelectionModel * selection= ui->trvTables->selectionModel();
+    QModelIndex tableNodeIndex=selection->currentIndex();
+    QString  parentTable,parentDes,parentId,lastError;
+    //    QAbstractItemModel * catModel=ui->trvTables->model();
+    //    QWMRotatableProxyModel *  model=(QWMRotatableProxyModel*)_tbvData->model();
+    //    PX(proxyModel,model);
+    //如果有父节点，且父节点的记录数>1 ，且当前记录位置<记录数
+    bool hasParent=this->nodeParentInfo(selection->currentIndex(),parentTable,parentDes,parentId,lastError);
+    if(hasParent){
+        QModelIndex parentTableNodeIndex=tableNodeIndex.parent();
+        if(parentTableNodeIndex.isValid() && parentTableNodeIndex.data(CAT_ROLE)==QWMApplication::TABLE){
+            QWMRotatableProxyModel * parentModel=parentTableNodeIndex.data(MODEL_ROLE).value<QWMRotatableProxyModel*>();
+            QPoint curPos;
+            if(parentTableNodeIndex.data(SELECT_ROLE).isNull()){
+                curPos=QPoint(0,0);
+            }else{
+                curPos=parentTableNodeIndex.data(SELECT_ROLE).value<QPoint>();
+            }
+            int prc=parentModel->recordCount();
+            if(prc > 1){
+                MDLTable *  parentTableInfo=UDL->tableInfo(parentModel->tableName());
+
+                ui->actionParent->setText(parentTableInfo->CaptionLongP());
+
+                foreach(QAction * act ,_navActions){
+                    act->setVisible(true);
+                }
+
+                if(curPos.x() < prc-1){
+                    ui->actionactNextRec->setEnabled(true);
+                }else{
+                    ui->actionactNextRec->setEnabled(false);
+                }
+                if(curPos.x() > 0){
+                    ui->actionactPrevRec->setEnabled(true);
+                }else{
+                    ui->actionactPrevRec->setEnabled(false);
+                }
+                return;
+            }
+        }
+    }
+    foreach(QAction * act ,_navActions){
+        act->setVisible(false);
+    }
 }
