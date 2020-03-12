@@ -21,7 +21,7 @@ public:
     virtual void redo() override;
     QWMTableModel *  model();
 signals:
-
+//    void  commandCommitted(QString table);
 public slots:
 private:
     QWMTableModel * _model;

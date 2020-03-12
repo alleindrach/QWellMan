@@ -61,7 +61,7 @@ QString QWMTableSelector::text()
 
 void QWMTableSelector::init()
 {
-    connect(ui->treeView,&QTableView::doubleClicked,this,&QWMTableSelector::on_item_doubleclick);
+    connect(ui->treeView,&QTreeView::doubleClicked,this,&QWMTableSelector::on_item_doubleclick);
     //    ui->treeView->installEventFilter(this);;
     //    QSortFilterProxyModel * proxyModel=new QSortFilterProxyModel(this);
     QStandardItemModel * model=MDL->loadDataTree(false,this);

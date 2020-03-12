@@ -458,6 +458,31 @@ void QWMTableModel::calc(int curRow,int preRow)
     }
 }
 
+bool QWMTableModel::submit()
+{
+    bool result= QSqlTableModel::submit();
+    return result;
+}
+
+void QWMTableModel::revert()
+{
+    QSqlTableModel::revert();
+}
+
+bool QWMTableModel::submitAll()
+{
+    bool result= QSqlTableModel::submitAll();
+    if(result){
+        emit submitted(this->tableName());
+    }
+    return result;
+}
+
+void QWMTableModel::revertAll()
+{
+    QSqlTableModel::revertAll();
+}
+
 //bool QWMTableModel::updateRowInTable(int row, const QSqlRecord &values)
 //{
 //    return QSqlRelationalTableModel::updateRowInTable(row,values);

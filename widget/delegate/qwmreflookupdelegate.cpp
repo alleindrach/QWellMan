@@ -1,16 +1,19 @@
+#include <QSortFilterProxyModel>
+#include <QSqlQueryModel>
+#include <QKeyEvent>
+#include <QDebug>
+#include <QDateEdit>
+#include <QComboBox>
+#include <QTimeEdit>
 #include "qwmreflookupdelegate.h"
 #include "qwmlibselector.h"
 #include "qwmdatatableview.h"
-#include "qdebug.h"
 #include "common.h"
 #include "mdldao.h"
 #include "mdlfield.h"
 #include "qwmtablemodel.h"
 #include "qwmsortfilterproxymodel.h"
 #include "qwmrotatableproxymodel.h"
-#include <QSortFilterProxyModel>
-#include <QSqlQueryModel>
-#include <QKeyEvent>
 #include "libdao.h"
 #include "udldao.h"
 #include "qwmlibsingleselector.h"
@@ -21,14 +24,12 @@
 #include "qwmicondelegate.h"
 #include "qwmiconselector.h"
 #include "qpainter.h"
-#include "QDateEdit"
-#include "QTimeEdit"
 #include "qwmdatetimeeditor.h"
-#include "QComboBox"
 #include "welldao.h"
+#include "qwmmain.h"
+
 QWMRefLookupDelegate::QWMRefLookupDelegate(QObject *parent):
     QWMAbstractDelegate(parent){
-
 }
 
 void QWMRefLookupDelegate::destroyEditor(QWidget *editor, const QModelIndex &index) const {

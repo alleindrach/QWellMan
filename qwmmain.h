@@ -76,7 +76,7 @@ private slots:
 
     void on_actionDelete_triggered();
 
-    friend class QWMDataEditor;
+
 
     void on_actionAbout_triggered();
 
@@ -98,6 +98,6 @@ private:
     QLabel * _lblReferenceDatum ;
     QLabel * _lblMessage;
     QWMAbout * _splash;
-
+    friend class QWMDataEditor;
 };
 #endif // QWMMAIN_H

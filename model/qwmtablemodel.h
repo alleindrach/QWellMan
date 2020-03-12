@@ -2,9 +2,9 @@
 #define QWMTABLEMODEL_H
 #include <QSqlTableModel>
 #include <QObject>
+#include <QSqlRecord>
 #include "qwmapplication.h"
 #include "common.h"
-
 class QWMTableModel : public QSqlTableModel
 {
     Q_OBJECT
@@ -44,8 +44,14 @@ public:
         _parentID=v;
     }
     void calc(int curRow,int preRow);
+    bool submit() override;
+    void revert() override;
+
+    bool submitAll();
+    void revertAll();
 signals:
     void  rowsChanged();
+    void  submitted(QString tablename);
 protected:
     //    virtual bool updateRowInTable(int row, const QSqlRecord &values) override;
 public slots:

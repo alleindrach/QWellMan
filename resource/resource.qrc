@@ -227,5 +227,12 @@
         <file>images/icons/rotate.svg</file>
         <file>images/About.png</file>
         <file>images/icons/lookup.svg</file>
+        <file>images/icons/Information.svg</file>
+        <file>images/icons/record.svg</file>
+        <file>images/icons/bread.svg</file>
+        <file>images/icons/fast-forward.svg</file>
+        <file>images/icons/fast-backward.svg</file>
+        <file>images/icons/caret-right.svg</file>
+        <file>images/icons/caret-left.svg</file>
     </qresource>
 </RCC>

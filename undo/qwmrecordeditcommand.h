@@ -21,7 +21,7 @@ public:
         return _submitted;
     }
 signals:
-
+//    void  commandCommitted(QString table);
 public slots:
     void init_record_on_prime_insert(int row, QSqlRecord &record);
 private:

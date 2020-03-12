@@ -4,7 +4,7 @@
 #include <QApplication>
 #include <QSqlDatabase>
 #include <QStandardItem>
-#include "qwmmain.h"
+//#include "qwmmain.h"
 class QWMMain;
 class QWMApplication : public QApplication
 {

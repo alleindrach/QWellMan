@@ -101,11 +101,11 @@ public  slots:
 
     void sourceAboutToBeReset();
     void sourceReset();
-
+    void on_source_model_submitted(QString table);
 signals:
     void rowsChanged();
     void modeChanged();
-
+    void submitted(QString table);
     //    void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>());
 
     //    void rowsAboutToBeInserted(const QModelIndex &parent, int first, int last, QPrivateSignal);

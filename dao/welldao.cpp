@@ -112,6 +112,7 @@ QWMRotatableProxyModel *WellDao::tableForEdit(const QString tablename,const QStr
 
     QWMSortFilterProxyModel * proxyModel=new QWMSortFilterProxyModel(idWell,sourceModel);
     proxyModel->setSourceModel(sourceModel);
+    proxyModel->setParentId(parentID);
     //    proxy->setShowGroup(true);
     SETTINGS;
     int mode= settings.value(QString(EDITOR_TABLE_ENTRY_PREFIX).arg(tablename),QWMRotatableProxyModel::V).toInt();

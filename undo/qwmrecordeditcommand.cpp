@@ -20,6 +20,7 @@ void QWMRecordEditCommand::undo()
     {
         unDeleteRecord();
     }
+//    emit this->commandCommitted(_model->tableName());
 }
 
 void QWMRecordEditCommand::redo()
@@ -30,6 +31,7 @@ void QWMRecordEditCommand::redo()
     {
         removeRecord();
     }
+//    emit this->commandCommitted(_model->tableName());
 }
 bool QWMRecordEditCommand::insertRecord()
 {

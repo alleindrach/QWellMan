@@ -37,8 +37,8 @@ public:
     QString fieldName(QModelIndex  index);
     bool showGroup();
     void setShowGroup(bool );
-    const int realColumn(const int col) const ;
-    const int groupedColumn(const int col ) const;
+    int realColumn(const int col) const ;
+    int groupedColumn(const int col ) const;
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     virtual void setSourceModel(QAbstractItemModel *sourceModel) override;
     QSqlError  lastError() ;
@@ -54,11 +54,16 @@ public:
     }
     void calc(int row);
     void calcAll();
+    void setParentId(QString);
+    QString parentId();
 signals:
     void rowsChanged();
+    void submitted(QString tablename);
+    void dataModified(QString tablename,QString parentId);
 public  slots:
     void  on_source_model_data_changed(QModelIndex,QModelIndex,QVector<int>);
     void on_rows_changed();
+    void on_source_model_data_submitted(QString table);
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
@@ -70,6 +75,7 @@ private :
     QHash<QString,QStringList> _fieldGroup;
     QHash<int,QString > _groupIndex;
     QString _idWell;
+    QString _parentId;
     friend class QWMMain;
 };
 

@@ -174,7 +174,7 @@ void QWMRecordSelector::loadChildTable(QStandardItem *parent,QStack<QString> tra
 
 void QWMRecordSelector::init()
 {
-    connect(ui->treeView,&QTableView::doubleClicked,this,&QWMRecordSelector::on_item_doubleclick);
+    connect(ui->treeView,&QTreeView::doubleClicked,this,&QWMRecordSelector::on_item_doubleclick);
     ui->treeView->installEventFilter(this);;
     //    QSortFilterProxyModel * proxyModel=new QSortFilterProxyModel(this);
     QStandardItemModel * model=new QStandardItemModel(this);

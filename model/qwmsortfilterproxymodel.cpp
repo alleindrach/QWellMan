@@ -14,7 +14,7 @@
 //#include "qexsortfilterproxymodel.h"
 #include "qwmfieldeditcommand.h"
 #include "qwmrecordeditcommand.h"
-
+#include "qwmmain.h"
 #define S1(model)\
     QWMTableModel * model=static_cast<QWMTableModel *>(this->sourceModel());
 
@@ -122,7 +122,8 @@ bool QWMSortFilterProxyModel::insertRecord(int /*row*/, const QSqlRecord &record
 {
     S1(model);
     QWMRecordEditCommand * command=new QWMRecordEditCommand( model,_idWell,record,QWMRecordEditCommand::insert);
-    DOC->addUndoCommand(command);
+    DOC->addUndoCommand(command,model->tableName(),_parentId);
+    emit dataModified(model->tableName(),_parentId);
     return true;
 }
 
@@ -143,7 +144,8 @@ bool QWMSortFilterProxyModel::removeRecord(int row)
     QSqlRecord  record=model->record(sourceRow);
     PK_VALUE(id,record);
     QWMRecordEditCommand * command=new QWMRecordEditCommand(model,_idWell,record,QWMRecordEditCommand::remove);
-    DOC->addUndoCommand(command);
+    DOC->addUndoCommand(command,model->tableName(),_parentId);
+    emit dataModified(model->tableName(),_parentId);
     return true;
 }
 Qt::ItemFlags QWMSortFilterProxyModel::flags(const QModelIndex &index) const
@@ -249,7 +251,7 @@ void QWMSortFilterProxyModel::setShowGroup(bool v)
     _showGroup=v;
 }
 
-const int QWMSortFilterProxyModel::realColumn(const int col) const
+int QWMSortFilterProxyModel::realColumn(const int col) const
 {
 
     int realCol=col;
@@ -268,7 +270,7 @@ const int QWMSortFilterProxyModel::realColumn(const int col) const
     return realCol;
 }
 
-const int QWMSortFilterProxyModel::groupedColumn(const int col) const
+int QWMSortFilterProxyModel::groupedColumn(const int col) const
 {
     int gCol=col;
     if(_showGroup){
@@ -327,7 +329,10 @@ void QWMSortFilterProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
     QSortFilterProxyModel::setSourceModel(sourceModel);
     disconnect(sourceModel,&QAbstractItemModel::dataChanged,0,0);
     connect(sourceModel,&QAbstractItemModel::dataChanged,this,&QWMSortFilterProxyModel::on_source_model_data_changed);
+    disconnect(model,&QWMTableModel::rowsChanged,0,0);
     connect(model,&QWMTableModel::rowsChanged,this,&QWMSortFilterProxyModel::on_rows_changed);
+//    disconnect(model,&QWMTableModel::submitted,0,0);
+//    connect(model,&QWMTableModel::submitted,this,&QWMSortFilterProxyModel::on_source_model_data_submitted);
 }
 
 
@@ -412,7 +417,9 @@ bool QWMSortFilterProxyModel::setData(const QModelIndex &item, const QVariant &v
         QList<Modifier> list;
         list.append(m);
         QWMFieldEditCommand * command=new QWMFieldEditCommand(model,list);
-        DOC->addUndoCommand(command);
+
+        DOC->addUndoCommand(command,model->tableName(),_parentId);
+        emit dataModified(model->tableName(),_parentId);
     }else if(role==Qt::CheckStateRole){
         QModelIndex sourceIndex=mapToSource(item);
         Modifier m;
@@ -423,7 +430,8 @@ bool QWMSortFilterProxyModel::setData(const QModelIndex &item, const QVariant &v
         QList<Modifier> list;
         list.append(m);
         QWMFieldEditCommand * command=new QWMFieldEditCommand(model,list);
-        DOC->addUndoCommand(command);
+        DOC->addUndoCommand(command,model->tableName(),_parentId);
+        emit dataModified(model->tableName(),_parentId);
     }else if(role==LINKED_FIELDS){
         QModelIndex sourceIndex=mapToSource(item);
         Modifier m;
@@ -443,7 +451,8 @@ bool QWMSortFilterProxyModel::setData(const QModelIndex &item, const QVariant &v
         QList<Modifier> list;
         list.append(m);
         QWMFieldEditCommand * command=new QWMFieldEditCommand(model,list,QWMFieldEditCommand::LinkedFields);
-        DOC->addUndoCommand(command);
+        DOC->addUndoCommand(command,model->tableName(),_parentId);
+        emit dataModified(model->tableName(),_parentId);
     }else
     {
         return QSortFilterProxyModel::setData(item,value,role);
@@ -470,6 +479,16 @@ void QWMSortFilterProxyModel::calcAll()
     }
 }
 
+void QWMSortFilterProxyModel::setParentId(QString v)
+{
+    _parentId=v;
+}
+
+QString QWMSortFilterProxyModel::parentId()
+{
+    return _parentId;
+}
+
 void QWMSortFilterProxyModel::on_source_model_data_changed(QModelIndex lefttop, QModelIndex rightbottom, QVector<int> roles)
 {
     QModelIndex proxyLeftTop=mapFromSource(lefttop);
@@ -482,6 +501,11 @@ void QWMSortFilterProxyModel::on_rows_changed()
 {
     this->reset();
     emit rowsChanged();
+}
+
+void QWMSortFilterProxyModel::on_source_model_data_submitted(QString table)
+{
+    emit submitted(table);
 }
 
 bool QWMSortFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const

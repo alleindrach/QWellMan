@@ -633,6 +633,11 @@ void QWMRotatableProxyModel::sourceReset()
     endResetModel();
 }
 
+void QWMRotatableProxyModel::on_source_model_submitted(QString table)
+{
+    emit submitted(table);
+}
+
 void QWMRotatableProxyModel::source_items_about_to_be_removed(const QModelIndex &source_parent, int start, int end, Qt::Orientation orient)
 {
     remove_source_items(source_parent,start,end,orient,true);

@@ -22,6 +22,7 @@
 #include "udllibtabfield.h"
 #include "qwmtablemodel.h"
 #include <QDir>
+#include "qwmmain.h"
 QWMApplication::QWMApplication(int &argc, char **argv):QApplication(argc,argv)
 {
     REGISTER_ALL(Record);
