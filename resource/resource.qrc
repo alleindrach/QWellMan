@@ -235,5 +235,23 @@
         <file>images/icons/caret-right.svg</file>
         <file>images/icons/caret-left.svg</file>
         <file>images/Logo128.png</file>
+        <file>images/icons/duplicate.svg</file>
+        <file>images/icons/deleteWell.svg</file>
+        <file>images/icons/delete.svg</file>
+        <file>images/icons/open.svg</file>
+        <file>images/icons/open-folder.svg</file>
+        <file>images/icons/edit.svg</file>
+        <file>images/icons/new.svg</file>
+        <file>images/icons/about.svg</file>
+        <file>images/icons/tag.svg</file>
+        <file>images/icons/fields.svg</file>
+        <file>images/icons/catalogue.svg</file>
+        <file>images/icons/refresh.svg</file>
+        <file>images/icons/saveall.svg</file>
+        <file>images/icons/save.svg</file>
+        <file>images/icons/EXIT.svg</file>
+        <file>images/icons/ic_exit.svg</file>
+        <file>images/icons/SaveAndClose.svg</file>
+        <file>images/icons/query.svg</file>
     </qresource>
 </RCC>

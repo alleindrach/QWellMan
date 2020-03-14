@@ -594,7 +594,8 @@ void WellDao::resetCache()
 
 bool WellDao::duplicateWellHeader(QString idWell, QList<QPair<QString, QStringList> > &stagedTables,
                                   QHash<QString, QString> & mapDuplicatedRecords,
-                                  QHash<QString, QString> & mapDuplicatedTables,
+                                  QHash<QString, int> & mapDuplicatedTables,
+                                  QHash<QString ,QList<PendingDuplicateItem>>&mapPendingIDs,
                                   QStringList & errors)
 {
     QString mainTable=CFG(KeyTblMain);
@@ -619,7 +620,7 @@ bool WellDao::duplicateWellHeader(QString idWell, QList<QPair<QString, QStringLi
             ADD_DUP_ERROR(success,model,errors,mainTable);
             if(success){
                 mapDuplicatedRecords.insert(idWell,newIdWell);
-                mapDuplicatedTables.insert(mainTable.toLower(),mainTable);
+                mapDuplicatedTables.insert(mainTable.toLower(),1);
                 result=true;
             }else{
 
@@ -637,7 +638,8 @@ bool WellDao::duplicateWellHeader(QString idWell, QList<QPair<QString, QStringLi
 
 bool WellDao::initStageTables(QString idWell,QList<QPair<QString, QStringList> > &stagedTables,
                               QHash<QString, QString> & mapDuplicatedRecords,
-                              QHash<QString, QString> &mapDuplicatedTables,
+                              QHash<QString, int> &mapDuplicatedTables,
+                              QHash<QString ,QList<PendingDuplicateItem>>&mapPendingIDs,
                               QStringList & errors)
 {
     QStringList depends;
@@ -664,7 +666,9 @@ bool WellDao::initStageTables(QString idWell,QList<QPair<QString, QStringList> >
                 foreach(MDLFieldLookup * l,fls){
                     if(l->TableKey()){
                         QString tableName=l->LookupItem();
-                        depends<<tableName.toLower();
+                        if(tableName.compare(table->KeyTbl(),Qt::CaseInsensitive)!=0){
+                            depends<<tableName.toLower();
+                        }
                     }
                 }
             }
@@ -680,41 +684,84 @@ bool WellDao::initStageTables(QString idWell,QList<QPair<QString, QStringList> >
 
 bool WellDao::handleStageTables(QString idWell, QList<QPair<QString, QStringList> > &stagedTables,
                                 QHash<QString, QString> & mapDuplicatedRecords,
-                                QHash<QString, QString> & mapDuplicatedTables,
+                                QHash<QString, int> & mapDuplicatedTables,
+                                QHash<QString ,QList<PendingDuplicateItem>>&mapPendingIDs,
                                 QStringList & errors)
 {
     bool result=false;//只要有新复制的表，就返回true，否则返回false
-    int i=0;
-    while(stagedTables.length()>0){
-        if(stagedTables.length()==1){
-            mapDuplicatedTables.insert("*","*");
-        }
-        QPair<QString, QStringList> stagedTable=stagedTables[i];
-        bool depnedsResolved=true;
-        foreach(QString depend,stagedTable.second){
-            if(!mapDuplicatedTables.contains(depend)){
-                depnedsResolved=false;
-                break;
-            }
-        }
-        if(depnedsResolved){
-            stagedTables.removeAt(i);
-            bool tableDupSuccessed=duplicateTable(idWell,stagedTable.first,stagedTables,mapDuplicatedRecords,mapDuplicatedTables,errors);
-            if(tableDupSuccessed){
-                result=true;
-            }
-        }else{
-            i++;
-            i=i%stagedTables.size();
-        }
+    for(int i=0;i<stagedTables.size();i++){
+        bool success=duplicateTable(idWell,stagedTables[i].first,stagedTables,mapDuplicatedRecords,mapDuplicatedTables ,mapPendingIDs,errors);
     }
+    if(mapPendingIDs.size()>0){
+        errors<<tr("未决的记录:%1").arg(mapPendingIDs.keys().join("/"));
+        return false;
+    }else{
+        return true;
+    }
+    //    int i=0;
+    //    bool hasOneNotDependAll=false;
+    //    int duplicatedRecords=0;
+    //    int stage=0;//0 正常，1 松弛
+    //    QStringList localErrors;
+    //    while(stagedTables.length()>0){
+    //        //        if(stagedTables.length()==1){
+    //        //            mapDuplicatedTables.insert("*","*");
+    //        //        }
+    //        QPair<QString, QStringList> stagedTable=stagedTables[i];
+    //        bool depnedsResolved=true;
+
+    //        if(stage==0){
+    //            foreach(QString depend,stagedTable.second){
+    //                if(!mapDuplicatedTables.contains(depend)){
+    //                    depnedsResolved=false;
+    //                    break;
+    //                }
+    //            }
+    //        }else if(stage==1)
+    //        {
+    //            depnedsResolved=true;
+    //        }
+    //        if(depnedsResolved){
+    //            int duplicatedRecsOfTable;
+    //            bool tableDupSuccessed=duplicateTable(idWell,stagedTable.first,stagedTables,mapDuplicatedRecords,mapDuplicatedTables,mapPendingIDs,localErrors,duplicatedRecsOfTable);
+    //            duplicatedRecords+=duplicatedRecsOfTable;
+    //            if(tableDupSuccessed){
+    //                result=true;
+    //                stagedTables.removeAt(i);
+    //            }else{
+    //                i++;
+    //            }
+    //            if(stage==0)
+    //                hasOneNotDependAll=true;
+    //        }else{
+    //            i++;
+    //        }
+
+    //        if(i==stagedTables.size()){
+    //            if(duplicatedRecords==0&&stage==1){
+    //                errors<<localErrors;
+    //                return result;
+    //            }
+    //            if(!hasOneNotDependAll && stage==0){//如果没有不依赖于其他项的存在，只有硬上这些依赖于其他项的了
+    //                mapDuplicatedTables.insert("*",0);
+    //                stage=1;
+    //            }else if(stage==0){
+    //                hasOneNotDependAll=false;
+    //            }
+    //            localErrors.clear();
+    //            duplicatedRecords=0;
+    //        }
+    //        i=i%stagedTables.size();
+    //    }
+    //    errors<<localErrors;
     return result;
 }
 
 bool WellDao::duplicateTable(QString idWell, QString table,
                              QList<QPair<QString, QStringList> > &stagedTables,
                              QHash<QString, QString> & mapDuplicatedRecords,
-                             QHash<QString, QString> & mapDuplicatedTables,
+                             QHash<QString, int> & mapDuplicatedTables,
+                             QHash<QString ,QList<PendingDuplicateItem>>&mapPendingIDs,
                              QStringList & errors)
 {
     QString parentTable=MDL->parentTable(table);
@@ -729,82 +776,156 @@ bool WellDao::duplicateTable(QString idWell, QString table,
     int recordcount=model->rowCount();
     QStringList refs;
     QSqlRecord rec=model->record();
+    QString pkField=CFG(ID);
+    bool useIdWellAsPk=false;
+    if(!UDL->tableHasField(table,CFG(ID))){
+        pkField=CFG(IDWell);
+        useIdWellAsPk=true;
+    }
     for(int f=0;f<rec.count();f++){
         QString fieldname=rec.fieldName(f);
         if(fieldname.compare(CFG(ParentID),Qt::CaseInsensitive)==0){
             refs<<fieldname;
             continue;
         }
-        QList<MDLField *> reffields=UDL->tableRefFields(table);
-        foreach(MDLField* f,reffields){
-            refs<<f->KeyFld();
-        }
+
     }
+    QList<MDLField *> reffields=UDL->tableRefFields(table);
+    foreach(MDLField* f,reffields){
+        refs<<f->KeyFld();
+    }
+    refs.removeDuplicates();
     bool hasProcessANewRecord=false;;
     int processedRecords=0;
+    int processedPending=0;
     int i=0;
+
+    QStringList unduplicatedRecords;
     while(true){
+
         if(i>=recordcount){
             if(processedRecords==recordcount){
-                mapDuplicatedTables.insert(table.toLower(),table);//复制完毕
+                mapDuplicatedTables.insert(table.toLower(),processedRecords);//复制完毕
+                //                duplicatedRecs=processedRecords;
                 return true;
             }
             if(!hasProcessANewRecord && processedRecords<recordcount){//无可处理的记录，也未复制完毕，报错
+                errors<<QString(tr("表 %1 有未解决依赖项的条目:%2")).arg(table).arg(unduplicatedRecords.join("/"));
+                //                mapDuplicatedTables.insert(table.toLower(),processedRecords);//复制完毕
+                //                duplicatedRecs=processedRecords;
                 return false;
             }
             hasProcessANewRecord=false;
+            unduplicatedRecords.clear();
         }
         i=i%recordcount;
         QSqlRecord rec=model->record(i);
         QSqlRecord dupRec(rec);
+        QUuid uuid=QUuid::createUuid();
+        QString newIdrec=UUIDToString(uuid);
+        QString oldIdRec=rec.value(pkField).toString();
+
+        INITFLD(dupRec,CFG(IDWell),mapDuplicatedRecords[idWell]);
+        if(!useIdWellAsPk){
+            dupRec.setValue(pkField,newIdrec);
+        }else{
+            newIdrec=mapDuplicatedRecords[idWell];
+        }
+
         bool resolved=true;
-        QString idrec=rec.value(CFG(ID)).toString();
-        if(mapDuplicatedRecords.contains(idrec)){
+        QString oriIdrec=rec.value(pkField).toString();
+        if(mapDuplicatedRecords.contains(oriIdrec)){
             i++;
             continue;
         }
+
         foreach(QString rf,refs){
             QString refValue=rec.value(rf).toString();
             if(!refValue.isNull()&&!refValue.isEmpty()){
-                if(!mapDuplicatedRecords.contains(refValue)){
-                    resolved=false;
-                    break;//有未解决的依赖
+                if(refValue.compare(oriIdrec,Qt::CaseInsensitive)==0){//指向自身的引用
+                    dupRec.setValue(rf,newIdrec);
                 }else{
-                    //从已经复制的记录中替换引用
-                    dupRec.setValue(rf,mapDuplicatedRecords[refValue]);
+                    if(!mapDuplicatedRecords.contains(refValue)){
+                        PendingDuplicateItem pi;
+                        pi.field=rf;
+                        pi.table=table;
+                        pi.pkField=pkField;
+                        pi.pkValue=newIdrec;
+                        if(!mapPendingIDs.contains(refValue)){
+                            mapPendingIDs.insert(refValue,QList<PendingDuplicateItem>());
+                        }
+                        QList<PendingDuplicateItem> pendings=mapPendingIDs[refValue];
+                        pendings.append(pi);
+                        mapPendingIDs.insert(refValue,pendings);
+                        dupRec.setValue(rf,QString());//未决的，设为空
+                        resolved=false;
+                        break;//有未解决的依赖
+                    }else{
+                        //从已经复制的记录中替换引用
+                        dupRec.setValue(rf,mapDuplicatedRecords[refValue]);
+                    }
                 }
             }
         }
-        if(resolved){
-            processedRecords++;
-            hasProcessANewRecord=true;
-            QUuid uuid=QUuid::createUuid();
-            QString idrec=UUIDToString(uuid);
-            dupRec.setValue(CFG(ID),idrec);
-            dupRec.setValue(CFG(IDWell),mapDuplicatedRecords[idWell]);
-            int insertPos=model->rowCount();
-            bool success=model->insertRecord(insertPos,dupRec);
+        //        if(resolved){
+        processedRecords++;
+        hasProcessANewRecord=true;
+        int insertPos=model->rowCount();
+        bool success=model->insertRecord(insertPos,dupRec);
+        ADD_DUP_ERROR(success,model,errors,table);
+        if(success){
+            success=model->submitAll();
             ADD_DUP_ERROR(success,model,errors,table);
             if(success){
-                success=model->submitAll();
-                ADD_DUP_ERROR(success,model,errors,table);
+                mapDuplicatedRecords.insert(rec.value(CFG(ID)).toString(),newIdrec);
+                success= processPendingID(oldIdRec,newIdrec,mapPendingIDs,errors);
                 if(success){
-                    mapDuplicatedRecords.insert(rec.value(CFG(ID)).toString(),idrec);
-                    i++;
+                    processedPending++;
                 }
-                else{
-                    return  false;
-                }
-            }else{
+                i++;
+            }
+            else{
+                //                    duplicatedRecs=processedRecords+processedPending;
                 return false;
             }
         }else{
-            i++;
+            //                duplicatedRecs=processedRecords+processedPending;
+            return false;
         }
+        //        }else{
+        //            PK_VALUE(pk,rec);
+        //            unduplicatedRecords<<pk;
+        //            i++;
+        //        }
 
     }
     model->deleteLater();
-    return true;
+    //    duplicatedRecs=processedRecords;
+    return false;
+}
+
+bool WellDao::processPendingID(QString oriId, QString newId, QHash<QString, QList<PendingDuplicateItem> > & pendingIDs, QStringList &errors)
+{
+    bool success=true;
+    if(pendingIDs.contains(oriId)){
+        //处理遗留的依赖
+        QList<PendingDuplicateItem> listOfPendingItems=pendingIDs[oriId];
+        foreach(PendingDuplicateItem pi,listOfPendingItems){
+            QSqlQuery q(APP->well());
+            QString stmt=QString("update %1 set  %2='%3' where %4='%5'  COLLATE NOCASE ").arg(pi.table).arg(pi.field).arg(newId).arg(pi.pkField).arg(pi.pkValue);
+            q.prepare(stmt);
+            success=q.exec();
+            PRINT_ERROR(q);
+            if(q.numRowsAffected()<=0){
+                success=false;
+                break;
+            }
+        }
+        if(success){
+            pendingIDs.remove(oriId);
+        }
+    }
+    return success;
 }
 
 bool WellDao::duplicateWell(QString idWell, QWidget *parent)
@@ -813,40 +934,52 @@ bool WellDao::duplicateWell(QString idWell, QWidget *parent)
     QStringList errors;
     QList<QPair<QString, QStringList> > stagedTables;
     QHash<QString, QString> mapDuplicatedRecords;
-    QHash<QString, QString> mapDuplicatedTables;
+    QHash<QString, int> mapDuplicatedTables;
+    QHash<QString,QList<PendingDuplicateItem>> mapPendingIDs;
+    progressBar->setWindowModality(Qt::WindowModal);
     progressBar->show();
     int progress=0;
     bool success=false;
     progressBar->on_progress(tr("复制WellHeader"),progress);
     APP->well().transaction();
-    success=duplicateWellHeader(idWell,stagedTables,mapDuplicatedRecords,mapDuplicatedTables,errors);
+    success=duplicateWellHeader(idWell,stagedTables,mapDuplicatedRecords,mapDuplicatedTables,mapPendingIDs,errors);
+    QCoreApplication::processEvents();
     if(!success)
     {
         progressBar->on_progress(tr("复制失败"),100);
-        QMessageBox::warning(parent,tr("失败"),errors.join(";"));
+        QCoreApplication::processEvents();
         APP->well().rollback();
+        QMessageBox::warning(parent,tr("失败"),errors.join(";"));
         return false;
     }
     progressBar->on_progress(tr("复制WellHeader完成"),10);
-    success =initStageTables(idWell,stagedTables,mapDuplicatedRecords,mapDuplicatedTables,errors);
+    QCoreApplication::processEvents();
+    success =initStageTables(idWell,stagedTables,mapDuplicatedRecords,mapDuplicatedTables,mapPendingIDs,errors);
+    QCoreApplication::processEvents();
     if(!success)
     {
         progressBar->on_progress(tr("复制失败"),100);
+        QCoreApplication::processEvents();
         QMessageBox::warning(parent,tr("失败"),errors.join(";"));
         APP->well().rollback();
         return false;
     }
     progressBar->on_progress(tr("初始化表完成"),30);
-    success=handleStageTables(idWell,stagedTables,mapDuplicatedRecords,mapDuplicatedTables,errors);
+    QCoreApplication::processEvents();
+    success=handleStageTables(idWell,stagedTables,mapDuplicatedRecords,mapDuplicatedTables,mapPendingIDs,errors);
+    QCoreApplication::processEvents();
+    APP->well().commit();
     if(!success)
     {
-        progressBar->on_progress(tr("复制失败"),100);
-        QMessageBox::warning(parent,tr("失败"),errors.join(";"));
-        APP->well().rollback();
-        return false;
-    }
-    progressBar->on_progress(tr("复制成功结束"),100);
-    APP->well().commit();
+        progressBar->on_progress(tr("复制完成"),100);
+        QMessageBox::warning(parent,tr("存在问题"),errors.join(";"));
+        QCoreApplication::processEvents();
+        //        APP->well().rollback();
+        //        return false;
+    }else{
+        progressBar->on_progress(tr("复制成功结束"),100);
+        QCoreApplication::processEvents();
+    } ;
 }
 
 

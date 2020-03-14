@@ -50,6 +50,7 @@ QWMApplication::QWMApplication(int &argc, char **argv):QApplication(argc,argv)
     _iconMap[QStringLiteral("file@1x")]=QIcon(QStringLiteral(":/images/icons/file@1x.svg"));
     _iconMap[QStringLiteral("file@2x")]=QIcon(QStringLiteral(":/images/icons/file@2x.svg"));
     _iconMap[QStringLiteral("file@4x")]=QIcon(QStringLiteral(":/images/icons/file@4x.svg"));
+    _iconMap[QStringLiteral("folder")]=QIcon(QStringLiteral(":/images/icons/folder.svg"));
     _iconMap[QStringLiteral("folder@1x")]=QIcon(QStringLiteral(":/images/icons/folder@1x.png"));
     _iconMap[QStringLiteral("folder@2x")]=QIcon(QStringLiteral(":/images/icons/folder@2x.png"));
     _iconMap[QStringLiteral("folder@4x")]=QIcon(QStringLiteral(":/images/icons/folder@4x.png"));
@@ -60,6 +61,7 @@ QWMApplication::QWMApplication(int &argc, char **argv):QApplication(argc,argv)
     _iconMap[QStringLiteral("data@2x")]=QIcon(QStringLiteral(":/images/icons/data@2x.png"));
     _iconMap[QStringLiteral("data@4x")]=QIcon(QStringLiteral(":/images/icons/data@4x.png"));
     _iconMap[QStringLiteral("query@1x")]=QIcon(QStringLiteral(":/images/icons/query@1x.png"));
+    _iconMap[QStringLiteral("query")]=QIcon(QStringLiteral(":/images/icons/query.svg"));
     _iconMap[QStringLiteral("query@2x")]=QIcon(QStringLiteral(":/images/icons/query@2x.png"));
     _iconMap[QStringLiteral("query@4x")]=QIcon(QStringLiteral(":/images/icons/query@4x.png"));
     _iconMap[QStringLiteral("folder-open")]=QIcon(QStringLiteral(":/images/icons/openfolder@1x.png"));
@@ -463,14 +465,14 @@ void QWMApplication::refresh()
     CLOSEDB(_wellDB);
     CLOSEDB(_libDB);
     CLOSEDB(_edlDB);
-     initMDLDB();
-     initUDLDB();
-     initLIBDB();
-     initWellDB();
-     initEDLDB();
-     MDLDao::resetCache();
-     UDLDao::resetCache();
-     LIBDao::resetCache();
-     WellDao::resetCache();
-     EDLDao::resetCache();
+    initMDLDB();
+    initUDLDB();
+    initLIBDB();
+    initWellDB();
+    initEDLDB();
+    MDLDao::resetCache();
+    UDLDao::resetCache();
+    LIBDao::resetCache();
+    WellDao::resetCache();
+    EDLDao::resetCache();
 }

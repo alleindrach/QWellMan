@@ -131,7 +131,6 @@
      </property>
     </widget>
     <addaction name="actionFavorite"/>
-    <addaction name="actionUnFavorite"/>
     <addaction name="separator"/>
     <addaction name="actionGroup"/>
     <addaction name="actionListColumn"/>
@@ -169,10 +168,10 @@
    <addaction name="actionEdit"/>
    <addaction name="separator"/>
    <addaction name="actionDelete"/>
+   <addaction name="actionDuplicate"/>
    <addaction name="actionAbout"/>
    <addaction name="separator"/>
    <addaction name="actionFavorite"/>
-   <addaction name="actionUnFavorite"/>
    <addaction name="actionGroup"/>
    <addaction name="actionListColumn"/>
    <addaction name="separator"/>
@@ -181,7 +180,7 @@
   <action name="actionNew">
    <property name="icon">
     <iconset resource="resource/resource.qrc">
-     <normaloff>:/images/icons/new.png</normaloff>:/images/icons/new.png</iconset>
+     <normaloff>:/images/icons/new.svg</normaloff>:/images/icons/new.svg</iconset>
    </property>
    <property name="text">
     <string>New</string>
@@ -196,7 +195,7 @@
   <action name="actionOpen">
    <property name="icon">
     <iconset resource="resource/resource.qrc">
-     <normaloff>:/images/icons/open.png</normaloff>:/images/icons/open.png</iconset>
+     <normaloff>:/images/icons/open.svg</normaloff>:/images/icons/open.svg</iconset>
    </property>
    <property name="text">
     <string>Open</string>
@@ -211,7 +210,7 @@
   <action name="actionEdit">
    <property name="icon">
     <iconset resource="resource/resource.qrc">
-     <normaloff>:/images/icons/edit.png</normaloff>:/images/icons/edit.png</iconset>
+     <normaloff>:/images/icons/edit.svg</normaloff>:/images/icons/edit.svg</iconset>
    </property>
    <property name="text">
     <string>Edit</string>
@@ -226,7 +225,7 @@
   <action name="actionDelete">
    <property name="icon">
     <iconset resource="resource/resource.qrc">
-     <normaloff>:/images/icons/delete-page.png</normaloff>:/images/icons/delete-page.png</iconset>
+     <normaloff>:/images/icons/delete.svg</normaloff>:/images/icons/delete.svg</iconset>
    </property>
    <property name="text">
     <string>Delete</string>
@@ -295,7 +294,7 @@
   <action name="actionAbout">
    <property name="icon">
     <iconset resource="resource/resource.qrc">
-     <normaloff>:/images/icons/about.png</normaloff>:/images/icons/about.png</iconset>
+     <normaloff>:/images/icons/about.svg</normaloff>:/images/icons/about.svg</iconset>
    </property>
    <property name="text">
     <string>About</string>
@@ -307,7 +306,7 @@
   <action name="actionDuplicate">
    <property name="icon">
     <iconset resource="resource/resource.qrc">
-     <normaloff>:/images/icons/copy.png</normaloff>:/images/icons/copy.png</iconset>
+     <normaloff>:/images/icons/duplicate.svg</normaloff>:/images/icons/duplicate.svg</iconset>
    </property>
    <property name="text">
     <string>Duplicate</string>
@@ -319,7 +318,7 @@
   <action name="actionFavorite">
    <property name="icon">
     <iconset resource="resource/resource.qrc">
-     <normaloff>:/images/icons/Favorite@2x.png</normaloff>:/images/icons/Favorite@2x.png</iconset>
+     <normaloff>:/images/icons/tag.svg</normaloff>:/images/icons/tag.svg</iconset>
    </property>
    <property name="text">
     <string>Favorite</string>
@@ -356,7 +355,7 @@
   <action name="actionGroup">
    <property name="icon">
     <iconset resource="resource/resource.qrc">
-     <normaloff>:/images/icons/catalog@2x.png</normaloff>:/images/icons/catalog@2x.png</iconset>
+     <normaloff>:/images/icons/catalogue.svg</normaloff>:/images/icons/catalogue.svg</iconset>
    </property>
    <property name="text">
     <string>Group</string>
@@ -365,7 +364,7 @@
   <action name="actionListColumn">
    <property name="icon">
     <iconset resource="resource/resource.qrc">
-     <normaloff>:/images/icons/field@2x.png</normaloff>:/images/icons/field@2x.png</iconset>
+     <normaloff>:/images/icons/fields.svg</normaloff>:/images/icons/fields.svg</iconset>
    </property>
    <property name="text">
     <string>Fields</string>
@@ -404,7 +403,7 @@
   <action name="actionRefresh">
    <property name="icon">
     <iconset resource="resource/resource.qrc">
-     <normaloff>:/images/icons/item-relationship.png</normaloff>:/images/icons/item-relationship.png</iconset>
+     <normaloff>:/images/icons/refresh.svg</normaloff>:/images/icons/refresh.svg</iconset>
    </property>
    <property name="text">
     <string>Refresh</string>

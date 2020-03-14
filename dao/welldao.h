@@ -8,6 +8,13 @@
 #include <QStringList>
 #include "qwmrotatableproxymodel.h"
 #include "qwmtablemodel.h"
+struct PendingDuplicateItem{
+    QString table;
+    QString pkValue;
+    QString pkField;
+    QString field;
+};
+
 class WellDao : public QObject
 {
     Q_OBJECT
@@ -45,10 +52,11 @@ public:
     QString TDAll(QString idWell);
     double TD(QString idWell);
     static void resetCache();
-    bool duplicateWellHeader(QString idWell,QList<QPair<QString,QStringList>> & stagedTables ,QHash<QString,QString> &   mapDuplicatedRecords,QHash<QString,QString> & mapDuplicatedTables,QStringList & errors);
-    bool initStageTables(QString idWell,QList<QPair<QString,QStringList>> & stagedTables ,QHash<QString,QString> & mapDuplicatedRecords,QHash<QString,QString> & mapDuplicatedTables,QStringList & errors);
-    bool handleStageTables(QString idWell,QList<QPair<QString,QStringList>> & stagedTables ,QHash<QString,QString> & mapDuplicatedRecords,QHash<QString,QString> & mapDuplicatedTables,QStringList & errors);
-    bool duplicateTable(QString idWell,QString table,QList<QPair<QString,QStringList>> & stagedTables ,QHash<QString,QString> & mapDuplicatedRecords,QHash<QString,QString> & mapDuplicatedTables,QStringList & errors);
+    bool duplicateWellHeader(QString idWell,QList<QPair<QString,QStringList>> & stagedTables ,QHash<QString,QString> &   mapDuplicatedRecords,QHash<QString,int> & mapDuplicatedTables,QHash<QString ,QList<PendingDuplicateItem> >&pendingIDs,QStringList & errors);
+    bool initStageTables(QString idWell,QList<QPair<QString,QStringList>> & stagedTables ,QHash<QString,QString> & mapDuplicatedRecords,QHash<QString,int> & mapDuplicatedTables,QHash<QString,QList<PendingDuplicateItem> >&pendingIDs,QStringList & errors);
+    bool handleStageTables(QString idWell,QList<QPair<QString,QStringList>> & stagedTables ,QHash<QString,QString> & mapDuplicatedRecords,QHash<QString,int> & mapDuplicatedTables,QHash<QString,QList<PendingDuplicateItem> >&pendingIDs,QStringList & errors);
+    bool duplicateTable(QString idWell,QString table,QList<QPair<QString,QStringList>> & stagedTables ,QHash<QString,QString> & mapDuplicatedRecords,QHash<QString,int> & mapDuplicatedTables,QHash<QString,QList<PendingDuplicateItem> >&pendingIDs,QStringList & errors);
+    bool processPendingID(QString oriId,QString newId, QHash<QString ,QList<PendingDuplicateItem> >&pendingIDs,QStringList & errors);
     bool duplicateWell(QString idWell,QWidget* parent);
 signals:
     void Duplicating(QString message,int progress);

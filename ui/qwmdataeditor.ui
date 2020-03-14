@@ -355,12 +355,11 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionExit"/>
-   <addaction name="actionSaveAll"/>
   </widget>
   <action name="actionSave">
    <property name="icon">
     <iconset resource="../resource/resource.qrc">
-     <normaloff>:/images/icons/save.png</normaloff>:/images/icons/save.png</iconset>
+     <normaloff>:/images/icons/save.svg</normaloff>:/images/icons/save.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Save</string>
@@ -456,7 +455,7 @@
   <action name="actionExit">
    <property name="icon">
     <iconset resource="../resource/resource.qrc">
-     <normaloff>:/images/icons/quit@2x.png</normaloff>:/images/icons/quit@2x.png</iconset>
+     <normaloff>:/images/icons/SaveAndClose.svg</normaloff>:/images/icons/SaveAndClose.svg</iconset>
    </property>
    <property name="text">
     <string>Exit</string>
@@ -468,7 +467,7 @@
   <action name="actionSaveAll">
    <property name="icon">
     <iconset resource="../resource/resource.qrc">
-     <normaloff>:/images/icons/saveAll.png</normaloff>:/images/icons/saveAll.png</iconset>
+     <normaloff>:/images/icons/saveall.svg</normaloff>:/images/icons/saveall.svg</iconset>
    </property>
    <property name="text">
     <string>SaveAll</string>

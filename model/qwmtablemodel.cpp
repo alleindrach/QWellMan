@@ -131,7 +131,7 @@ QVariant QWMTableModel::data(const QModelIndex &index, int role) const
     }
 
     if(role==SORT_ROLE){
-        if(fieldInfo->Calculated()==true){
+        if(fieldInfo!=nullptr && fieldInfo->Calculated()==true){
             if(_calcData.contains(index.row())){
                 return _calcData[index.row()].value(index.column()-_natureFieldCount);
             }

@@ -118,6 +118,16 @@ void QWMMain::on_actionFavorite_triggered()
             qDebug()<<"insert:"<<affected;
         }
         break;
+    case QWMApplication::FAVORITE:
+        foreach(QModelIndex index ,selection->selectedRows()){
+            QSqlRecord rec=model->record(index);
+            int fieldIndex=rec.indexOf(CFG(IDMainFieldName));
+            QString idwell=rec.value(fieldIndex).toString();
+            int affected=WELL->removeFavoriteWell(idwell);
+            ui->tbvWells->hideRow(index.row());
+            emit model->dataChanged(model->index(index.row(),0),model->index(index.row(),index.column()-1));
+        }
+        break;
     }
     return;
 }
@@ -223,23 +233,23 @@ void QWMMain::init()
         ui->trvCatalogs->setStyle(QStyleFactory::create("windows"));
         _catalogModel = new QStandardItemModel(ui->trvCatalogs);
         //        QIcon icon=APP->icons()["files@1x"];
-        _qsiRecentOpenWell= new QStandardItem(APP->icons()["folder@1x"], tr("最近打开"));
+        _qsiRecentOpenWell= new QStandardItem(APP->icons()["folder"], tr("最近打开"));
         _qsiRecentOpenWell->setData(QWMApplication::RECENT,CAT_ROLE);
         _catalogModel->appendRow(_qsiRecentOpenWell);
 
-        _qsiFavoriate = new QStandardItem(APP->icons()["folder@1x"], tr("收藏"));
+        _qsiFavoriate = new QStandardItem(APP->icons()["folder"], tr("收藏"));
         _qsiFavoriate->setData(QWMApplication::FAVORITE,CAT_ROLE);
         _catalogModel->appendRow(_qsiFavoriate);
 
-        _qsiAllWells = new QStandardItem(APP->icons()["folder@1x"], tr("全部"));
+        _qsiAllWells = new QStandardItem(APP->icons()["folder"], tr("全部"));
         _qsiAllWells->setData(QWMApplication::ALL,CAT_ROLE);
         _catalogModel->appendRow(_qsiAllWells);
 
-        _qsiQuery = new QStandardItem(APP->icons()["query@4x"], tr("查询"));
+        _qsiQuery = new QStandardItem(APP->icons()["query"], tr("查询"));
         _qsiQuery->setData(QWMApplication::QUERY,CAT_ROLE);
         _catalogModel->appendRow(_qsiQuery);
 
-        _qsiQuickQuery = new QStandardItem(APP->icons()["query@4x"], tr("快速查询"));
+        _qsiQuickQuery = new QStandardItem(APP->icons()["query"], tr("快速查询"));
         _qsiQuickQuery->setData(QWMApplication::QUICK_QUERY,CAT_ROLE);
         _qsiQuery->appendRow(_qsiQuickQuery);
 

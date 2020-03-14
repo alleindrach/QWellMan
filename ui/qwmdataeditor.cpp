@@ -885,6 +885,13 @@ void QWMDataEditor::on_actionSave_triggered()
 
 void QWMDataEditor::on_actionExit_triggered()
 {
+    QStringList errors;
+    bool success=this->saveAll(errors);
+    if(!success){
+        QString msg=errors.join("\n");
+        QMessageBox::critical(this,tr("错误"),tr("提交错误[%1]").arg(msg));
+    }
+
     QCloseEvent *event=new QCloseEvent();
     QApplication::postEvent(this,event);
 }
