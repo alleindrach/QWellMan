@@ -36,7 +36,7 @@ DECL_SQL(select_hidden_fields_of_profile,"select hd.KeyFld from pceUDLProfile p 
                                          "and hd.KeyTbl=:table COLLATE  NOCASE")
 
 DECL_SQL(select_table_visible_fields_in_order_by_group,"select * from pceListTblFld f where  f.GroupName=:group COLLATE NOCASE "
-                                                       "and f.KeyTbl=:table  and not  exists ( "
+                                                       "and f.KeyTbl=:table COLLATE NOCASE  and not  exists ( "
                                                        "select hd.KeyFld from pceUDLProfile p ,pceUDLSetFldHiddenData hd "
                                                        " where p.KeyProfile=:profile COLLATE NOCASE "
                                                        "and p.KeySetFldHidden=hd.KeySet COLLATE NOCASE "
@@ -441,6 +441,9 @@ bool UDLDao::tableHasField(QString table,QString field){
     if(q.next()){
         result= QS(q,cnt).toInt()>0;
     }
+    if(result==false){
+        result=MDL->tableHasField(table,field);
+    }
     CI(key,result);
 }
 MDLUnitType* UDLDao::baseUnitOfField(QString table, QString field)
@@ -552,7 +555,7 @@ bool UDLDao::isLookupMultiTableField(MDLField *fieldInfo)
 
 QString UDLDao::lookupTableNameField(MDLField *fieldInfo)
 {
-    QString fieldTable=fieldInfo->KeyFld().replace("IDRec","KeyTbl",Qt::CaseInsensitive);
+    QString fieldTable=fieldInfo->KeyFld().replace("IDRec","TblKey",Qt::CaseInsensitive);
     return fieldTable;
 }
 MDLTable* UDLDao::tableInfo(QString table)

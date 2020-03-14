@@ -413,10 +413,14 @@ QString WellDao::recordDes(QString table, QSqlRecord record)
 QSqlRecord WellDao::refRecord(QString table, QString id)
 {
     QSqlQuery q(APP->well());
+    QString keyFld=CFG(ID);
+    if(!UDL->tableHasField(table,keyFld)){
+        keyFld=CFG(IDWell);
+    }
     q.prepare(SQL(select_record2)
               .arg(table) //%1 wvWellHeader
               .arg(CFG(SysRecDelTable)) //%2 wvSysDelRec
-              .arg(CFG(ID)) //%3 IDREC
+              .arg(keyFld) //%3 IDREC
               );
     q.bindValue(":id",id);
     q.exec();

@@ -410,8 +410,7 @@ void QWMRefLookupDelegate::setModelData(QWidget *editor,QAbstractItemModel *mode
                 if(v!=ov && !v.isNull()) {
                     QList<QPair<QString,QVariant>> spv;
                     spv.append(QPair<QString,QVariant>(rmodel->fieldName(index),v));
-                    QModelIndex aIndex=rmodel->indexOfSameRecord(index,tableNameFld);
-                    spv.append(QPair<QString,QVariant>(rmodel->fieldName(aIndex),parts[0]));
+                    spv.append(QPair<QString,QVariant>(tableNameFld,parts[0]));
                     model->setData(index,QVariant::fromValue(spv),LINKED_FIELDS);
                 }
             }

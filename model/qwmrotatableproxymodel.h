@@ -41,7 +41,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     QString fieldName(QModelIndex  index) const;
     QString fieldTitle(QModelIndex  index);
-    QModelIndex indexOfSameRecord(QModelIndex  index,QString fieldName);
+//    QModelIndex indexOfSameRecord(QModelIndex  index,QString fieldName);
     QString tableName() const;
     QModelIndex firstEditableCell() ;
     bool showGroup();

@@ -247,6 +247,21 @@ bool MDLDao::tableHasField(QString table,QString field){
     if(q.next()){
         result= QS(q,cnt).toInt()>0;
     }
+    if(result==false){
+        APP->well().transaction();
+        QSqlQuery q(APP->well());
+        q.prepare(QString("PRAGMA table_info('%1')").arg(table));
+//        q.bindValue(":table",table);
+        q.exec();
+        PRINT_ERROR(q);
+        while(q.next()){
+            if(q.value("name").toString().compare(field,Qt::CaseInsensitive)==0){
+                result=true;
+                break;
+            }
+        }
+        APP->well().commit();
+    }
     CI(key,result);
 }
 

@@ -250,23 +250,23 @@ QString QWMRotatableProxyModel::fieldTitle(QModelIndex index)
     return fieldInfo.toString();
 }
 
-QModelIndex QWMRotatableProxyModel::indexOfSameRecord(QModelIndex index, QString fieldName)
-{
-    P(pmodel);
-    S(smodel);
-    QModelIndex pindex=this->mapToSource(index);
-    QModelIndex sindex=pmodel->mapToSource(pindex);
+//QModelIndex QWMRotatableProxyModel::indexOfSameRecord(QModelIndex index, QString fieldName)
+//{
+//    P(pmodel);
+//    S(smodel);
+//    QModelIndex pindex=this->mapToSource(index);
+//    QModelIndex sindex=pmodel->mapToSource(pindex);
 
-    int col=smodel->record().indexOf(fieldName);
-    if(col>=0){
-        QModelIndex saindex=smodel->index(sindex.row(),col);
-        QModelIndex paindex=pmodel->mapFromSource(saindex);
-        QModelIndex taindex=this->mapFromSource(paindex);
-        return taindex;
-    }
+//    int col=smodel->record().indexOf(fieldName);
+//    if(col>=0){
+//        QModelIndex saindex=smodel->index(sindex.row(),col);
+//        QModelIndex paindex=pmodel->mapFromSource(saindex);
+//        QModelIndex taindex=this->mapFromSource(paindex);
+//        return taindex;
+//    }
 
-    return QModelIndex();
-}
+//    return QModelIndex();
+//}
 QString QWMRotatableProxyModel::tableName() const
 {
     S(model);

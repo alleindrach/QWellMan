@@ -788,7 +788,8 @@ void QWMDataEditor::on_current_record_changed(const QModelIndex &current, const 
              ){
         QString field=model->fieldName(current);
         MDLField * fieldInfo=UDL->fieldInfo(model->tableName(),field);
-        ui->lblFieldInfo->setText(fieldInfo->Help());
+        if(fieldInfo!=nullptr)
+            ui->lblFieldInfo->setText(fieldInfo->Help());
     }
     if(ui->trvTables->currentIndex().isValid()){
         QPoint select ;
