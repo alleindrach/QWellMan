@@ -254,5 +254,7 @@
         <file>images/icons/SaveAndClose.svg</file>
         <file>images/icons/query.svg</file>
         <file>images/icons/dictionary.svg</file>
+        <file>images/icons/paste.svg</file>
+        <file>images/icons/copy.svg</file>
     </qresource>
 </RCC>

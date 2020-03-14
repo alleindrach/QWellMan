@@ -544,6 +544,30 @@
     <string>Save To File</string>
    </property>
   </action>
+  <action name="actionCopy">
+   <property name="icon">
+    <iconset resource="../resource/resource.qrc">
+     <normaloff>:/images/icons/copy.png</normaloff>:/images/icons/copy.png</iconset>
+   </property>
+   <property name="text">
+    <string>Copy</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy Record To  Clipboard</string>
+   </property>
+  </action>
+  <action name="actionPaste">
+   <property name="icon">
+    <iconset resource="../resource/resource.qrc">
+     <normaloff>:/images/icons/paste.png</normaloff>:/images/icons/paste.png</iconset>
+   </property>
+   <property name="text">
+    <string>Paste</string>
+   </property>
+   <property name="toolTip">
+    <string>Paste record from clipboard</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../resource/resource.qrc"/>

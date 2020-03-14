@@ -10,6 +10,9 @@
 #include "QMetaObject"
 #include "QMetaProperty"
 #include <QDebug>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonDocument>
 #include "QGenericArgument"
 class MDLTable;
 class Record : public QObject
@@ -78,6 +81,18 @@ public:
             result.append(o);
         }
         return result;
+    }
+
+
+    static QJsonObject fromSqlRecord(QSqlRecord record,QObject * parent=nullptr){
+        QJsonObject obj;
+
+        for(int j=0; j<record.count(); ++j)
+        {
+            // QVariant
+            obj.insert(record.fieldName(j), record.value(j).toString());
+        }
+        return obj;
     }
 
 signals:

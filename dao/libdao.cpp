@@ -7,7 +7,7 @@
 #include "QDebug"
 #include "qwmlibquerymodel.h"
 LIBDao * LIBDao::_instance=nullptr;
-QVector<QString> LIBDao::hiddenFields={"IDRec","sysOrderBy","sysModUser","sysHelp","sysModDate","sysTab"};
+QVector<QString> LIBDao::hiddenFields={"IDWell","IDRec","sysOrderBy","sysModUser","sysHelp","sysModDate","sysTab"};
 QHash<QString ,QVariant> LIBDao::_cache={};
 
 BEGIN_SQL_DECLARATION(LIBDao)

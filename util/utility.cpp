@@ -4,6 +4,7 @@
 #include <QTime>
 #include <QDateTime>
 #include <QtMath>
+
 Utility::Utility()
 {
 
@@ -163,3 +164,18 @@ double Utility::depart(double md,double ns,double ew,double whNs,double whEw)
     return result;
 }
 //IF($C12=0," ",(SIN(PI()÷180×$D12)×SIN(PI()÷180×$E12)+SIN(PI()÷180×$D11)×SIN(PI()÷180×$E11))×$F12÷2×$T12+$J11)
+QJsonObject Utility::QStringToJson(QString jsonString)
+{
+    QJsonDocument jsonDocument = QJsonDocument::fromJson(jsonString.toLocal8Bit().data());
+    if(jsonDocument.isNull())
+    {
+        qDebug()<< "String NULL"<< jsonString.toLocal8Bit().data();
+    }
+    QJsonObject jsonObject = jsonDocument.object();
+    return jsonObject;
+}
+
+QString Utility::JsonToQString(QJsonObject jsonObject)
+{
+    return QString(QJsonDocument(jsonObject).toJson());
+}

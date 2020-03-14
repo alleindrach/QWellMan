@@ -164,6 +164,8 @@ private:
             QTabBar::tab:selected, QTabBar::tab:hover { \
                                                     background: rgb(155, 0, 2);\
 }\
+QPushButton { color:black; \
+              border:1px  groove  black;border-radius:6px;padding:4px 4px;}\
 ";
 
 };

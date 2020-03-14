@@ -3,6 +3,10 @@
 #include <QString>
 #include <QVariant>
 #include <QPointF>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonDocument>
+
 class Utility
 {
 public:
@@ -24,7 +28,8 @@ public:
     //Horz Displ
 
     static double depart(double md,double ns,double ew,double whNs=0,double whEw=0);
-
+    static QJsonObject QStringToJson(QString jsonString);
+    static QString JsonToQString(QJsonObject jsonObject);
 };
 
 #endif // UTILITY_H

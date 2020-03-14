@@ -11,6 +11,9 @@
 #include <QDebug>
 #include <QSqlField>
 #include <QFileInfo>
+#include <QClipboard>
+#include <QJsonObject>
+#include <QMimeData>
 #include "qwmdataeditor.h"
 #include "ui_qwmdataeditor.h"
 #include "qwmmain.h"
@@ -19,6 +22,7 @@
 #include "udldao.h"
 #include "qwmapplication.h"
 #include "welldao.h"
+#include "utility.h"
 
 #include "mdltable.h"
 #include "qwmdatatableview.h"
@@ -101,7 +105,9 @@ void QWMDataEditor::init()
     _tableOpToolBar->addSeparator();
     _tableOpToolBar->addAction(ui->actionSort);
     _tableOpToolBar->addSeparator();
-
+    _tableOpToolBar->addAction(ui->actionCopy);
+    _tableOpToolBar->addAction(ui->actionPaste);
+    _tableOpToolBar->addSeparator();
     _tableOpToolBar->addAction(ui->actionOpen);
     _tableOpToolBar->addAction(ui->actionSaveTo);
     ui->actionOpen->setVisible(false);
@@ -1046,5 +1052,49 @@ void QWMDataEditor::on_actionSaveTo_triggered()
             return;
         long writed=file.write(ba);
         file.close();
+    }
+}
+
+void QWMDataEditor::on_actionCopy_triggered()
+{
+    QClipboard *clipboard = QGuiApplication::clipboard();
+
+    QWMRotatableProxyModel * model=qobject_cast<QWMRotatableProxyModel*>( _tbvData->model());
+    QItemSelectionModel * selection=_tbvData->selectionModel();
+    if(selection->hasSelection()){
+        //        if(model->mode()==QWMRotatableProxyModel::H){
+
+        //        }else{
+
+        //        }
+        QSqlRecord  record=model->record(selection->currentIndex());
+        QJsonObject jso=Record::fromSqlRecord(record);
+        clipboard->setText(Utility::JsonToQString(jso));
+    }
+
+}
+
+
+void QWMDataEditor::on_actionPaste_triggered()
+{
+    QClipboard *clipboard = QGuiApplication::clipboard();
+    const QMimeData *mimeData = clipboard->mimeData();
+    QWMRotatableProxyModel * model=qobject_cast<QWMRotatableProxyModel*>( _tbvData->model());
+    QItemSelectionModel * selection=_tbvData->selectionModel();
+    if(selection->hasSelection()){
+        QSqlRecord  record=model->record(selection->currentIndex());
+        if (mimeData->hasText()) {
+            QString text=mimeData->text();
+            QJsonObject jso=Utility::QStringToJson(text);
+            if(!jso.isEmpty()){
+                QList<QPair<QString,QVariant>> spv;
+                for(QJsonObject::const_iterator i=jso.constBegin();i!=jso.constEnd(); i++){
+                    if(record.indexOf(i.key())>=0 && !WellDao::unpastebleFields.contains(i.key(),Qt::CaseInsensitive)){
+                        spv.append(QPair<QString,QVariant>(i.key(),i.value()));
+                    }
+                }
+                model->setData(selection->currentIndex(),QVariant::fromValue(spv),LINKED_FIELDS);
+            }
+        }
     }
 }

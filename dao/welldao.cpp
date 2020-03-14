@@ -20,6 +20,9 @@
 #include <QPair>
 #include <QMessageBox>
 #include "qwmprogressdialog.h"
+
+QStringList WellDao::unpastebleFields={"IDWell","IDRec","sysLockDateMaster","sysSecurityTyp","sysModDateAny","sysModUserAny","sysModDateDB","sysLockDate","sysModUser","sysModDate","sysCreateUser","sysCreateDate"};
+
 WellDao * WellDao::_instance=nullptr;
 QHash<QString ,QVariant> WellDao::_cache={};
 
