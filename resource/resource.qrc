@@ -253,5 +253,6 @@
         <file>images/icons/ic_exit.svg</file>
         <file>images/icons/SaveAndClose.svg</file>
         <file>images/icons/query.svg</file>
+        <file>images/icons/dictionary.svg</file>
     </qresource>
 </RCC>

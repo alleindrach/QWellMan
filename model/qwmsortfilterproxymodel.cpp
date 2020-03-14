@@ -322,17 +322,19 @@ void QWMSortFilterProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
 
     foreach(QString group,groups){
         QStringList fields=UDL->fieldsVisibleInOrderByGroup(APP->profile(),model->tableName(),group);
-        _groupIndex.insert(c,group);
-        _fieldGroup.insert(group,fields);
-        c+=(fields.count()+1);
+        if(fields.size()>0){
+            _groupIndex.insert(c,group);
+            _fieldGroup.insert(group,fields);
+            c+=(fields.count()+1);
+        }
     }
     QSortFilterProxyModel::setSourceModel(sourceModel);
     disconnect(sourceModel,&QAbstractItemModel::dataChanged,0,0);
     connect(sourceModel,&QAbstractItemModel::dataChanged,this,&QWMSortFilterProxyModel::on_source_model_data_changed);
     disconnect(model,&QWMTableModel::rowsChanged,0,0);
     connect(model,&QWMTableModel::rowsChanged,this,&QWMSortFilterProxyModel::on_rows_changed);
-//    disconnect(model,&QWMTableModel::submitted,0,0);
-//    connect(model,&QWMTableModel::submitted,this,&QWMSortFilterProxyModel::on_source_model_data_submitted);
+    //    disconnect(model,&QWMTableModel::submitted,0,0);
+    //    connect(model,&QWMTableModel::submitted,this,&QWMSortFilterProxyModel::on_source_model_data_submitted);
 }
 
 

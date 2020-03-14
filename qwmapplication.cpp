@@ -43,7 +43,7 @@ QWMApplication::QWMApplication(int &argc, char **argv):QApplication(argc,argv)
     //    qRegisterMetaType<Record>("Record");
     //    qRegisterMetaType<MDLTable>("MDLTable");
     connect(this,&QWMApplication::shutdown,this,&QCoreApplication::exit,Qt::QueuedConnection);
-    _iconMap[QStringLiteral("lookup")]=QIcon(QStringLiteral(":/images/icons/lookup.svg"));
+    _iconMap[QStringLiteral("lookup")]=QIcon(QStringLiteral(":/images/icons/dictionary.svg"));
     _iconMap[QStringLiteral("files@1x")]=QIcon(QStringLiteral(":/images/icons/files@1x.svg"));
     _iconMap[QStringLiteral("files@2x")]=QIcon(QStringLiteral(":/images/icons/files@2x.svg"));
     _iconMap[QStringLiteral("files@4x")]=QIcon(QStringLiteral(":/images/icons/files@4x.svg"));
