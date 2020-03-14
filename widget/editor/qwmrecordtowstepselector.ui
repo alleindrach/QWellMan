@@ -102,6 +102,10 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="styleSheet">
+           <string notr="true">color:black;
+border:1px  groove  black;border-radius:6px;padding:4px 4px;</string>
+          </property>
           <property name="text">
            <string>Next</string>
           </property>
@@ -114,6 +118,10 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color:black;
+border:1px  groove  black;border-radius:6px;padding:4px 4px;</string>
           </property>
           <property name="text">
            <string>OK</string>
@@ -133,6 +141,10 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color:black;
+border:1px  groove  black;border-radius:6px;padding:4px 4px;</string>
           </property>
           <property name="text">
            <string>Cancel</string>

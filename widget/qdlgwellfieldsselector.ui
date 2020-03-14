@@ -28,6 +28,10 @@
    </property>
    <item row="3" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="styleSheet">
+      <string notr="true">color:black;
+border:1px  groove  black;border-radius:6px;padding:4px 4px;</string>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>

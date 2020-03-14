@@ -180,7 +180,7 @@ void QWMMain::showSplash()
 void QWMMain::hideSplash()
 {
     _splash->hide();
-//    _splash->deleteLater();
+    //    _splash->deleteLater();
 }
 
 void QWMMain::init()
@@ -462,12 +462,14 @@ void QWMMain::on_actionEdit_triggered()
 {
     QWMSortFilterProxyModel * model=static_cast<QWMSortFilterProxyModel*>(ui->tbvWells->model());
     QItemSelectionModel * selection=ui->tbvWells->selectionModel();
-    QModelIndex index=selection->selectedRows().first();
-    if(index.isValid()){
-        QSqlRecord rec=model->record(index);
-        int fieldIndex=rec.indexOf(CFG(IDMainFieldName));
-        QString idwell=rec.value(fieldIndex).toString();
-        editWell(idwell);
+    if(selection->selectedRows().size()>0){
+        QModelIndex index=selection->selectedRows().first();
+        if(index.isValid()){
+            QSqlRecord rec=model->record(index);
+            int fieldIndex=rec.indexOf(CFG(IDMainFieldName));
+            QString idwell=rec.value(fieldIndex).toString();
+            editWell(idwell);
+        }
     }
 }
 
@@ -569,7 +571,7 @@ void QWMMain::on_actionDuplicate_triggered()
         {
             QString idWell=index.data(PK_ROLE).toString();
             WELL->duplicateWell(idWell,this);
-//            int effectRows=WELL->deleteItem(idWell,idWell,CFG(KeyTblMain));
+            //            int effectRows=WELL->deleteItem(idWell,idWell,CFG(KeyTblMain));
         }
         sourceModel->select();
         //        proxyModel->submitAll();

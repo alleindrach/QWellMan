@@ -573,7 +573,7 @@ QStandardItemModel * MDLDao::loadDataTree(bool showGroup,QObject * /*parent*/)
     foreach(QString group ,groups){
         if(showGroup){
             item=new QStandardItem(); //新建节点时设定类型为 itTopItem
-            item->setIcon(APP->icons()["folder-open@4x"]); //设置第1列的图标
+            item->setIcon(APP->icons()["folder"]); //设置第1列的图标
 
             item->setText(group); //设置第1列的文字
             item->setFlags(Qt::ItemIsEnabled |Qt::ItemIsSelectable);
