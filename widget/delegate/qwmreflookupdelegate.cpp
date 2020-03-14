@@ -150,7 +150,6 @@ QWidget *QWMRefLookupDelegate::createEditor(QWidget *parent,
             }
         }
         if(IS_SPEC_REF_FIELD(fieldInfo)){//two step
-
             QWMRecordTwoStepSelector * editor=new  QWMRecordTwoStepSelector(DOC->idWell());
             {SET_EDITOR(QWMRecordTwoStepSelector,QWMRefLookupDelegate)};
             return editor;
@@ -216,50 +215,6 @@ bool QWMRefLookupDelegate::eventFilter(QObject *watched, QEvent *event) {
 
 bool QWMRefLookupDelegate::isEditor(QObject *widget){
     return IS_EDITOR(widget);
-    //    if(instanceof<QWMAbstractEditor>(widget)){
-    //        QWMAbstractEditor * editor=dynamic_cast<QWMAbstractEditor*>(widget);
-    //        QWMAbstractEditor::Type type=editor->type();
-    //        if(type==QWMAbstractEditor::Simple){
-    //            if(instanceof<QWMLibSingleSelector>(widget))
-    //                return true;
-    //            else
-    //                return false;
-    //        }else if(type==QWMAbstractEditor::Tab||type==QWMAbstractEditor::BiTab)
-    //        {
-    //            if(instanceof<QWMLibTabSelector>(widget))
-    //                return true;
-    //            else
-    //                return false;
-    //        }else if(type==QWMAbstractEditor::Tree)
-    //        {
-    //            if(instanceof<QWMRecordSingleStepSelector>(widget))
-    //                return true;
-    //            else
-    //                return false;
-    //        }else if(type==QWMAbstractEditor::BiTree)
-    //        {
-    //            if(instanceof<QWMRecordTwoStepSelector>(widget))
-    //                return true;
-    //            else
-    //                return false;
-    //        }else if(type==QWMAbstractEditor::Icon){
-    //            if(instanceof<QWMIconSelector>(widget))
-    //                return true;
-    //            else
-    //                return false;
-    //        }else if(type==QWMAbstractEditor::DateTime){
-    //            if(instanceof<QWMDateTimeEditor>(widget))
-    //                return true;
-    //            else
-    //                return false;
-    //        }
-    //    }else if(instanceof<QDateEdit>(widget)){
-
-    //    }
-    //    else if(instanceof<QTimeEdit>(widget)){
-
-    //        }
-    //    return false;
 }
 
 

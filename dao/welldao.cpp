@@ -535,10 +535,22 @@ QSqlQuery WellDao::records(QString table,QString idWell,QString parentID)
     PARENT_ID_FLD(parentFld,record);
     PK_FLD(idFld,record);
     QString additionalCri;
+    bool isSelfRefParent=false;
+    if(parentFld==CFG(ParentID)){
+        MDLField * fi=UDL->fieldInfo(table,parentFld);
+        if(fi!=nullptr){
+            isSelfRefParent= UDL->isLookupField(fi);
+        }
+    }
+
     //    DECL_SQL(select_records,"select  w.* from %1  w  where  not exists(select * from %2 d where  w.%3=d.IDRec COLLATE NOCASE) %4  order by %5")
     if(parentID.isNull() && parentFld==CFG(ParentID)){
-        //        顶级记录，如果有IDRecParent，则应该=IDRec， w.IDwell=：idwell and  w.IDRec=w.IDRecParent
-        additionalCri=QString(" and w.%1='%2' COLLATE NOCASE and  w.%3=w.%4  COLLATE NOCASE ").arg(CFG(IDWell)).arg(idWell).arg(CFG(ID)).arg(CFG(ParentID));
+        if(isSelfRefParent){
+            additionalCri=QString(" and w.%1='%2' COLLATE NOCASE  ").arg(CFG(IDWell)).arg(idWell);
+        }else{
+            //        顶级记录，如果有IDRecParent，则应该=IDRec， w.IDwell=：idwell and  w.IDRec=w.IDRecParent
+            additionalCri=QString(" and w.%1='%2' COLLATE NOCASE and (  w.%3=w.%4  COLLATE NOCASE OR w.%4 is null ) ").arg(CFG(IDWell)).arg(idWell).arg(CFG(ID)).arg(CFG(ParentID));
+        }
 
     }else if(parentID.isNull() && parentFld==CFG(IDWell)){
         //顶级记录，无IDRecParent,w.IDWell=:idwell

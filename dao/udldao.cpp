@@ -553,6 +553,14 @@ bool UDLDao::isLookupMultiTableField(MDLField *fieldInfo)
     return false;
 }
 
+bool UDLDao::isLookupField(MDLField *fieldInfo)
+{
+    if(MDL->fieldLookupinfo(fieldInfo->KeyTbl(),fieldInfo->KeyFld()).size()>0){
+        return true;
+    }
+    return false;
+}
+
 QString UDLDao::lookupTableNameField(MDLField *fieldInfo)
 {
     QString fieldTable=fieldInfo->KeyFld().replace("IDRec","TblKey",Qt::CaseInsensitive);
