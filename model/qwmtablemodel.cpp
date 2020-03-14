@@ -242,7 +242,7 @@ bool QWMTableModel::setData(const QModelIndex &index, const QVariant &value, int
         }
     }
     bool success=true;;
-    if(fieldInfo->Calculated()){
+    if(fieldInfo!=nullptr && fieldInfo->Calculated()){
         if(!_calcData.contains(index.row())){
             QSqlRecord record(_calcRecord);
             _calcData.insert(index.row(),record);
@@ -252,7 +252,10 @@ bool QWMTableModel::setData(const QModelIndex &index, const QVariant &value, int
             emit dataChanged(index,index);
         }
     }else{
-        success= QSqlTableModel::setData(index, v,  role);
+        if(role==BASE_UNIT_VALUE){
+            role=Qt::EditRole;
+        }
+        success = QSqlTableModel::setData(index, v,  role);
         if(!success){
             qDebug()<<"ERROR:"<<this->lastError().text();
         }
@@ -445,7 +448,7 @@ void QWMTableModel::calc(int curRow,int preRow)
     QSqlRecord preRec=record(preRow);
     foreach(QString calField,_calFields){
         QString express=EDL->equation(tableName(),calField);
-//        MDLField * fieldInfo=UDL->fieldInfo(tableName(),calField);
+        //        MDLField * fieldInfo=UDL->fieldInfo(tableName(),calField);
         int pos=fieldIndexEx(calField);
         QVariant value;
         if(!express.isNull()&& !express.isEmpty()){

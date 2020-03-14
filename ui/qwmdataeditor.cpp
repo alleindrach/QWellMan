@@ -1,10 +1,16 @@
-#include "QToolBar"
-#include "QCloseEvent"
-#include "QStyleFactory"
+#include <QToolBar>
+#include <QCloseEvent>
+#include <QStyleFactory>
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QList>
 #include <QStandardItem>
+#include <QFileDialog>
+#include <QLabel>
+#include <QMessageBox>
+#include <QDebug>
+#include <QSqlField>
+#include <QFileInfo>
 #include "qwmdataeditor.h"
 #include "ui_qwmdataeditor.h"
 #include "qwmmain.h"
@@ -13,16 +19,15 @@
 #include "udldao.h"
 #include "qwmapplication.h"
 #include "welldao.h"
-#include "QLabel"
+
 #include "mdltable.h"
 #include "qwmdatatableview.h"
-#include <QMessageBox>
+
 #include "qwmrotatableproxymodel.h"
 #include "qwmfieldeditcommand.h"
 #include "qwmrecordeditcommand.h"
 #include "qwmsortfilterproxymodel.h"
-#include <QDebug>
-#include <QSqlField>
+
 #define CHECK_UNDO_STATE \
     ui->actionRedo->setEnabled(undoStack()->canRedo());\
     ui->actionUndo->setEnabled(undoStack()->canUndo());\
@@ -97,7 +102,10 @@ void QWMDataEditor::init()
     _tableOpToolBar->addAction(ui->actionSort);
     _tableOpToolBar->addSeparator();
 
-
+    _tableOpToolBar->addAction(ui->actionOpen);
+    _tableOpToolBar->addAction(ui->actionSaveTo);
+    ui->actionOpen->setVisible(false);
+    ui->actionSaveTo->setVisible(false);
 
     _lblStatus = new QLabel(this);
     QFont font=_lblStatus->font();
@@ -573,7 +581,13 @@ void QWMDataEditor::editTable(const QModelIndex &tableNodeIndex)
         ui->actionSort->setChecked(sortableProxyModel->sortOrder()==Qt::DescendingOrder);
 
         showRecordNav();
-
+        if(tableName.compare(ATTACHMENT_TABLE,Qt::CaseInsensitive)==0){
+            ui->actionOpen->setVisible(true);
+            ui->actionSaveTo->setVisible(true);
+        }else{
+            ui->actionOpen->setVisible(false);
+            ui->actionSaveTo->setVisible(false);
+        }
         CHECK_UNDO_STATE;
         //        sortableProxyModel->sort(1, ui->actionSort->isChecked()?Qt::DescendingOrder:Qt::AscendingOrder);
     }
@@ -964,5 +978,65 @@ void QWMDataEditor::showRecordNav()
     }
     foreach(QAction * act ,_navActions){
         act->setVisible(false);
+    }
+}
+
+void QWMDataEditor::on_actionOpen_triggered()
+{
+    QWMRotatableProxyModel * model=qobject_cast<QWMRotatableProxyModel*>( _tbvData->model());
+    QModelIndex index=_tbvData->currentIndex();
+    if(!index.isValid()){
+        return ;
+    }
+    QString curPath=QDir::homePath();//获取系统当前目录
+    //获取应用程序的路径
+    QString dlgTitle=tr("选择文件位置"); //对话框标题
+    QString filter=tr("all files(*.*)"); //文件过滤器
+    QString strFileName=QFileDialog::getOpenFileName(this,dlgTitle,curPath,filter);
+    if (!strFileName.isEmpty()){
+        QFileInfo fileInfo(strFileName);
+        QByteArray ba;
+        QFile file(strFileName);
+        if (!file.open(QIODevice::ReadOnly))
+            return;
+        QByteArray blob = file.readAll();
+        file.close();
+        QList<QPair<QString,QVariant>> spv;
+        spv.append(QPair<QString,QVariant>("Des",fileInfo.baseName()));
+        spv.append(QPair<QString,QVariant>("AttachURL",fileInfo.filePath()));
+        spv.append(QPair<QString,QVariant>("AttachExtension",fileInfo.suffix()));
+        spv.append(QPair<QString,QVariant>("TblKeyParent",CFG(KeyTblMain)));
+        spv.append(QPair<QString,QVariant>("AttachBLOB",blob));
+        model->setData(index,QVariant::fromValue(spv),LINKED_FIELDS);
+    }
+}
+
+void QWMDataEditor::on_actionSaveTo_triggered()
+{
+    QWMRotatableProxyModel * model=qobject_cast<QWMRotatableProxyModel*>( _tbvData->model());
+    QModelIndex index=_tbvData->currentIndex();
+    if(!index.isValid()){
+        return ;
+    }
+    QSqlRecord record=model->record(index);
+    if(record.isEmpty()){
+        return;
+    }
+    QString curPath=QDir::homePath();//获取系统当前目录
+    //获取应用程序的路径
+    QString dlgTitle=tr("选择文件保存位置"); //对话框标题
+    QString filter=tr("all files(*.*)"); //文件过滤器
+    QString strFileName=QFileDialog::getSaveFileName(this,dlgTitle,curPath,filter);
+    if (!strFileName.isEmpty()){
+        QFileInfo fileInfo(strFileName);
+        QString fn=QString("%1%2%3.%4").arg(fileInfo.dir().path()).arg(QDir::separator()).arg(fileInfo.baseName()).arg(record.value("AttachExtension").toString());
+        QFileInfo fileInfoSave(fn);
+
+        QByteArray ba=record.value("AttachBLOB").toByteArray();
+        QFile file(fileInfoSave.absoluteFilePath());
+        if (!file.open(QIODevice::WriteOnly))
+            return;
+        long writed=file.write(ba);
+        file.close();
     }
 }

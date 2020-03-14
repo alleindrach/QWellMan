@@ -16,7 +16,7 @@ MDLField::MDLField(QObject *parent) : Record(parent)
 //      rec，本表含有该字段的一条记录
 QString MDLField::refValue(QString refId,QSqlRecord rec){
     if(this->LookupTyp()==MDLDao::Foreign&& IS_SPEC_REF_FIELD(this) && !rec.isEmpty()){
-        QString refTableName=rec.value(SPEC_REF_TABLE_FLD).toString();
+        QString refTableName=rec.value(SPEC_REF_TABLE_FLD(this)).toString();
         QSqlRecord rec2=WELL->refRecord(refTableName,refId);
         if(!rec2.isEmpty()){
             QString des=WELL->recordDes(refTableName,rec2);
@@ -90,9 +90,9 @@ QString MDLField::lookupTable(QSqlRecord  rec)
         if(IS_SPEC_REF_FIELD(this)){
             //由实际记录的TblKeyParent指定
             if(!rec.isEmpty()){
-                QString fn=SPEC_REF_TABLE_FLD;
-                if( !rec.value(SPEC_REF_TABLE_FLD).isValid() && !rec.value(SPEC_REF_TABLE_FLD).isNull() )
-                    return rec.value(SPEC_REF_TABLE_FLD).toString();
+                QString fn=SPEC_REF_TABLE_FLD(this);
+                if( !rec.value(SPEC_REF_TABLE_FLD(this)).isValid() && !rec.value(SPEC_REF_TABLE_FLD(this)).isNull() )
+                    return rec.value(SPEC_REF_TABLE_FLD(this)).toString();
             }
         }else{
             QList<MDLFieldLookup *> fl=MDL->fieldLookupinfo(this->KeyTbl(),this->KeyFld());

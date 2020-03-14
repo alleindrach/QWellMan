@@ -28,6 +28,7 @@ DECL_SQL(select_unit_set,"select  * from pceMDLUnitSet s   "
 DECL_SQL(select_profile_set,"select  * from pceMDLUnitSet s   "
                             " order by s.DisplayOrder")
 DECL_SQL(select_table_fields,"select  * from pceMDLTableField where KeyTbl=:table COLLATE NOCASE order by DisplayOrder ")
+DECL_SQL(select_table_ref_fields,"select  * from pceMDLTableField where KeyTbl=:table COLLATE NOCASE and LookupTyp=8 order by DisplayOrder ")
 DECL_SQL(select_table_field,"select  * from pceMDLTableField where KeyTbl=:table  COLLATE NOCASE  and KeyFld=:field COLLATE NOCASE order by DisplayOrder ")
 DECL_SQL(select_base_unit_of_field,"select u.* from pceMDLTableField f ,pceMDLUnitType u  where f.KeyTbl=:table COLLATE NOCASE and  f.KeyFld=:field COLLATE NOCASE and u.KeyType=f.KeyUnit COLLATE NOCASE")
 DECL_SQL(select_user_unit,"select * from pceMDLUnitTypeSet us  where us.KeyType=:unitType and us.KeySet in (select KeySet from pceMDLUnitSet u where  u.KeySet=:unitSet COLLATE NOCASE union select KeySetInherit  from  pceMDLUnitSet uh where uh.KeySet=:unitSet COLLATE NOCASE) ")
@@ -46,6 +47,9 @@ DECL_SQL(select_fields_of_group,"select  * from pceMDLTableField where KeyTbl=:t
 DECL_SQL(select_field_lookup,"select  * from pceMDLTableFieldLookupList where KeyTbl=:table  COLLATE NOCASE and KeyFld=:field  COLLATE NOCASE order by DisplayOrder ")
 DECL_SQL(select_field_by_lookup,"select f.* from pceMDLTableField f where f.LookupTableName=:lib COLLATE NOCASE and f.LookupFieldName=:fld COLLATE NOCASE  and f.KeyTbl=:table COLLATE NOCASE")
 DECL_SQL(select_fields_by_lookup_lib,"select f.* from pceMDLTableField f where f.LookupTableName=:lib COLLATE NOCASE  and f.KeyTbl=:table COLLATE NOCASE  order by DisplayOrder")
+DECL_SQL(select_top_tables, "select * from pceMDLTable t where not exists( select * from pceMDLTableChildren c where c.KeyTblChild=t.KeyTbl) ")
+DECL_SQL(select_phyical_tables,"select t.* from pceMDLTable t where  t.Calculated=false ")
+
 END_SQL_DECLARATION
 
 
@@ -630,4 +634,47 @@ QStringList MDLDao::lookupFields(QString table, QString lib)
 void MDLDao::resetCache()
 {
     _cache.clear();
+}
+
+QStringList MDLDao::topTables()
+{
+    QString key=QString("topTables");
+    CS(key,QStringList);
+    QStringList result;
+    QSqlQuery q(APP->mdl());
+    q.prepare(SQL(select_top_tables));
+    q.exec();
+    PRINT_ERROR(q);
+    while(q.next()){
+        result<<q.value("KeyTbl").toString();
+    }
+    CI(key,result)
+}
+
+QList<MDLTable *> MDLDao::phyicalTables()
+{
+    QString key=QString("phyicalTables");
+    CS_LIST(key,MDLTable);
+
+    QSqlQuery q(APP->mdl());
+
+    q.prepare(SQL(select_phyical_tables));
+    q.exec();
+    PRINT_ERROR(q);
+    QList<MDLTable*> result;
+    result=Q(q,MDLTable);
+    CI(key,result)
+}
+
+QList<MDLField *> MDLDao::tableRefFields(QString table)
+{
+    QString key="tableRefFields."+table;
+    CS_LIST(key,MDLField);
+    QSqlQuery q(APP->mdl());
+    q.prepare(SQL(select_table_ref_fields));
+    q.bindValue(":table",table);
+    q.exec();
+    PRINT_ERROR(q);
+    QList<MDLField*> result=Record::fromSqlQuery<MDLField>(MDLField::staticMetaObject.className(),q,this);
+    CI(key,result);
 }

@@ -521,6 +521,30 @@
     <string>parent</string>
    </property>
   </action>
+  <action name="actionOpen">
+   <property name="icon">
+    <iconset resource="../resource/resource.qrc">
+     <normaloff>:/images/icons/openfolder@4x.png</normaloff>:/images/icons/openfolder@4x.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open</string>
+   </property>
+   <property name="toolTip">
+    <string>OpenFile</string>
+   </property>
+  </action>
+  <action name="actionSaveTo">
+   <property name="icon">
+    <iconset resource="../resource/resource.qrc">
+     <normaloff>:/images/icons/export2.png</normaloff>:/images/icons/export2.png</iconset>
+   </property>
+   <property name="text">
+    <string>SaveTo</string>
+   </property>
+   <property name="toolTip">
+    <string>Save To File</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../resource/resource.qrc"/>

@@ -38,6 +38,7 @@ public:
 
     MDLTable * tableInfo(QString Table);
     QList<MDLField*> tableFields(QString table);
+    QList<MDLField*> tableRefFields(QString table);
     QStringList tableHeaders(QString table);
     QString tableOrderKey(QString table);
     QSqlQuery tableFieldsQuery(QString table);
@@ -47,8 +48,11 @@ public:
     QStringList fieldGroup(QString table);
 //    QString filedCapl(QString table,QString field);
     MDLField * fieldByLookup(QString table,QString lib,QString libfld);
-
-
+//如果一个lookuptyp=8的字段，没有main.pceMDLTableFieldLookupList对应的记录，且有Tblkey***的字段，则判定为引用全部的idrec
+    bool isLookupAllField(MDLField *fieldInfo);
+    bool isLookupMultiTableField(MDLField *fieldInfo);
+//    IDRecxxxx对应的tableName字段KeyTblxxxx
+    QString lookupTableNameField(MDLField * fieldInfo);
     static void resetCache();
 signals:
 private:

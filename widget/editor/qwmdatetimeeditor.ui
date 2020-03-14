@@ -38,13 +38,13 @@
       <string notr="true">background-color: rgb(150,150,150);</string>
      </property>
      <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+      <enum>QFrame::NoFrame</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::Plain</enum>
      </property>
      <property name="lineWidth">
-      <number>2</number>
+      <number>0</number>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>

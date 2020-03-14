@@ -32,17 +32,20 @@
       <string notr="true">background-color: rgb(200,200,200);</string>
      </property>
      <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+      <enum>QFrame::NoFrame</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="lineWidth">
+      <number>0</number>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <property name="leftMargin">
        <number>0</number>
       </property>
       <property name="topMargin">
-       <number>8</number>
+       <number>0</number>
       </property>
       <property name="rightMargin">
        <number>0</number>

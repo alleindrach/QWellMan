@@ -60,6 +60,7 @@ DECL_SQL(select_fields_of_lookup_tab,"select  * from pceUDLSetLibTabField f   wh
 
 DECL_SQL(select_fields_of_group,"select  * from pceListTblFld where KeyTbl=:table  COLLATE NOCASE and GroupName=:groupName  COLLATE NOCASE order by DisplayOrder ")
 DECL_SQL(select_table_fields,"select  * from pceListTblFld where KeyTbl=:table COLLATE NOCASE order by DisplayOrder ")
+DECL_SQL(select_table_ref_fields,"select  * from pceListTblFld where KeyTbl=:table COLLATE NOCASE  and LookupTyp=8 order by DisplayOrder ")
 DECL_SQL(select_table_long_headers,"select  CaptionLong from pceListTblFld where KeyTbl=:table COLLATE NOCASE order by DisplayOrder ")
 DECL_SQL(select_table_order,"select  SQLOrderBy from pceListTbl where KeyTbl=:table COLLATE NOCASE")
 DECL_SQL(select_table_field_count,"select count(1) as cnt from pceListTblFld f where f.KeyTbl=:table COLLATE NOCASE and KeyFld=:field COLLATE NOCASE ")
@@ -362,6 +363,22 @@ QList<MDLField *> UDLDao::tableFields(QString table)
     CI(key,result);
 }
 
+QList<MDLField *> UDLDao::tableRefFields(QString table)
+{
+    QString key="tableRefFields."+table;
+    CS_LIST(key,MDLField);
+
+    QSqlQuery q(APP->udl());
+    q.prepare(SQL(select_table_ref_fields));
+    q.bindValue(":table",table);
+    q.exec();
+    PRINT_ERROR(q);
+    QList<MDLField*> result=Record::fromSqlQuery<MDLField>(MDLField::staticMetaObject.className(),q,this);
+    if(result.size()<=0)
+        result=MDL->tableRefFields(table);
+    CI(key,result);
+}
+
 QStringList UDLDao::tableHeaders(QString table)
 {
     QString key="tableHeaders."+table;
@@ -505,6 +522,38 @@ MDLField *UDLDao::fieldByLookup(QString table,QString lib, QString fld)
         result=MDL->fieldByLookup(table,lib,fld);
     }
     CI(key,result);
+}
+
+bool UDLDao::isLookupAllField(MDLField *fieldInfo)
+{
+    if(MDL->fieldLookupinfo(fieldInfo->KeyTbl(),fieldInfo->KeyFld()).isEmpty()){
+        QString tableNameField=lookupTableNameField(fieldInfo);
+        if(!tableNameField.isNull() && !tableNameField.isEmpty()){
+            if( MDL->tableHasField(fieldInfo->KeyTbl(),tableNameField)){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool UDLDao::isLookupMultiTableField(MDLField *fieldInfo)
+{
+    if(MDL->fieldLookupinfo(fieldInfo->KeyTbl(),fieldInfo->KeyFld()).size()>1){
+        QString tableNameField=lookupTableNameField(fieldInfo);
+        if(!tableNameField.isNull() && !tableNameField.isEmpty()){
+            if( MDL->tableHasField(fieldInfo->KeyTbl(),tableNameField)){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+QString UDLDao::lookupTableNameField(MDLField *fieldInfo)
+{
+    QString fieldTable=fieldInfo->KeyFld().replace("IDRec","KeyTbl",Qt::CaseInsensitive);
+    return fieldTable;
 }
 MDLTable* UDLDao::tableInfo(QString table)
 {

@@ -400,16 +400,18 @@ void QWMRefLookupDelegate::setModelData(QWidget *editor,QAbstractItemModel *mode
             QWMRecordTwoStepSelector * selector=static_cast<QWMRecordTwoStepSelector*>(editor);
             QString v=selector->value().toString();
             QStringList parts=v.split(".",Qt::SkipEmptyParts);
-            QWMRotatableProxyModel * rModel=(QWMRotatableProxyModel*) model;
+            QString fieldName=rmodel->fieldName(index);
+            QString tableName=rmodel->tableName();
+            MDLField * fieldInfo=UDL->fieldInfo(tableName,fieldName);
             if(parts.size()==2){
-                QString tableNameFld=SPEC_REF_TABLE_FLD;
+                QString tableNameFld=SPEC_REF_TABLE_FLD(fieldInfo);
                 QString ov=index.data().toString();
                 v=parts[1];
                 if(v!=ov && !v.isNull()) {
                     QList<QPair<QString,QVariant>> spv;
-                    spv.append(QPair<QString,QVariant>(rModel->fieldName(index),v));
-                    QModelIndex aIndex=rModel->indexOfSameRecord(index,tableNameFld);
-                    spv.append(QPair<QString,QVariant>(rModel->fieldName(aIndex),parts[0]));
+                    spv.append(QPair<QString,QVariant>(rmodel->fieldName(index),v));
+                    QModelIndex aIndex=rmodel->indexOfSameRecord(index,tableNameFld);
+                    spv.append(QPair<QString,QVariant>(rmodel->fieldName(aIndex),parts[0]));
                     model->setData(index,QVariant::fromValue(spv),LINKED_FIELDS);
                 }
             }

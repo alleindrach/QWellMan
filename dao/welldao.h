@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QSqlDatabase>
 #include <QSqlQueryModel>
+#include <QList>
+#include <QStringList>
 #include "qwmrotatableproxymodel.h"
 #include "qwmtablemodel.h"
 class WellDao : public QObject
@@ -43,8 +45,13 @@ public:
     QString TDAll(QString idWell);
     double TD(QString idWell);
     static void resetCache();
-
+    bool duplicateWellHeader(QString idWell,QList<QPair<QString,QStringList>> & stagedTables ,QHash<QString,QString> &   mapDuplicatedRecords,QHash<QString,QString> & mapDuplicatedTables,QStringList & errors);
+    bool initStageTables(QString idWell,QList<QPair<QString,QStringList>> & stagedTables ,QHash<QString,QString> & mapDuplicatedRecords,QHash<QString,QString> & mapDuplicatedTables,QStringList & errors);
+    bool handleStageTables(QString idWell,QList<QPair<QString,QStringList>> & stagedTables ,QHash<QString,QString> & mapDuplicatedRecords,QHash<QString,QString> & mapDuplicatedTables,QStringList & errors);
+    bool duplicateTable(QString idWell,QString table,QList<QPair<QString,QStringList>> & stagedTables ,QHash<QString,QString> & mapDuplicatedRecords,QHash<QString,QString> & mapDuplicatedTables,QStringList & errors);
+    bool duplicateWell(QString idWell,QWidget* parent);
 signals:
+    void Duplicating(QString message,int progress);
 private:
     QSqlDatabase  _db;
     static QHash<QString,QString> _sql;
@@ -53,36 +60,7 @@ private:
 
     //lookup=8的参数
     //首先查找表特定的字段，比如wvWellBore.IDRecParent，如果没有，再查找无表前缀的字段，，如果形式为TblKeyxxx:a/b形式，则表明是根据本表字段TblKeyXXXX来判断是哪个表，并将表明写入此字段。具体从哪几个表取，是a/b...
-    QHash<QString,QString> _RefTable={{"IDRecString","TblKeyString:wvCas/wvJobDrillString"},
-                                      {"IDRecJobPull","wvJob"},
-                                      {"IDRecJobRun","wvJob"},
-                                      {"IDRecWellBore","wvWellbore"},
-                                      {"IDRecJob","wvJob"},
-                                      {"IDRecBit","wvJobDrillBit"},
-                                      {"IDRecJobContact","wvJobContact"},
-                                      {"IDRecPhaseCustom","wvJobProgramPhase"},
-                                      {"IDRecJobRentalItem","wvJobRentalItem"},
-                                      {"IDRecZone","wvZone"},
-                                      {"IDRecJobContactContractor","wvJobContact"},
-                                      {"IDRecTub","wvTub"},
-                                      {"IDRecFailedItem","TblKeyFailedItem:wvcascomp/wvtubcomp"},//这个比较特殊，表名根据TblKeyFailedItem来判断，存在于wvProblem
-                                      {"IDRecProblem","wvProblem"},
-                                      {"IDRecTubComp","wvTubComp"},
-                                      {"IDRecFluid","wvStimTreatFluid"},
-                                      {"wvTask.IDRecParent","TblKeyParent:wvTask"},
-                                      {"IDRecTestItem","TblKeyTestItem:wvwellheadcomp/wvwellhead"},
-                                      {"IDRecCas","wvCas"},
-                                      {"IDRecFrm","wvWellboreFormation"},
-                                      {"IDRecRod","wvRod"},
-                                      {"wvWellBore.IDRecParent","wvWellBore"},
-                                      {"IDRecGauge","wvWellTestPresTravGauge"},
-                                      {"IDRecGaugeUsed","wvWellTestTransGauge"},
-                                      {"IDRecDirSrvyActual","wvWellboreDirSurvey"},
-                                      {"IDRecDirSrvyProp","wvWellboreDirSurvey"},
-                                      {"IDRecTubular","TblKeyTubular:?"},
-                                      {"wvZoneLink.IDRecItem","TblKeyItem:?"},
 
-                                     };
 public slots:
 };
 

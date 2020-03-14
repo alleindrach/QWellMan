@@ -544,3 +544,26 @@ void QWMMain::on_actionRefresh_triggered()
 void QWMMain::before_insert(QSqlRecord &record){
     DPRING_RECORD(record,"X");
 }
+
+void QWMMain::on_actionDuplicate_triggered()
+{
+    switch(ui->trvCatalogs->currentIndex().data(CAT_ROLE).toInt()){
+
+    case QWMApplication::ALL:
+    case QWMApplication::RECENT:
+    case QWMApplication::FAVORITE:
+        //        PA(proxyModel,ui->tbvWells->model());
+        SA(sourceModel,ui->tbvWells->model());
+        QItemSelectionModel* selection=ui->tbvWells->selectionModel();
+        foreach(QModelIndex index,selection->selectedRows())
+        {
+            QString idWell=index.data(PK_ROLE).toString();
+            WELL->duplicateWell(idWell,this);
+//            int effectRows=WELL->deleteItem(idWell,idWell,CFG(KeyTblMain));
+        }
+        sourceModel->select();
+        //        proxyModel->submitAll();
+        break;
+    }
+
+}

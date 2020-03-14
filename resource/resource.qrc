@@ -234,5 +234,6 @@
         <file>images/icons/fast-backward.svg</file>
         <file>images/icons/caret-right.svg</file>
         <file>images/icons/caret-left.svg</file>
+        <file>images/Logo128.png</file>
     </qresource>
 </RCC>

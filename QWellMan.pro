@@ -16,6 +16,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    ui/qwmprogressdialog.cpp \
     util/qwmcalculator.cpp \
     util/qwmuserdata.cpp \
     util/utility.cpp \
@@ -62,6 +63,7 @@ SOURCES += \
     widget/qwmheaderview.cpp
 
 HEADERS += \
+    ui/qwmprogressdialog.h \
     util/qwmcalculator.h \
     util/qwmuserdata.h \
     util/utility.h \
@@ -112,6 +114,7 @@ FORMS += \
     qwmmain.ui \
     ui/about.ui \
     ui/qwmdataeditor.ui \
+    ui/qwmprogressdialog.ui \
     widget/editor/qwmdatetimeeditor.ui \
     widget/editor/qwmiconselector.ui \
     widget/editor/qwmlibselector.ui \

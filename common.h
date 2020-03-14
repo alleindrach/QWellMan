@@ -229,10 +229,12 @@ if(x!=nullptr && x->metaObject()->className()==tp::staticMetaObject.className())
 #define EDITOR_TYPE(W,V) \
     QString V=editor->property("TYPE").toString();
 
+//如果一个lookuptyp=8的字段，没有main.pceMDLTableFieldLookupList对应的记录，且有Tblkey***的字段，则判定为引用全部的idrec
 #define IS_SPEC_REF_FIELD(fieldInfo)\
-    (fieldInfo->KeyFld().compare(CFG(ParentID),Qt::CaseInsensitive)==0)
+UDL->isLookupAllField(fieldInfo)
 
-#define SPEC_REF_TABLE_FLD CFG(TblKeyParent)
+#define SPEC_REF_TABLE_FLD(fieldInfo) \
+    UDL->lookupTableNameField(fieldInfo)
 
 #define USER_PROPERTY "UserProperty"
 #define TIMESTAMP(tag)
@@ -261,4 +263,15 @@ if(x!=nullptr && x->metaObject()->className()==tp::staticMetaObject.className())
 
 #define SETTINGS\
  QSettings settings(APP->applicationDirPath()+QDir::separator()+"settings.ini",QSettings::IniFormat);
+
+#define ADD_DUP_ERROR(success,model,errors,table) \
+if(!success){\
+    if(model->lastError().isValid()){\
+        errors<<QString("%1  %2").arg(table).arg(model->lastError().text()); \
+    }else{ \
+        errors<<QString(tr("%1 复制错误")).arg(table);\
+    }\
+}
+
+#define ATTACHMENT_TABLE "wvAttachment"
 #endif // COMMON_H

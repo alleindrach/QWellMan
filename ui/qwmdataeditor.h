@@ -76,10 +76,10 @@ private Q_SLOTS:
     //    void before_update_record(int row, QSqlRecord &record);
 
     void on_actionCalc_triggered();
-
     void on_actionactNextRec_triggered();
-
     void on_actionactPrevRec_triggered();
+    void on_actionOpen_triggered();
+    void on_actionSaveTo_triggered();
 
 private:
     Ui::QWMDataEditor *ui;

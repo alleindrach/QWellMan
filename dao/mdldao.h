@@ -47,8 +47,10 @@ public:
     QStringList lookupFields(QString table,QString lib);
     static void resetCache();
 
-
+    QStringList topTables();
+    QList<MDLTable*> phyicalTables();
 protected:
+    QList<MDLField*> tableRefFields(QString table);
     QStringList fieldOfGroup(QString table,QString group);
     MDLTable * tableInfo(QString Table);
     QList<MDLField*> tableFields(QString table);
