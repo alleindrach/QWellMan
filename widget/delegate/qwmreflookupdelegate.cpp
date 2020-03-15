@@ -205,6 +205,8 @@ QWidget *QWMRefLookupDelegate::createEditor(QWidget *parent,
         editor->setEditable(true);
         {SET_PRIMARY_EDITOR(QComboBox);}
         return editor;
+    }else if(fieldInfo->PhysicalType()==MDLDao::Boolean){
+        return nullptr;
     }
     return QStyledItemDelegate::createEditor(parent,option,index);
 }

@@ -256,5 +256,7 @@
         <file>images/icons/dictionary.svg</file>
         <file>images/icons/paste.svg</file>
         <file>images/icons/copy.svg</file>
+        <file>images/icons/checkbox-on3.svg</file>
+        <file>images/icons/checkbox-off3.svg</file>
     </qresource>
 </RCC>

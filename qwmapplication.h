@@ -148,10 +148,10 @@ private:
             height: 17px; \
 } \
             QTableView::indicator:enabled:unchecked { \
-            image: url(:/images/icons/checkbox-off.svg); \
+            image: url(:/images/icons/checkbox-off3.svg); \
 }\
             QTableView::indicator:enabled:checked { \
-            image: url(:/images/icons/checkbox-on.svg);\
+            image: url(:/images/icons/checkbox-on3.svg);\
 }\
             QTreeView::item:selected:active{\
             background: rgb(155, 0, 2);\
