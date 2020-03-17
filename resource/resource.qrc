@@ -258,5 +258,8 @@
         <file>images/icons/copy.svg</file>
         <file>images/icons/checkbox-on3.svg</file>
         <file>images/icons/checkbox-off3.svg</file>
+        <file>images/icons/down-arrow-filled.svg</file>
+        <file>images/icons/down_arrow.svg</file>
+        <file>images/icons/down-arrow.svg</file>
     </qresource>
 </RCC>

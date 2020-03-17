@@ -45,6 +45,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    QVariant data(const int row,QString fieldname,int role=Qt::DisplayRole) const ;
     bool setData(const QModelIndex &item, const QVariant &value, int role = Qt::EditRole) override;
     inline void  setIDWell(QString idWell){
         _idWell=idWell;

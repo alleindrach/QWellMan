@@ -25,6 +25,7 @@
 #include "qdlgwellfieldsselector.h"
 #include "qwmdataeditor.h"
 #include "QSqlTableModel"
+#include <qwmreportor.h>
 #include "qwmtablemodel.h"
 #include "qwmsortfilterproxymodel.h"
 //#include "qwmrotatableproxymodel.h"
@@ -161,6 +162,11 @@ void QWMMain::showReferenceDatum(QString datum)
 QWMDataEditor *QWMMain::currentEditor() const
 {
     return _currentEditor;
+}
+
+QWMReportor *QWMMain::currentReportor() const
+{
+    return _currentReportor;
 }
 
 void QWMMain::showSplash()
@@ -337,6 +343,11 @@ void QWMMain::setCurrentEditor(QWMDataEditor * v)
     this->_currentEditor=v;
 }
 
+void QWMMain::setCurrentReportor(QWMReportor *v)
+{
+    this->_currentReportor=v;
+}
+
 void QWMMain::editWell(QString idWell)
 {
     QSqlRecord  rec= WELL->well(idWell);
@@ -349,6 +360,22 @@ void QWMMain::editWell(QString idWell)
     this->_currentEditor=editor;
     _currentEditor->init();
     editor->showMaximized();
+    this->hide();
+    WELL->addRecentWell(idwell);
+}
+
+void QWMMain::reportWell(QString idWell)
+{
+    QSqlRecord  rec= WELL->well(idWell);
+
+    int fieldIndex=rec.indexOf(CFG(IDMainFieldName));
+    QString idwell=rec.value(fieldIndex).toString();
+    QString wellName=RS(rec,WellName);
+
+    QWMReportor * reportor=new QWMReportor(idwell,wellName,this);
+    this->_currentReportor=reportor;
+    _currentReportor->init();
+    _currentReportor->showMaximized();
     this->hide();
     WELL->addRecentWell(idwell);
 }
@@ -578,4 +605,19 @@ void QWMMain::on_actionDuplicate_triggered()
         break;
     }
 
+}
+
+void QWMMain::on_actionOpen_triggered()
+{
+    QWMSortFilterProxyModel * model=static_cast<QWMSortFilterProxyModel*>(ui->tbvWells->model());
+    QItemSelectionModel * selection=ui->tbvWells->selectionModel();
+    if(selection->selectedRows().size()>0){
+        QModelIndex index=selection->selectedRows().first();
+        if(index.isValid()){
+            QSqlRecord rec=model->record(index);
+            int fieldIndex=rec.indexOf(CFG(IDMainFieldName));
+            QString idwell=rec.value(fieldIndex).toString();
+            reportWell(idwell);
+        }
+    }
 }

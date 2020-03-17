@@ -12,7 +12,7 @@
 #include "qwmabout.h"
 #include "qwmapplication.h"
 #include <QDesktopWidget>
-
+#include "qwmreportor.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class QWMMain; }
 QT_END_NAMESPACE
@@ -34,6 +34,7 @@ public:
     void showUnitSetting(QString unit);
     void showReferenceDatum(QString datum);
     QWMDataEditor * currentEditor() const;
+    QWMReportor * currentReportor() const;
     inline QWMAbout * splash(){
         return _splash;
     }
@@ -43,47 +44,33 @@ public:
     void initEditors();
 protected:
     void setCurrentEditor(QWMDataEditor *);
+    void setCurrentReportor(QWMReportor *);
 private:
     void editWell(QString idWell);
+    void reportWell(QString idWell);
     void showWellGrid(QWMSortFilterProxyModel *  model);
     virtual bool eventFilter(QObject *watched, QEvent *event) override;
 private slots:
 
     void init_record_on_prime_insert(int row, QSqlRecord &record);
-
     void on_actionChangeDB_triggered();
-
     void on_trvCatalogs_clicked(const QModelIndex &index);
-
     void on_actionFavorite_triggered();
-
     void on_tbvWells_entered(const QModelIndex &index);
-
     void on_actionUnFavorite_triggered();
-
     void on_actionUnit_triggered();
-
     void on_actionProfile_triggered();
-
     void on_actionDatumPref_triggered();
-
     void on_actionListColumn_triggered();
-
     void on_well_view_header_fields_change();
     void on_actionEdit_triggered();
-
     void on_actionNew_triggered();
-
     void on_actionDelete_triggered();
-
-
-
     void on_actionAbout_triggered();
-
     void on_actionRefresh_triggered();
-
     void before_insert(QSqlRecord &record);
     void on_actionDuplicate_triggered();
+    void on_actionOpen_triggered();
 
 private:
     Ui::QWMMain *ui;
@@ -94,6 +81,7 @@ private:
     QStandardItem * _qsiQuery;
     QStandardItem * _qsiQuickQuery;
     QWMDataEditor *  _currentEditor{nullptr};
+    QWMReportor *_currentReportor{nullptr};
     QLabel * _lblStatus ;
     QLabel * _lblProfile ;
     QLabel * _lblUnit;
@@ -101,5 +89,7 @@ private:
     QLabel * _lblMessage;
     QWMAbout * _splash;
     friend class QWMDataEditor;
+    friend class QWMReportor;
+
 };
 #endif // QWMMAIN_H

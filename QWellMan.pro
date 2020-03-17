@@ -17,6 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     ui/qwmprogressdialog.cpp \
+    ui/qwmreportor.cpp \
     util/qwmcalculator.cpp \
     util/qwmuserdata.cpp \
     util/utility.cpp \
@@ -58,12 +59,17 @@ SOURCES += \
     widget/editor/qwmrecordsinglestepselector.cpp \
     widget/editor/qwmrecordtwostepselector.cpp \
     widget/editor/qwmtableselector.cpp \
+    widget/graphics/qwmdataserialswidget.cpp \
+    widget/graphics/qwmformationgraphicsitem.cpp \
+    widget/graphics/qwmgeographicsscene.cpp \
+    widget/graphics/qwmgeotitleitem.cpp \
     widget/qdlgwellfieldsselector.cpp \
     widget/qwmdatatableview.cpp \
     widget/qwmheaderview.cpp
 
 HEADERS += \
     ui/qwmprogressdialog.h \
+    ui/qwmreportor.h \
     util/qwmcalculator.h \
     util/qwmuserdata.h \
     util/utility.h \
@@ -106,6 +112,10 @@ HEADERS += \
     widget/editor/qwmrecordsinglestepselector.h \
     widget/editor/qwmrecordtwostepselector.h \
     widget/editor/qwmtableselector.h \
+    widget/graphics/qwmdataserialswidget.h \
+    widget/graphics/qwmformationgraphicsitem.h \
+    widget/graphics/qwmgeographicsscene.h \
+    widget/graphics/qwmgeotitleitem.h \
     widget/qdlgwellfieldsselector.h \
     widget/qwmdatatableview.h \
     widget/qwmheaderview.h
@@ -115,6 +125,7 @@ FORMS += \
     ui/about.ui \
     ui/qwmdataeditor.ui \
     ui/qwmprogressdialog.ui \
+    ui/qwmreportor.ui \
     widget/editor/qwmdatetimeeditor.ui \
     widget/editor/qwmiconselector.ui \
     widget/editor/qwmlibselector.ui \
@@ -143,7 +154,7 @@ DISTFILES += \
 #RC_ICONS = logo128.png
 
 INCLUDEPATH += $$PWD/dao $$PWD/widget $$PWD/widget/delegate $$PWD/widget/editor $$PWD/ui $$PWD/undo $$PWD/util $$PWD/model $$PWD/dto  $$PWD/model/qt
-
+INCLUDEPATH += $$PWD/widget/graphics
 #INCLUDEPATH += /Users/Allein/Qt/5.14.0/lib/QtCore.framework/Versions/5/Headers/5.14.0
 #INCLUDEPATH += /Users/Allein/Qt/5.14.0/lib/QtCore.framework/Versions/5/Headers/5.14.0/QtCore
 #INCLUDEPATH += /Users/Allein/Qt/5.14.0/lib/QtWidgets.framework/Versions/5/Headers/5.14.0/QtWidgets

@@ -406,6 +406,14 @@ QVariant QWMSortFilterProxyModel::data(const QModelIndex &index, int role) const
     }
 }
 
+QVariant QWMSortFilterProxyModel::data(const int row, QString fieldname, int role) const
+{
+    S1(model);
+    int sourceRow=mapRowToSource(row);
+    int sourceCol=model->fieldIndexEx(fieldname);
+    return model->data(model->index(sourceRow,sourceCol),role);
+}
+
 bool QWMSortFilterProxyModel::setData(const QModelIndex &item, const QVariant &value, int role)
 {
     S1(model);

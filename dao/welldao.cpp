@@ -997,6 +997,46 @@ bool WellDao::duplicateWell(QString idWell, QWidget *parent)
     } ;
 }
 
+QSqlRecord WellDao::wellbore4SurvyData(QString survyId)
+{
+    QSqlQuery q(APP->well());
+    QSqlRecord result;
+    q.prepare("select b.* from wvWellbore b, wvWellboreDirSurvey s where b.IDRec = s.IDRecParent and s.IDRec=:survyId  COLLATE NOCASE ");
+    q.bindValue(":survyId",survyId);
+    q.exec();
+    if(q.next()){
+        result=q.record();
+    }
+    return result;
+}
+
+QString WellDao::wellboreActiveSurvyId(QString wellboreId)
+{
+    QSqlQuery q(APP->well());
+    QString result;
+    q.prepare("select b.IDRecDirSrvyActual from wvWellbore b where b.IDRec = :wellboreId ");
+    q.bindValue(":wellboreId",wellboreId);
+    q.exec();
+    if(q.next()){
+        result=QS(q,IDRecDirSrvyActual);
+    }
+    return result;
+}
+
+QPointF WellDao::wellboreDepth(QString idBore, QDateTime till)
+{
+    QSqlQuery q(APP->well());
+    QPointF result;
+    q.prepare("select ifnull(max(DepthBtmActual),0) DepthBtmActual, ifnull(min(DepthTopActual),0) DepthTopActual  from wvWellbore b, wvWellboreSize s where b.IDRec = s.IDRecParent COLLATE NOCASE  and s.DtTmEnd<=:till and b.IDRec=:idBore  order by DepthTopActual");
+    q.bindValue(":idBore",idBore);
+    q.bindValue(":till",till);
+    q.exec();
+    if(q.next()){
+         result=QPointF(QD(q,DepthTopActual),QD(q,DepthBtmActual));
+    }
+    return result;
+}
+
 
 QString WellDao::PBTDAll(QString idWell)
 {

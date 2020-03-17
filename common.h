@@ -274,4 +274,18 @@ if(!success){\
 }
 
 #define ATTACHMENT_TABLE "wvAttachment"
+
+#define IS_ZERO(v) \
+    qAbs(v-0)<0.0001
+
+
+#define WELLBORE_TABLE "wvWellbore"
+#define JOB_TABLE "wvJob"
+#define SURVY_DATA_TABLE "wvWellboreDirSurveyData"
+#define BASE_TICK 100
+#define DARK_RED qRgb(155, 0, 2)
+#define MUCH_LIGHT_RED  qRgb(252, 170, 170)
+#define LIGHT_RED  qRgb(218, 100, 100)
+#define LIGHT_GRAY qRgb(220, 220, 220)
+
 #endif // COMMON_H

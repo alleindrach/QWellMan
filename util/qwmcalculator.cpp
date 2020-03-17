@@ -1,5 +1,6 @@
 #include "qwmcalculator.h"
 #include <QScriptEngine>
+#include <QSortFilterProxyModel>
 #include <common.h>
 #include <mdldao.h>
 #include <udldao.h>
@@ -14,45 +15,45 @@ QVariant QWMCalculator::evaluate(QString field ,QSqlRecord record,QString  idWel
 {
     QScriptEngine engine;
     //    step 1 为当前记录的每一个字段添加全局变量
-        for(int i=0;i<record.count();i++){
-            QString field=record.fieldName(i);
-            QVariant value=record.value(i);
-            MDLField * fieldInfo=UDL->fieldInfo(table,field);
-            if(fieldInfo!=nullptr){
-                if(fieldInfo->PhysicalType()==MDLDao::Integer||fieldInfo->PhysicalType()==MDLDao::Long){
-                    engine.globalObject().setProperty(record.fieldName(i), value.toInt());
-                }else if(fieldInfo->PhysicalType()==MDLDao::Single||fieldInfo->PhysicalType()==MDLDao::Double||fieldInfo->PhysicalType()==MDLDao::Currency){
-                    engine.globalObject().setProperty(record.fieldName(i), value.toDouble());
-                }else if(fieldInfo->PhysicalType()==MDLDao::DateTime){
-                    if(fieldInfo->LookupTyp()==MDLDao::Date){
-                        engine.globalObject().setProperty(record.fieldName(i), value.toDate().toString("yyyy-MM-dd"));
-                    }else if(fieldInfo->LookupTyp()==MDLDao::Time){
-                        engine.globalObject().setProperty(record.fieldName(i), value.toTime().toString("HH:mm:ss"));
-                    }else if(fieldInfo->LookupTyp()==MDLDao::DateTime){
-                        engine.globalObject().setProperty(record.fieldName(i), value.toDateTime().toString("yyyy-MM-dd HH:mm:ss"));
-                    }
-                }else if(fieldInfo->PhysicalType()==MDLDao::Boolean){
-                    engine.globalObject().setProperty(record.fieldName(i), value.toBool());
-                }else{
-                    engine.globalObject().setProperty(record.fieldName(i), value.toString());
-                }
-            }else{
-                if( value.isValid() && !value.isNull() && value.canConvert<QDateTime>()){
+    for(int i=0;i<record.count();i++){
+        QString field=record.fieldName(i);
+        QVariant value=record.value(i);
+        MDLField * fieldInfo=UDL->fieldInfo(table,field);
+        if(fieldInfo!=nullptr){
+            if(fieldInfo->PhysicalType()==MDLDao::Integer||fieldInfo->PhysicalType()==MDLDao::Long){
+                engine.globalObject().setProperty(record.fieldName(i), value.toInt());
+            }else if(fieldInfo->PhysicalType()==MDLDao::Single||fieldInfo->PhysicalType()==MDLDao::Double||fieldInfo->PhysicalType()==MDLDao::Currency){
+                engine.globalObject().setProperty(record.fieldName(i), value.toDouble());
+            }else if(fieldInfo->PhysicalType()==MDLDao::DateTime){
+                if(fieldInfo->LookupTyp()==MDLDao::Date){
+                    engine.globalObject().setProperty(record.fieldName(i), value.toDate().toString("yyyy-MM-dd"));
+                }else if(fieldInfo->LookupTyp()==MDLDao::Time){
+                    engine.globalObject().setProperty(record.fieldName(i), value.toTime().toString("HH:mm:ss"));
+                }else if(fieldInfo->LookupTyp()==MDLDao::DateTime){
                     engine.globalObject().setProperty(record.fieldName(i), value.toDateTime().toString("yyyy-MM-dd HH:mm:ss"));
-                }else if( value.isValid() && !value.isNull() && value.canConvert<bool>()){
-                    engine.globalObject().setProperty(record.fieldName(i), value.toBool());
-                }else {
-                    engine.globalObject().setProperty(record.fieldName(i), value.toString());
                 }
+            }else if(fieldInfo->PhysicalType()==MDLDao::Boolean){
+                engine.globalObject().setProperty(record.fieldName(i), value.toBool());
+            }else{
+                engine.globalObject().setProperty(record.fieldName(i), value.toString());
             }
-
+        }else{
+            if( value.isValid() && !value.isNull() && value.canConvert<QDateTime>()){
+                engine.globalObject().setProperty(record.fieldName(i), value.toDateTime().toString("yyyy-MM-dd HH:mm:ss"));
+            }else if( value.isValid() && !value.isNull() && value.canConvert<bool>()){
+                engine.globalObject().setProperty(record.fieldName(i), value.toBool());
+            }else {
+                engine.globalObject().setProperty(record.fieldName(i), value.toString());
+            }
         }
-        engine.globalObject().setProperty("idwell",idWell);
-        engine.globalObject().setProperty("tablename",table);
+
+    }
+    engine.globalObject().setProperty("idwell",idWell);
+    engine.globalObject().setProperty("tablename",table);
     //    step 2 增加一个全局计算函数变量
-        QObject *wmObject =new QWMCalculator(idWell,table,record) ;
-        QScriptValue calObject = engine.newQObject(wmObject,QScriptEngine::ScriptOwnership);
-        engine.globalObject().setProperty("wm", calObject);
+    QObject *wmObject =new QWMCalculator(idWell,table,record) ;
+    QScriptValue calObject = engine.newQObject(wmObject,QScriptEngine::ScriptOwnership);
+    engine.globalObject().setProperty("wm", calObject);
 
     QScriptValue  r= engine.evaluate(equation);
     MDLField * fieldInfo=UDL->fieldInfo(table,field);
@@ -96,6 +97,17 @@ QString QWMCalculator::PBTDAll()
 QString QWMCalculator::TDAll()
 {
     return WELL->TDAll(_idWell);
+}
+
+void QWMCalculator::calTVDwithMCM(QWMTableModel * model)
+{
+    QSqlRecord refRecord=model->record();
+    model->setSort(refRecord.indexOf("MD"),Qt::AscendingOrder);
+    QSqlRecord wellBore=WELL->wellbore4SurvyData(model->parentID());
+//    double whNs=wellBore
+//    for(int i=0;i<model->rowCount();i++){
+
+//    }
 }
 
 double QWMCalculator::TD()

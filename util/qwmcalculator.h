@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QSqlRecord>
 #include <QScriptValue>
+#include "qwmtablemodel.h"
 class QWMCalculator : public QObject
 {
     Q_OBJECT
@@ -13,6 +14,7 @@ public:
 public slots:
     QString PBTDAll();
     QString TDAll();
+    void calTVDwithMCM(QWMTableModel * model);
     double TD();
     double TVDAll();
 signals:

@@ -72,6 +72,8 @@ QWMApplication::QWMApplication(int &argc, char **argv):QApplication(argc,argv)
     _iconMap[QStringLiteral("wellplatform")]=QIcon(QStringLiteral(":/images/icons/wellplatform@1x.png"));
     _iconMap[QStringLiteral("openrecent")]=QIcon(QStringLiteral(":/images/icons/recent.png"));
     _iconMap[QStringLiteral("recentedit")]=QIcon(QStringLiteral(":/images/icons/recent-edit.png"));
+    this->setStyleSheet(_style);
+    QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
 }
 
 QWMApplication::~QWMApplication()

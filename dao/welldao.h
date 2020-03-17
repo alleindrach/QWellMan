@@ -58,6 +58,10 @@ public:
     bool duplicateTable(QString idWell,QString table,QList<QPair<QString,QStringList>> & stagedTables ,QHash<QString,QString> & mapDuplicatedRecords,QHash<QString,int> & mapDuplicatedTables,QHash<QString,QList<PendingDuplicateItem> >&pendingIDs,QStringList & errors);
     bool processPendingID(QString oriId,QString newId, QHash<QString ,QList<PendingDuplicateItem> >&pendingIDs,QStringList & errors);
     bool duplicateWell(QString idWell,QWidget* parent);
+    QSqlRecord wellbore4SurvyData(QString survyId);//根据survy的idrec查找所属的wellbore的idrec
+    QString wellboreActiveSurvyId(QString wellboreId);//根据wellbore的idrec查询绑定的survyId
+    QPointF wellboreDepth(QString idBore,QDateTime till);
+
 signals:
     void Duplicating(QString message,int progress);
 private:

@@ -4,7 +4,7 @@
 #include <QTime>
 #include <QDateTime>
 #include <QtMath>
-
+#include "common.h"
 Utility::Utility()
 {
 
@@ -96,12 +96,12 @@ double Utility::dogLeg(double incl,double azim,double md,double preIncl,double p
 {
 
     double result=0;
-    result=(md==0?0:( qAcos(qCos(M_PI / 180*(incl - preIncl)) - qSin(M_PI / 180 * incl) * qSin(M_PI / 180 * preIncl) * (1- qCos( M_PI / 180 * (azim - preAzim))))));
+    result=(IS_ZERO(md)?0:( qAcos(qCos(M_PI / 180*(incl - preIncl)) - qSin(M_PI / 180 * incl) * qSin(M_PI / 180 * preIncl) * (1- qCos( M_PI / 180 * (azim - preAzim))))));
     return result;
 
 }
 double Utility::rf(double dogleg,double md){
-    return (md==0?0:( 1+1 / 12 * qPow(dogleg,2) + 1/120 * qPow(dogleg,4) + 17/ 20160*qPow(dogleg,6)));
+    return (IS_ZERO(md)?0:( 1+1 / 12 * qPow(dogleg,2) + 1/120 * qPow(dogleg,4) + 17/ 20160*qPow(dogleg,6)));
 }
 
 double Utility::crsLgt(double md,double preMd){
@@ -114,18 +114,18 @@ double Utility::tvd(double incl,double azim, double md,double preIncl,double pre
     double _rf=rf(_dogleg,md);
     double _crsLgt=crsLgt(preMd,md);
     //IF($C12=0," ",$F12÷2×$T12×(COS(PI()÷180×$D12)+COS(PI()÷180×$D11))+$G11)
-    double result=(md==0?0:(_crsLgt  / 2 * _rf * ( qCos( M_PI / 180 * incl ) + qCos( M_PI / 180 * preIncl )) + preTvd));
+    double result=(IS_ZERO(md)?0:(_crsLgt  / 2 * _rf * ( qCos( M_PI / 180 * incl ) + qCos( M_PI / 180 * preIncl )) + preTvd));
     return result;
 }
 
 double Utility::ns(double incl, double azim, double md, double preIncl, double preAzim, double preMd, double preTvd, double preNs)
 {
-//    IF($C12=0," ",(SIN(PI()÷180×$D12)×COS(PI()÷180×$E12)+SIN(PI()÷180×$D11)×COS(PI()÷180×$E11))×$F12÷2×$T12+$I11)
+    //    IF($C12=0," ",(SIN(PI()÷180×$D12)×COS(PI()÷180×$E12)+SIN(PI()÷180×$D11)×COS(PI()÷180×$E11))×$F12÷2×$T12+$I11)
     double _dogleg=dogLeg(preIncl,incl,preAzim,azim,md);
     double _rf=rf(_dogleg,md);
     double _crsLgt=crsLgt(preMd,md);
     double result=
-    (md==0?0:(qSin(M_PI /180 * incl ) * qCos( M_PI / 180 * azim ) + qSin( M_PI / 180 * preIncl ) * qCos(M_PI / 180 * preAzim )) * _crsLgt / 2 * _rf +preNs);
+            (IS_ZERO(md)?0:(qSin(M_PI /180 * incl ) * qCos( M_PI / 180 * azim ) + qSin( M_PI / 180 * preIncl ) * qCos(M_PI / 180 * preAzim )) * _crsLgt / 2 * _rf +preNs);
     return result;
 
 }
@@ -135,16 +135,16 @@ double Utility::ew(double incl, double azim, double md, double preIncl, double p
     double _dogleg=dogLeg(preIncl,incl,preAzim,azim,md);
     double _rf=rf(_dogleg,md);
     double _crsLgt=crsLgt(preMd,md);
-    double result=(md==0?0:((qSin(M_PI / 180 * incl ) * qSin( M_PI / 180 * azim) + qSin(M_PI  / 180 * preIncl) * qSin(M_PI / 180 * preAzim)) * _crsLgt / 2 * _rf+preEw));
+    double result=(IS_ZERO(md)?0:((qSin(M_PI / 180 * incl ) * qSin( M_PI / 180 * azim) + qSin(M_PI  / 180 * preIncl) * qSin(M_PI / 180 * preAzim)) * _crsLgt / 2 * _rf+preEw));
     return result;
 }
 
 double Utility::dls(double incl, double azim, double md, double preIncl, double preAzim, double preMd, double preTvd, double preEw,double doglegInt)
 {
     double _dogleg=dogLeg(preIncl,incl,preAzim,azim,md);
-//    double _rf=rf(_dogleg,md);
+    //    double _rf=rf(_dogleg,md);
     double _crsLgt=crsLgt(preMd,md);
-    double result=(md==0?0:_dogleg*18000/(_crsLgt * M_PI) * doglegInt/100);
+    double result=(IS_ZERO(md)?0:_dogleg*18000/(_crsLgt * M_PI) * doglegInt/100);
     return result;
 }
 
@@ -153,15 +153,26 @@ double Utility::bur(double incl, double azim, double md, double preIncl, double 
     double _dogleg=dogLeg(preIncl,incl,preAzim,azim,md);
     double _rf=rf(_dogleg,md);
     double _crsLgt=crsLgt(preMd,md);
-    double result=(md==0?0:(incl-preIncl)*100/_crsLgt * doglegInt/100);
+    double result=(IS_ZERO(md)?0:(incl-preIncl)*100/_crsLgt * doglegInt/100);
     return result;
 }
 
 double Utility::depart(double md,double ns,double ew,double whNs,double whEw)
 {
 
-    double result=(md==0?0:qSqrt(qPow((ns - whNs),2) + qPow((ew - whEw),2)));
+    double result=(IS_ZERO(md)?0:qSqrt(qPow((ns - whNs),2) + qPow((ew - whEw),2)));
     return result;
+}
+
+double Utility::closureAzim(double md, double ns, double ew, double preNs, double whNs, double whEw)
+{
+    return IS_ZERO(md)?0:(qAtan2(ns - whNs,ew - whEw)<0?360 + 180/M_PI * qAtan2(ns - whNs,ew - whEw):180 / M_PI * qAtan2(ns - preNs,ew - whEw));
+}
+
+double Utility::vs(double md, double ns, double ew, double whNs,double whEw, double planeVertSec)
+{
+//IF($C12=0," ",($I12−$I$7)×COS(PI()÷180×$I$6)+($J12−$J$7)×SIN(PI()÷180×$I$6))
+   return IS_ZERO(md)?0:(ns - whNs) * qCos(M_PI / 180 * planeVertSec) + (ew - whEw) * qSin(M_PI / 180 * planeVertSec);
 }
 //IF($C12=0," ",(SIN(PI()÷180×$D12)×SIN(PI()÷180×$E12)+SIN(PI()÷180×$D11)×SIN(PI()÷180×$E11))×$F12÷2×$T12+$J11)
 QJsonObject Utility::QStringToJson(QString jsonString)
