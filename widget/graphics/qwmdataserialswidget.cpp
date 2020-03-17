@@ -3,7 +3,9 @@
 #include <QPair>
 #include <QTextItem>
 #include <QGraphicsScene>
+#include <QLabel>
 #include "common.h"
+#include <QGraphicsLinearLayout>
 QWMDataSerialsWidget::QWMDataSerialsWidget( QVector<QPair<float, QString> > *data, QRectF ticks,QString title,int width, QGraphicsItem *parent):
     QGraphicsWidget(parent),_data(data),_ticks(ticks),_width(width),_trackTitle(title)
 {
@@ -24,9 +26,10 @@ void QWMDataSerialsWidget::paint(QPainter *painter, const QStyleOptionGraphicsIt
     font.setPixelSize(8);
     painter->setFont(font);
 
+//    ticks的 top对齐到y=0，ticks的bottom对齐到boundingRect的底部
     float xscale = boundingRect.width()/_ticks.width();
     float yscale = boundingRect.height()/_ticks.height();
-    float yoffset =0-_ticks.top()*yscale;
+    float yoffset =boundingRect.top()-_ticks.top()*yscale;
     if(this->isSelected()){
         painter->fillRect(boundingRect,MUCH_LIGHT_RED);
     }else{
@@ -38,22 +41,21 @@ void QWMDataSerialsWidget::paint(QPainter *painter, const QStyleOptionGraphicsIt
         for(int ypos=_ticks.top();ypos<_ticks.bottom();ypos+=_gridSize.height()){
             painter->drawLine(0,ypos*yscale+yoffset,boundingRect.width(),ypos*yscale+yoffset);
         }
-        for(int xpos=_ticks.left();xpos<_ticks.right();xpos+=_gridSize.width()){
+        float yGridSize=_gridSize.height()*yscale;
+        float xGridSizeF=yGridSize/xscale;
+        for(int xpos=_ticks.left();xpos<_ticks.right();xpos+=xGridSizeF){
             painter->drawLine(xpos*xscale,0,xpos*xscale,boundingRect.height());
         }
     }
     float xpos=boundingRect.left();
-    QRect txtRect(0,0,boundingRect.width(),24);
-
     painter->setPen(QPen(QBrush(Qt::white),1,Qt::SolidLine));
     font.setPixelSize(8);
     font.setBold(true);
     painter->setFont(font);
 
-    painter->fillRect(txtRect,DARK_RED);
-    painter->drawText(txtRect, Qt::AlignCenter,_trackTitle);
+
     for(QVector<QPair<float, QString>>::const_iterator i=_data->constBegin();i!=_data->constEnd(); i++){
-        float ypos=(i->first-_ticks.top())*yscale+yoffset;
+        float ypos=(i->first-_ticks.top())*yscale;
         painter->setPen(QPen(QBrush(LIGHT_RED),1,Qt::SolidLine));
         painter->drawLine(0,ypos,20,ypos);
         painter->drawLine(boundingRect.width()-20,ypos,boundingRect.width(),ypos);

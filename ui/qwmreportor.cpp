@@ -19,6 +19,7 @@
 #include <QPushButton>
 #include <QGraphicsProxyWidget>
 #include <QSizePolicy>
+#include "qwmgeotrackwidget.h"
 QWMReportor::QWMReportor(QString idWell,QString title,QWidget *parent) :
     QMainWindow(parent),_idWell(idWell),_title(title) ,
     ui(new Ui::QWMReportor)
@@ -32,7 +33,7 @@ QWMReportor::QWMReportor(QString idWell,QString title,QWidget *parent) :
     this->setWindowTitle(title);
 
     QWMGeoGraphicsScene * scene=new QWMGeoGraphicsScene(idWell,parent);
-    scene->setBackgroundBrush(QBrush(Qt::green));
+//    scene->setBackgroundBrush(QBrush(Qt::green));
     ui->graphicsView->setContentsMargins(0,0,0,0);
     ui->graphicsView->setScene(scene);
 
@@ -102,9 +103,11 @@ QGraphicsItem* QWMReportor::survyDataSerial(QString survyId, QRectF ticks,QStrin
                 }
             }
             QWMDataSerialsWidget * item=new QWMDataSerialsWidget(data,QRectF(0,top,200,bottom),title);
-            QRectF f=ui->graphicsView->scene()->sceneRect();
+            QWMGeoTrackWidget * track=new QWMGeoTrackWidget(title,ui->graphicsView->scene());
+            track->setContent(item);
+            //            QRectF f=ui->graphicsView->scene()->sceneRect();
             item->setData(0,dataField);
-            return item;
+            return track;
         }
     }
     return nullptr;
@@ -137,10 +140,16 @@ void QWMReportor::on_comboWellbore_currentIndexChanged(int index)
             QWMDataSerialsWidget * item;
             item=(QWMDataSerialsWidget*)this->survyDataSerial(survyId,QRectF(0,top,200,bottom-top),"MD");
             if(item!=nullptr){
-               geoScene->addTrack(item);
+                item->setMaximumWidth(100);
+                item->setMinimumWidth(100);
+                item->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
+                geoScene->addTrack(item);
             }
             item =(QWMDataSerialsWidget*)this->survyDataSerial(survyId,QRectF(0,top,200,bottom-top),"Inclination");
             if(item!=nullptr){
+                item->setMaximumWidth(100);
+                item->setMinimumWidth(100);
+                item->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
                 geoScene->addTrack(item);
             }
 

@@ -8,6 +8,7 @@
 #include <QSqlQueryModel>
 #include <QVector>
 #include <QGraphicsWidget>
+#include <QGraphicsProxyWidget>
 //用于显示数据系的GraphicsItem
 //data ：float 为y轴坐标，QString分量为标注
 class QWMDataSerialsWidget : public QGraphicsWidget
@@ -43,6 +44,7 @@ private:
     int _width;
     QRectF _ticks;//xy轴的刻度范围
     QString _trackTitle;
+    QGraphicsProxyWidget * _titleWidget;
 //    bool _selected{false};
 };
 

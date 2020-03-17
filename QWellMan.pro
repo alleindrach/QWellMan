@@ -63,6 +63,7 @@ SOURCES += \
     widget/graphics/qwmformationgraphicsitem.cpp \
     widget/graphics/qwmgeographicsscene.cpp \
     widget/graphics/qwmgeotitleitem.cpp \
+    widget/graphics/qwmgeotrackwidget.cpp \
     widget/qdlgwellfieldsselector.cpp \
     widget/qwmdatatableview.cpp \
     widget/qwmheaderview.cpp
@@ -116,6 +117,7 @@ HEADERS += \
     widget/graphics/qwmformationgraphicsitem.h \
     widget/graphics/qwmgeographicsscene.h \
     widget/graphics/qwmgeotitleitem.h \
+    widget/graphics/qwmgeotrackwidget.h \
     widget/qdlgwellfieldsselector.h \
     widget/qwmdatatableview.h \
     widget/qwmheaderview.h

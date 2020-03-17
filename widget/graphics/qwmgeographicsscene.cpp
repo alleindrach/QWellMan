@@ -16,29 +16,11 @@ QWMGeoGraphicsScene::QWMGeoGraphicsScene(QString idWell,QObject *parent)
 
     wellTitleLabel->setMinimumHeight(32);
     wellTitleLabel->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
-    wellTitleLabel->setStyleSheet("background-color:white;color:black; border: 1px solid red ");
+    wellTitleLabel->setStyleSheet("background-color:rgb(155, 0, 2);color:white; border: 1px solid rgb(155, 0, 2) ");
 
     wellTitleLabel->setText(wellDes);
     wellTitleLabel->setAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
     _wellTitle = this->addWidget(wellTitleLabel);
-
-
-    QTextEdit * textEditWidget2=new QTextEdit();
-    textEditWidget2->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-    textEditWidget2->setStyleSheet("background-color:black");
-    textEditWidget2->setText("Helloworld");
-    textEditWidget2->setAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
-
-    QGraphicsProxyWidget *textEdit2 = this->addWidget(textEditWidget2);
-
-
-    QTextEdit * textEditWidget3=new QTextEdit();
-    textEditWidget3->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-    textEditWidget3->setStyleSheet("background-color:gray");
-    textEditWidget3->setText("Helloworld");
-    textEditWidget3->setAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
-
-    QGraphicsProxyWidget *textEdit3 = this->addWidget(textEditWidget3);
 
 
     QGraphicsLinearLayout *topLayout = new QGraphicsLinearLayout;
@@ -54,8 +36,8 @@ QWMGeoGraphicsScene::QWMGeoGraphicsScene(QString idWell,QObject *parent)
     _tracksLayout->setContentsMargins(0,0,0,0);
     _tracksLayout->setItemSpacing(0,0);
     tracks->setLayout(_tracksLayout);
-//    _tracksLayout->addItem(textEdit2);
-//    _tracksLayout->addItem(textEdit3);
+    //    _tracksLayout->addItem(textEdit2);
+    //    _tracksLayout->addItem(textEdit3);
 
     topLayout->addItem(tracks);
 
