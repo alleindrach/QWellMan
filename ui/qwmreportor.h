@@ -17,6 +17,7 @@ public:
     virtual void resizeEvent(QResizeEvent *event) override;
     virtual bool eventFilter(QObject *watched, QEvent *event) override;
     QGraphicsItem*  survyDataSerial(QString survyId,QRectF ticks,QString dataField);
+    QGraphicsItem*  survyDataCurve(QString survyId,QRectF ticks,QString dataField);
     virtual void closeEvent(QCloseEvent *event);
 signals:
 private slots:

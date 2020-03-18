@@ -59,11 +59,13 @@ SOURCES += \
     widget/editor/qwmrecordsinglestepselector.cpp \
     widget/editor/qwmrecordtwostepselector.cpp \
     widget/editor/qwmtableselector.cpp \
+    widget/graphics/qwmcurvewidget.cpp \
     widget/graphics/qwmdataserialswidget.cpp \
     widget/graphics/qwmformationgraphicsitem.cpp \
     widget/graphics/qwmgeographicsscene.cpp \
     widget/graphics/qwmgeotitleitem.cpp \
     widget/graphics/qwmgeotrackwidget.cpp \
+    widget/graphics/qwmtrackcontent.cpp \
     widget/qdlgwellfieldsselector.cpp \
     widget/qwmdatatableview.cpp \
     widget/qwmheaderview.cpp
@@ -113,11 +115,13 @@ HEADERS += \
     widget/editor/qwmrecordsinglestepselector.h \
     widget/editor/qwmrecordtwostepselector.h \
     widget/editor/qwmtableselector.h \
+    widget/graphics/qwmcurvewidget.h \
     widget/graphics/qwmdataserialswidget.h \
     widget/graphics/qwmformationgraphicsitem.h \
     widget/graphics/qwmgeographicsscene.h \
     widget/graphics/qwmgeotitleitem.h \
     widget/graphics/qwmgeotrackwidget.h \
+    widget/graphics/qwmtrackcontent.h \
     widget/qdlgwellfieldsselector.h \
     widget/qwmdatatableview.h \
     widget/qwmheaderview.h

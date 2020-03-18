@@ -20,6 +20,7 @@
 #include <QGraphicsProxyWidget>
 #include <QSizePolicy>
 #include "qwmgeotrackwidget.h"
+#include "qwmcurvewidget.h"
 QWMReportor::QWMReportor(QString idWell,QString title,QWidget *parent) :
     QMainWindow(parent),_idWell(idWell),_title(title) ,
     ui(new Ui::QWMReportor)
@@ -32,8 +33,8 @@ QWMReportor::QWMReportor(QString idWell,QString title,QWidget *parent) :
     //    }
     this->setWindowTitle(title);
 
-    QWMGeoGraphicsScene * scene=new QWMGeoGraphicsScene(idWell,parent);
-//    scene->setBackgroundBrush(QBrush(Qt::green));
+    QWMGeoGraphicsScene * scene=new QWMGeoGraphicsScene(idWell,ui->graphicsView);
+    //    scene->setBackgroundBrush(QBrush(Qt::green));
     ui->graphicsView->setContentsMargins(0,0,0,0);
     ui->graphicsView->setScene(scene);
 
@@ -55,7 +56,7 @@ void QWMReportor::init(){
         PK_VALUE(jobId,rec);
         ui->comboJob->addItem(job,jobId);
     }
-    //    ui->graphicsView->installEventFilter(this);
+    ui->graphicsView->installEventFilter(this);
 }
 
 void QWMReportor::resizeEvent(QResizeEvent *event)
@@ -78,6 +79,11 @@ bool QWMReportor::eventFilter(QObject *watched, QEvent *event)
             on_resize_graphicsview();
         }
     }
+    if(event->type()==QEvent::Wheel){
+        QPoint m=ui->graphicsView->mapFromScene(QPoint(0,0));
+        qDebug()<<"scroll:"<<m;
+    }
+
 
 }
 
@@ -95,14 +101,74 @@ QGraphicsItem* QWMReportor::survyDataSerial(QString survyId, QRectF ticks,QStrin
         QString title=UDL->fieldInfo(SURVY_DATA_TABLE,dataField)->caption();
         if(proxyModel->rowCount()>0){
             QVector<QPair<float, QString> > *data=new QVector<QPair<float, QString> >();
-
+            float max=INT_MIN;
+            float min=INT_MAX;
             for(int i=0;i<proxyModel->rowCount();i++){
-                QPair<float,QString> sd(proxyModel->data(i,"MD").toFloat(),QString("").sprintf("%6.2f",proxyModel->data(i,dataField).toFloat()));
+                float v=proxyModel->data(i,dataField).toFloat();
+                if(v>max)
+                    max=v;
+                if(v<min)
+                    min=v;
+                QPair<float,QString> sd(proxyModel->data(i,"MD").toFloat(),QString("").sprintf("%6.2f",v));
                 if(!proxyModel->data(i,"DontUse",Qt::EditRole).toBool()){
                     data->append(sd);
                 }
             }
-            QWMDataSerialsWidget * item=new QWMDataSerialsWidget(data,QRectF(0,top,200,bottom),title);
+            QWMDataSerialsWidget * item=new QWMDataSerialsWidget(data,QRectF(min,top,max,bottom),title);
+            QWMGeoTrackWidget * track=new QWMGeoTrackWidget(title,ui->graphicsView->scene());
+            track->setContent(item);
+            //            QRectF f=ui->graphicsView->scene()->sceneRect();
+            item->setData(0,dataField);
+            return track;
+        }
+    }
+    return nullptr;
+}
+
+QGraphicsItem *QWMReportor::survyDataCurve(QString survyId, QRectF ticks, QString dataField)
+{
+
+    if(ticks.height()>0){
+        long top=ticks.top();
+        long bottom=ticks.bottom();
+        QSizeF sizeOfGraphic=ui->graphicsView->size();
+        double hScale=sizeOfGraphic.height()/double(bottom-top);
+
+        QWMRotatableProxyModel * model=WELL->tableForEdit(SURVY_DATA_TABLE,_idWell,survyId);
+        PX(proxyModel,model);
+        proxyModel->sort(1);
+        QString title=UDL->fieldInfo(SURVY_DATA_TABLE,dataField)->caption();
+
+        if(proxyModel->rowCount()>0){
+            QPointF * points=new QPointF[proxyModel->rowCount()];
+            float max=INT_MIN;
+            float min=INT_MAX;
+            int j=0;
+            for(int i=0;i<proxyModel->rowCount();i++){
+                float v=proxyModel->data(i,dataField).toFloat();
+                if(v>max)
+                    max=v;
+                if(v<min)
+                    min=v;
+
+                if(!proxyModel->data(i,"DontUse",Qt::EditRole).toBool()){
+                    points[j].setY(proxyModel->data(i,"MD").toFloat());
+                    points[j].setX(v);
+                    j++;
+                }
+            }
+            if(min==max){
+                max=min+10;
+            }
+            int w=int((max-min) /10);
+            if(w<1)
+                w=1;
+            min-=w;
+            max+=w;
+            min=qRound(min-0.5);
+            max=qRound(max+0.5);
+
+            QWMCurveWidget * item=new QWMCurveWidget(points,j,QRectF(min,top,max,bottom));
             QWMGeoTrackWidget * track=new QWMGeoTrackWidget(title,ui->graphicsView->scene());
             track->setContent(item);
             //            QRectF f=ui->graphicsView->scene()->sceneRect();
@@ -130,6 +196,7 @@ void QWMReportor::on_comboWellbore_currentIndexChanged(int index)
     QWMGeoGraphicsScene * geoScene= ((QWMGeoGraphicsScene*)ui->graphicsView->scene());
     geoScene->reset();
     QString wellboreId=ui->comboWellbore->currentData().toString();
+
     if(!wellboreId.isNull()&&!wellboreId.isEmpty()){
 
         QPointF  depths=WELL->wellboreDepth(wellboreId,QDateTime::currentDateTime());
@@ -151,6 +218,15 @@ void QWMReportor::on_comboWellbore_currentIndexChanged(int index)
                 item->setMinimumWidth(100);
                 item->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
                 geoScene->addTrack(item);
+                geoScene->addTrack(item);
+            }
+
+            QWMCurveWidget * curve =(QWMCurveWidget*)this->survyDataCurve(survyId,QRectF(0,top,200,bottom-top),"Inclination");
+            if(curve!=nullptr){
+                curve->setMaximumWidth(100);
+                curve->setMinimumWidth(100);
+                curve->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
+                geoScene->addTrack(curve);
             }
 
         }

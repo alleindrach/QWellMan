@@ -36,8 +36,6 @@ QWMGeoGraphicsScene::QWMGeoGraphicsScene(QString idWell,QObject *parent)
     _tracksLayout->setContentsMargins(0,0,0,0);
     _tracksLayout->setItemSpacing(0,0);
     tracks->setLayout(_tracksLayout);
-    //    _tracksLayout->addItem(textEdit2);
-    //    _tracksLayout->addItem(textEdit3);
 
     topLayout->addItem(tracks);
 
@@ -66,6 +64,11 @@ void QWMGeoGraphicsScene::addTrack(QGraphicsWidget *gw, int pos, int stretchFact
         _tracks.insert(pos,gw);
     }
     _tracksLayout->addItem(gw);
+    for(int i=0;i<_tracks.size();i++)
+    {
+        _tracksLayout->setItemSpacing(i,0);
+    }
+
 }
 
 void QWMGeoGraphicsScene::reset()

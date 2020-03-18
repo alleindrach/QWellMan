@@ -9,9 +9,10 @@
 #include <QVector>
 #include <QGraphicsWidget>
 #include <QGraphicsProxyWidget>
+#include "qwmtrackcontent.h"
 //用于显示数据系的GraphicsItem
 //data ：float 为y轴坐标，QString分量为标注
-class QWMDataSerialsWidget : public QGraphicsWidget
+class QWMDataSerialsWidget : public QWMTrackContent
 {
 public:
     QWMDataSerialsWidget( QVector<QPair<float,QString>> * data,QRectF ticks,QString title,int width=100,QGraphicsItem * parent = nullptr);
@@ -29,20 +30,16 @@ public:
     int width() const{
       return _width;
     };
+
 protected:
-    virtual void keyPressEvent(QKeyEvent *event) override;
-    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
-    virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
-    virtual void hoverLeaveEvent (QGraphicsSceneHoverEvent * event) override;
-    virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) override;
-    virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
+    QString title(){return _trackTitle;};
+    QGraphicsProxyWidget * titleWidget(){return _titleWidget;};
+    QVector<QPair<float,QString>>  * data(){ return _data;};
+
 private:
     //    QRectF  _boundingRect;
     QVector<QPair<float,QString>> * _data{nullptr};
-    bool _showGrid{true};
-    QSize _gridSize{50,50};
     int _width;
-    QRectF _ticks;//xy轴的刻度范围
     QString _trackTitle;
     QGraphicsProxyWidget * _titleWidget;
 //    bool _selected{false};
