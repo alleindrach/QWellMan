@@ -92,6 +92,48 @@ int Utility::compare(QVariant left, QVariant right)
     }
 }
 
+int Utility::binarySearch(QPointF *a, int left, int right, float f)
+{
+    if(left==right){
+        return left>0?left-1:0;
+    }else{
+        if(a[left].y()>=f)
+            return left>0?left-1:0;
+        else {
+            int mid=int(left+right)/2;
+            if(mid==left){
+                return left>0?left-1:0;
+            }
+            if(a[mid].y()>f){
+                return binarySearch(a,left,mid,f);
+            }else{
+                return binarySearch(a,mid,right,f);
+            }
+        }
+    }
+}
+
+int Utility::binarySearch(QVector<QPair<float, QString> > *a, int left, int right, float f)
+{
+    if(left==right){
+        return left>0?left-1:0;
+    }else{
+        if(a->at(left).first>=f)
+            return left>0?left-1:0;
+        else {
+            int mid=int(left+right)/2;
+            if(mid==left){
+                return left>0?left-1:0;
+            }
+            if(a->at(mid).first>f){
+                return binarySearch(a,left,mid,f);
+            }else{
+                return binarySearch(a,mid,right,f);
+            }
+        }
+    }
+}
+
 double Utility::dogLeg(double incl,double azim,double md,double preIncl,double preAzim)
 {
 

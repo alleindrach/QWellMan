@@ -6,8 +6,10 @@
 #include <QLabel>
 #include "common.h"
 #include <QGraphicsLinearLayout>
+#include "qwmgeotrackcontent.h"
+#include "utility.h"
 QWMDataSerialsWidget::QWMDataSerialsWidget( QVector<QPair<float, QString> > *data, QRectF ticks,QString title,int width, QGraphicsItem *parent):
-    QWMTrackContent(ticks, parent),_data(data),_width(width),_trackTitle(title)
+    QWMGeoTrackContent(ticks, parent),_data(data),_width(width),_trackTitle(title)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
     setFlag(QGraphicsItem::ItemIsSelectable);
@@ -17,7 +19,7 @@ QWMDataSerialsWidget::QWMDataSerialsWidget( QVector<QPair<float, QString> > *dat
 
 }
 
-void QWMDataSerialsWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void QWMDataSerialsWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem */*option*/, QWidget */*widget*/)
 {
     painter->save();
     QRectF boundingRect=this->boundingRect();
@@ -26,16 +28,12 @@ void QWMDataSerialsWidget::paint(QPainter *painter, const QStyleOptionGraphicsIt
     font.setPixelSize(8);
     painter->setFont(font);
 
-//    ticks的 top对齐到y=0，ticks的bottom对齐到boundingRect的底部
-    float xscale = boundingRect.width()/ticks().width();
+    //    ticks的 top对齐到y=0，ticks的bottom对齐到boundingRect的底部
     float yscale = boundingRect.height()/ticks().height();
-    float yoffset =boundingRect.top()-ticks().top()*yscale;
 
     if(showGrid()){
-       drawGrid(painter);
+        drawGrid(painter);
     }
-
-    float xpos=boundingRect.left();
     painter->setPen(QPen(QBrush(Qt::white),1,Qt::SolidLine));
     font.setPixelSize(8);
     font.setBold(true);
@@ -56,5 +54,17 @@ void QWMDataSerialsWidget::paint(QPainter *painter, const QStyleOptionGraphicsIt
     painter->setPen(QPen(QBrush(DARK_RED),1,Qt::SolidLine));
     painter->drawRect(boundingRect);
     painter->restore();
+}
+
+QString QWMDataSerialsWidget::dataAtPos(QPointF pos)
+{
+    QString r;
+    QRectF boundingRect=this->boundingRect();
+
+    float yscale = ticks().height()/boundingRect.height();
+    float depth = pos.y()*yscale;
+    int dp=Utility::binarySearch(_data,0,_data->size()-1,depth);
+    QString des=QString("%1").arg(_data->at(dp).second);
+    return des;
 }
 

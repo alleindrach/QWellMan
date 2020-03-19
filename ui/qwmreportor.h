@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QAbstractGraphicsShapeItem>
 #include <QGraphicsItem>
+#include <QLabel>
 namespace Ui {
 class QWMReportor;
 }
@@ -23,11 +24,13 @@ signals:
 private slots:
     void on_comboWellbore_currentIndexChanged(int index);
     void on_resize_graphicsview();
+    void on_hover_data(QPointF pos,QString comp,QString des);
 private:
     Ui::QWMReportor *ui;
     QString _idWell;
     QString _title;
-
+    QLabel * _statusComponenet;
+    QLabel * _statusData;
     QGraphicsWidget * _form;
 };
 

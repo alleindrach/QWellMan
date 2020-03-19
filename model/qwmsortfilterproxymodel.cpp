@@ -538,3 +538,11 @@ bool QWMSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelInde
         return _sortFunction(left,right);
     }
 }
+void QWMSortFilterProxyModel::sortByField(QString fieldName,Qt::SortOrder order){
+    S1(model);
+    std::function<bool (const QModelIndex & , const QModelIndex &)>   of=_sortFunction;
+    _sortFunction=nullptr;
+    int sourceCol=model->fieldIndexEx(fieldName);
+    this->sort(sourceCol,order);
+    _sortFunction=of;
+}

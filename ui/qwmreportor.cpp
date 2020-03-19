@@ -20,17 +20,31 @@
 #include <QGraphicsProxyWidget>
 #include <QSizePolicy>
 #include "qwmgeotrackwidget.h"
-#include "qwmcurvewidget.h"
+#include "qwmcurveswidget.h"
+#include "qwmgeocurveinfo.h"
+#include "qwmgeoformationinfo.h"
+#include "qwmgeowellboreverticalsection.h"
 QWMReportor::QWMReportor(QString idWell,QString title,QWidget *parent) :
     QMainWindow(parent),_idWell(idWell),_title(title) ,
     ui(new Ui::QWMReportor)
 {
     ui->setupUi(this);
-    //    if(ui->graphicsView->scene()==nullptr){
-    //        QWMGeoGraphicsScene * scene=new QWMGeoGraphicsScene(this);
-    //        scene->setSceneRect(0,0,ui->graphicsView->width(),ui->graphicsView->width());
-    //        ui->graphicsView->setScene(scene);
-    //    }
+
+
+
+    _statusComponenet = new QLabel(this);
+    QFont font=_statusComponenet->font();
+    font.setPixelSize(10);
+    _statusComponenet->setFont(font);
+    _statusComponenet->setMinimumWidth(160);
+    _statusData= new QLabel(this);
+
+    _statusData->setFont(font);
+    _statusData->setMinimumWidth(160);
+
+    ui->statusbar->addWidget(_statusComponenet,0);
+    ui->statusbar->addWidget(_statusData,0);
+
     this->setWindowTitle(title);
 
     QWMGeoGraphicsScene * scene=new QWMGeoGraphicsScene(idWell,ui->graphicsView);
@@ -61,8 +75,8 @@ void QWMReportor::init(){
 
 void QWMReportor::resizeEvent(QResizeEvent *event)
 {
-    float w=ui->graphicsView->width();
-    float h=ui->graphicsView->height();
+    float w=ui->graphicsView->width()-10;
+    float h=ui->graphicsView->height()-10;
     QRectF f=ui->graphicsView->sceneRect();
     QWMGeoGraphicsScene* scene=( QWMGeoGraphicsScene*)ui->graphicsView->scene();
     scene->resize(QSizeF(w,h));
@@ -98,7 +112,7 @@ QGraphicsItem* QWMReportor::survyDataSerial(QString survyId, QRectF ticks,QStrin
         QWMRotatableProxyModel * model=WELL->tableForEdit(SURVY_DATA_TABLE,_idWell,survyId);
         PX(proxyModel,model);
         proxyModel->sort(1);
-        QString title=UDL->fieldInfo(SURVY_DATA_TABLE,dataField)->caption();
+        QString fieldTitle=UDL->fieldInfo(SURVY_DATA_TABLE,dataField)->caption();
         if(proxyModel->rowCount()>0){
             QVector<QPair<float, QString> > *data=new QVector<QPair<float, QString> >();
             float max=INT_MIN;
@@ -114,11 +128,14 @@ QGraphicsItem* QWMReportor::survyDataSerial(QString survyId, QRectF ticks,QStrin
                     data->append(sd);
                 }
             }
-            QWMDataSerialsWidget * item=new QWMDataSerialsWidget(data,QRectF(min,top,max,bottom),title);
-            QWMGeoTrackWidget * track=new QWMGeoTrackWidget(title,ui->graphicsView->scene());
-            track->setContent(item);
-            //            QRectF f=ui->graphicsView->scene()->sceneRect();
-            item->setData(0,dataField);
+            QWMDataSerialsWidget * content=new QWMDataSerialsWidget(data,QRectF(min,top,max-min,ticks.height()),fieldTitle);
+
+            QWMGeoTrackTitle * title=new QWMGeoTrackTitle(_idWell,fieldTitle,
+                                                          QList<QWMGeoCurveInfo>(),
+                                                          ((QWMGeoGraphicsScene*)(ui->graphicsView->scene()))->topWidget());
+            QWMGeoTrackWidget * track=new QWMGeoTrackWidget(title,content,((QWMGeoGraphicsScene*)(ui->graphicsView->scene()))->topWidget());
+            track->setData(0,dataField);
+            connect(track,&QWMGeoTrackWidget::hoverData,this,&QWMReportor::on_hover_data);
             return track;
         }
     }
@@ -137,7 +154,7 @@ QGraphicsItem *QWMReportor::survyDataCurve(QString survyId, QRectF ticks, QStrin
         QWMRotatableProxyModel * model=WELL->tableForEdit(SURVY_DATA_TABLE,_idWell,survyId);
         PX(proxyModel,model);
         proxyModel->sort(1);
-        QString title=UDL->fieldInfo(SURVY_DATA_TABLE,dataField)->caption();
+        QString fieldTitle=UDL->fieldInfo(SURVY_DATA_TABLE,dataField)->caption();
 
         if(proxyModel->rowCount()>0){
             QPointF * points=new QPointF[proxyModel->rowCount()];
@@ -167,12 +184,24 @@ QGraphicsItem *QWMReportor::survyDataCurve(QString survyId, QRectF ticks, QStrin
             max+=w;
             min=qRound(min-0.5);
             max=qRound(max+0.5);
+            //QList<QPair<QWMGeoCurveInfo, QPointF *>> curves,QRectF ticks,
+            QWMGeoCurveInfo info;
+            info.color=qRgb(3,123,78);
+            info.ticks=QRectF(min,ticks.top(),max-min,ticks.height());
+            info.lineStyle=Qt::DotLine;
+            info.lineWidth=1;
+            info.points=j;
+            info.title=fieldTitle;
+            QList<QPair<QWMGeoCurveInfo  ,QPointF *>> data;
+            data.append(QPair<QWMGeoCurveInfo  ,QPointF *>(info,points));
+            QWMCurvesWidget * content=new QWMCurvesWidget(data,info.ticks);
 
-            QWMCurveWidget * item=new QWMCurveWidget(points,j,QRectF(min,top,max,bottom));
-            QWMGeoTrackWidget * track=new QWMGeoTrackWidget(title,ui->graphicsView->scene());
-            track->setContent(item);
-            //            QRectF f=ui->graphicsView->scene()->sceneRect();
-            item->setData(0,dataField);
+            QWMGeoTrackTitle * title=new QWMGeoTrackTitle(_idWell,fieldTitle,
+                                                          QList<QWMGeoCurveInfo>{info},
+                                                          ((QWMGeoGraphicsScene*)(ui->graphicsView->scene()))->topWidget());
+            QWMGeoTrackWidget * track=new QWMGeoTrackWidget(title,content,((QWMGeoGraphicsScene*)(ui->graphicsView->scene()))->topWidget());
+            track->setData(0,dataField);
+            connect(track,&QWMGeoTrackWidget::hoverData,this,&QWMReportor::on_hover_data);
             return track;
         }
     }
@@ -191,6 +220,12 @@ void QWMReportor::closeEvent(QCloseEvent *event)
 void QWMReportor::on_resize_graphicsview(){
 
 }
+
+void QWMReportor::on_hover_data(QPointF pos,QString comp, QString des)
+{
+    _statusComponenet->setText(comp);
+    _statusData->setText(des);
+}
 void QWMReportor::on_comboWellbore_currentIndexChanged(int index)
 {
     QWMGeoGraphicsScene * geoScene= ((QWMGeoGraphicsScene*)ui->graphicsView->scene());
@@ -204,31 +239,71 @@ void QWMReportor::on_comboWellbore_currentIndexChanged(int index)
             long top=int(depths.x()/BASE_TICK-1)*BASE_TICK;
             long bottom=int(depths.y()/BASE_TICK+2)*BASE_TICK;
             QString survyId=WELL->wellboreActiveSurvyId(wellboreId);
-            QWMDataSerialsWidget * item;
-            item=(QWMDataSerialsWidget*)this->survyDataSerial(survyId,QRectF(0,top,200,bottom-top),"MD");
-            if(item!=nullptr){
-                item->setMaximumWidth(100);
-                item->setMinimumWidth(100);
-                item->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
-                geoScene->addTrack(item);
+            QWMGeoTrackWidget * track;
+            track=(QWMGeoTrackWidget*)this->survyDataSerial(survyId,QRectF(0,top,200,bottom-top),"MD");
+            if(track!=nullptr){
+                track->setMaximumWidth(100);
+                track->setMinimumWidth(100);
+                track->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
+                geoScene->addTrack(track);
             }
-            item =(QWMDataSerialsWidget*)this->survyDataSerial(survyId,QRectF(0,top,200,bottom-top),"Inclination");
-            if(item!=nullptr){
-                item->setMaximumWidth(100);
-                item->setMinimumWidth(100);
-                item->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
-                geoScene->addTrack(item);
-                geoScene->addTrack(item);
+            track =(QWMGeoTrackWidget*)this->survyDataSerial(survyId,QRectF(0,top,200,bottom-top),"Inclination");
+            if(track!=nullptr){
+                track->setMaximumWidth(100);
+                track->setMinimumWidth(100);
+                track->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
+                geoScene->addTrack(track);
+                geoScene->addTrack(track);
             }
 
-            QWMCurveWidget * curve =(QWMCurveWidget*)this->survyDataCurve(survyId,QRectF(0,top,200,bottom-top),"Inclination");
+            QWMGeoTrackWidget * curve =(QWMGeoTrackWidget*)this->survyDataCurve(survyId,QRectF(0,top,200,bottom-top),"Inclination");
             if(curve!=nullptr){
                 curve->setMaximumWidth(100);
                 curve->setMinimumWidth(100);
                 curve->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
                 geoScene->addTrack(curve);
             }
+            QWMRotatableProxyModel * model=WELL->tableForEdit(WELLBORE_FORMATION_TABLE,_idWell,wellboreId);
+            PX(proxyModel,model);
 
+            std::function<bool (const QModelIndex &, const QModelIndex &)>  sf=proxyModel->sortFunction();
+
+            proxyModel->sortByField("DepthDrillingTop");
+
+            QVector<QWMGeoFormationInfo> formations;
+            float preBottom=top;
+            for(int i=0;i<proxyModel->rowCount();i++){
+
+                QWMGeoFormationInfo formation;
+                formation.id=proxyModel->data(i,"IDRec",Qt::EditRole).toString();
+                formation.top=proxyModel->data(i,"DepthDrillingTop").toFloat();
+                formation.bottom=proxyModel->data(i,"DepthDrillingBtm").toFloat();
+                formation.icon=proxyModel->data(i,"IconName").toString();
+                formation.desc=WELL->recordDes(WELLBORE_FORMATION_TABLE,proxyModel->record(i));
+
+                if(formation.top>preBottom){
+                    QWMGeoFormationInfo formationPadding;
+                    formationPadding.id=tr("padding");
+                    formationPadding.top=preBottom;
+                    formationPadding.bottom=formation.top;
+                    formationPadding.icon=QString();
+                    formationPadding.desc=tr("填充层");
+                    formations.append(formationPadding);
+                }
+
+                formations.append(formation);
+                preBottom=formation.bottom;
+            }
+            QWMGeoWellboreVerticalSection * section=new QWMGeoWellboreVerticalSection(_idWell,wellboreId,formations,QRectF(0,top,200,bottom-top),geoScene->topWidget());
+            section->setMinimumWidth(100);
+            curve->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
+            QWMGeoTrackTitle * title=new QWMGeoTrackTitle(_idWell,tr("井眼纵剖面"),
+                                                          QList<QWMGeoCurveInfo>(),
+                                                          ((QWMGeoGraphicsScene*)(ui->graphicsView->scene()))->topWidget());
+            QWMGeoTrackWidget * sectionTrack=new QWMGeoTrackWidget(title,section,((QWMGeoGraphicsScene*)(ui->graphicsView->scene()))->topWidget());
+            sectionTrack->setData(0,"section");
+            connect(sectionTrack,&QWMGeoTrackWidget::hoverData,this,&QWMReportor::on_hover_data);
+            geoScene->addTrack(sectionTrack);
         }
     }
 }

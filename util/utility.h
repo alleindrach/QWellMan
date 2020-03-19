@@ -14,6 +14,9 @@ public:
     static QString format(QString fmtstr,QVariant v);
     static bool isNumber(QVariant v);
     static int compare(QVariant left,QVariant right);
+
+    static int binarySearch(QPointF * a,int left ,int right ,float f);
+    static int binarySearch(QVector<QPair<float,QString>>* a,int left ,int right ,float f);
 //    MINIMUM CURVATURE METHOD
 //    https://spec2000.net/19-dip13.htm
     //计算狗腿值

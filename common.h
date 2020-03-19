@@ -282,10 +282,12 @@ if(!success){\
 #define WELLBORE_TABLE "wvWellbore"
 #define JOB_TABLE "wvJob"
 #define SURVY_DATA_TABLE "wvWellboreDirSurveyData"
+#define WELLBORE_FORMATION_TABLE "wvWellboreFormation"
 #define BASE_TICK 100
 #define DARK_RED qRgb(155, 0, 2)
 #define MUCH_LIGHT_RED  qRgb(252, 170, 170)
 #define LIGHT_RED  qRgb(218, 100, 100)
 #define LIGHT_GRAY qRgb(220, 220, 220)
-
+#define GEO_TITLE_ITEM_HEIGHT 16
+#define GEO_TRACK_MIN_WIDTH 100
 #endif // COMMON_H

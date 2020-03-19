@@ -175,7 +175,7 @@ QWMRotatableProxyModel *WellDao::tableForEdit(const QString tablename,const QStr
             int  fldIndex=leftRecord.indexOf(field);
             if(fldIndex<0)
                 continue;
-            QVariant lv= model->data(model->index(left.row(),fldIndex),SORT_ROLE);
+            QVariant lv=model->data(model->index(left.row(),fldIndex),SORT_ROLE);
             QVariant rv=model->data(model->index(right.row(),fldIndex),SORT_ROLE);
             int c=Utility::compare(lv,rv);
             if(c<0)

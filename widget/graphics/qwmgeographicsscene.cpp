@@ -14,9 +14,9 @@ QWMGeoGraphicsScene::QWMGeoGraphicsScene(QString idWell,QObject *parent)
 
     QLabel * wellTitleLabel=new QLabel();
 
-    wellTitleLabel->setMinimumHeight(32);
+    wellTitleLabel->setMinimumHeight(24);
     wellTitleLabel->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
-    wellTitleLabel->setStyleSheet("background-color:rgb(155, 0, 2);color:white; border: 1px solid rgb(155, 0, 2) ");
+    wellTitleLabel->setStyleSheet("background-color:white;color:black; ");
 
     wellTitleLabel->setText(wellDes);
     wellTitleLabel->setAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
@@ -41,7 +41,7 @@ QWMGeoGraphicsScene::QWMGeoGraphicsScene(QString idWell,QObject *parent)
 
 
     _form = new QGraphicsWidget;
-    _form->setContentsMargins(0,0,0,0);
+    _form->setContentsMargins(8,8,0,0);
     _form->setLayout(topLayout);
     _form->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 
@@ -56,17 +56,27 @@ void QWMGeoGraphicsScene::resize(QSizeF s)
     _form->resize(s);
 }
 
-void QWMGeoGraphicsScene::addTrack(QGraphicsWidget *gw, int pos, int stretchFactor)
+void QWMGeoGraphicsScene::addTrack(QWMGeoTrackWidget *track, int pos, int /*stretchFactor*/)
 {
     if(pos<0||pos>=_tracks.size()){
-        _tracks.append(gw);
+        _tracks.append(track);
     }else{
-        _tracks.insert(pos,gw);
+        _tracks.insert(pos,track);
     }
-    _tracksLayout->addItem(gw);
+    _tracksLayout->addItem(track);
     for(int i=0;i<_tracks.size();i++)
     {
         _tracksLayout->setItemSpacing(i,0);
+    }
+    if(track->titleContentHight()>this->_titleHeight){
+        for(int i=0;i<_tracks.size();i++)
+        {
+            QWMGeoTrackWidget * t=_tracks[i];
+            t->setTitleHeight(track->titleContentHight());
+        }
+        _titleHeight=track->titleContentHight();
+    }else{
+        track->setTitleHeight(this->_titleHeight);
     }
 
 }

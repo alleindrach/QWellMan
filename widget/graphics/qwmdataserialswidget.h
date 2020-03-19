@@ -9,11 +9,12 @@
 #include <QVector>
 #include <QGraphicsWidget>
 #include <QGraphicsProxyWidget>
-#include "qwmtrackcontent.h"
+#include "qwmgeotrackcontent.h"
 //用于显示数据系的GraphicsItem
 //data ：float 为y轴坐标，QString分量为标注
-class QWMDataSerialsWidget : public QWMTrackContent
+class QWMDataSerialsWidget : public QWMGeoTrackContent
 {
+    Q_OBJECT
 public:
     QWMDataSerialsWidget( QVector<QPair<float,QString>> * data,QRectF ticks,QString title,int width=100,QGraphicsItem * parent = nullptr);
     ~QWMDataSerialsWidget(){
@@ -24,13 +25,13 @@ public:
             _data=nullptr;
         }
     }
-//    virtual QRectF boundingRect() const  override;
+    //    virtual QRectF boundingRect() const  override;
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                        QWidget *widget) override;
     int width() const{
-      return _width;
+        return _width;
     };
-
+    virtual QString dataAtPos(QPointF pos);
 protected:
     QString title(){return _trackTitle;};
     QGraphicsProxyWidget * titleWidget(){return _titleWidget;};
@@ -42,7 +43,7 @@ private:
     int _width;
     QString _trackTitle;
     QGraphicsProxyWidget * _titleWidget;
-//    bool _selected{false};
+    //    bool _selected{false};
 };
 
 #endif // QWMDATASERIALSGRAPHICITEM_H
