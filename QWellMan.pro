@@ -66,6 +66,7 @@ SOURCES += \
     widget/graphics/qwmgeotrackcontent.cpp \
     widget/graphics/qwmgeotracktitle.cpp \
     widget/graphics/qwmgeotrackwidget.cpp \
+    widget/graphics/qwmgeowellboresection.cpp \
     widget/graphics/qwmgeowellboreverticalsection.cpp \
     widget/qdlgwellfieldsselector.cpp \
     widget/qwmdatatableview.cpp \
@@ -119,12 +120,13 @@ HEADERS += \
     widget/graphics/qwmcurveswidget.h \
     widget/graphics/qwmdataserialswidget.h \
     widget/graphics/qwmgeocurveinfo.h \
-    widget/graphics/qwmgeoformationInfo.h \
+    widget/graphics/qwmgeoformationinfo.h \
     widget/graphics/qwmgeographicsscene.h \
     widget/graphics/qwmgeosimpleformation.h \
     widget/graphics/qwmgeotrackcontent.h \
     widget/graphics/qwmgeotracktitle.h \
     widget/graphics/qwmgeotrackwidget.h \
+    widget/graphics/qwmgeowellboresection.h \
     widget/graphics/qwmgeowellboreverticalsection.h \
     widget/qdlgwellfieldsselector.h \
     widget/qwmdatatableview.h \

@@ -263,10 +263,10 @@ void QWMReportor::on_comboWellbore_currentIndexChanged(int index)
                 curve->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
                 geoScene->addTrack(curve);
             }
+
+            //井眼地层图
             QWMRotatableProxyModel * model=WELL->tableForEdit(WELLBORE_FORMATION_TABLE,_idWell,wellboreId);
             PX(proxyModel,model);
-
-            std::function<bool (const QModelIndex &, const QModelIndex &)>  sf=proxyModel->sortFunction();
 
             proxyModel->sortByField("DepthDrillingTop");
 
@@ -294,7 +294,47 @@ void QWMReportor::on_comboWellbore_currentIndexChanged(int index)
                 formations.append(formation);
                 preBottom=formation.bottom;
             }
-            QWMGeoWellboreVerticalSection * section=new QWMGeoWellboreVerticalSection(_idWell,wellboreId,formations,QRectF(0,top,200,bottom-top),geoScene->topWidget());
+
+
+
+            //井眼尺寸图
+
+            QWMRotatableProxyModel * wbsmodel=WELL->tableForEdit(WELLBORE_SIZE_TABLE,_idWell,wellboreId);
+            PX(proxyWbsModel,wbsmodel);
+            proxyWbsModel->sortByField("DepthTopActual");
+
+            QVector<QWMGeoWellboreSizeInfo> sizes;
+            preBottom=top;
+            float max=0;
+            for(int i=0;i<proxyWbsModel->rowCount();i++){
+
+                QWMGeoWellboreSizeInfo sizeInfo;
+                sizeInfo.id=proxyWbsModel->data(i,"IDRec",Qt::EditRole).toString();
+                sizeInfo.top=proxyWbsModel->data(i,"DepthTopActual").toFloat();
+                sizeInfo.bottom=proxyWbsModel->data(i,"DepthBtmActual").toFloat();
+                sizeInfo.radius=proxyWbsModel->data(i,"Sz").toFloat();
+                sizeInfo.desc=WELL->recordDes(WELLBORE_SIZE_TABLE,proxyWbsModel->record(i));
+                sizeInfo.hatchColor=qRgb(239,243,139);
+                sizeInfo.hatchStyle=Qt::SolidPattern;
+                sizeInfo.borderColor=Qt::black;
+
+                if(sizeInfo.top>preBottom){
+                    QWMGeoWellboreSizeInfo sizePadding;
+                    sizePadding.id=tr("padding");
+                    sizePadding.radius=0;
+                    sizePadding.top=preBottom;
+                    sizePadding.bottom=sizeInfo.top;
+                    sizePadding.desc=tr("填充层");
+                    sizes.append(sizePadding);
+                }
+                if(sizeInfo.radius>max){
+                    max=sizeInfo.radius;
+                }
+                sizes.append(sizeInfo);
+                preBottom=sizeInfo.bottom;
+            }
+            max=int(max*2);
+            QWMGeoWellboreVerticalSection * section=new QWMGeoWellboreVerticalSection(_idWell,wellboreId,formations,sizes,QRectF(0,top,max,bottom-top),geoScene->topWidget());
             section->setMinimumWidth(100);
             curve->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
             QWMGeoTrackTitle * title=new QWMGeoTrackTitle(_idWell,tr("井眼纵剖面"),

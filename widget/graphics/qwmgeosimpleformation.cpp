@@ -5,6 +5,7 @@
 #include <QFileInfo>
 #include <QFile>
 #include <QPixmap>
+#include <QBitmap>
 #include "qwmiconselector.h"
 QWMGeoSimpleFormation::QWMGeoSimpleFormation(QString idrec, QString title ,float depthScale,float topDepth,float bottomDepth,QString icon, QGraphicsItem  * parent)
     :QWMGeoTrackContent(QRectF(0,topDepth,100,bottomDepth),parent),_idrec(idrec),_title(title),_depthScale(depthScale),_topDepth(topDepth),_bottomDepth(bottomDepth),_icon(icon)
@@ -22,7 +23,11 @@ void QWMGeoSimpleFormation::paint(QPainter *painter, const QStyleOptionGraphicsI
     }else{
         QFileInfo f=QWMIconSelector::findIcon(_icon);
         if(f.isFile()){
+
+
             QPixmap pixs=QPixmap(f.absoluteFilePath());
+            pixs=pixs.copy(pixs.width()/5,pixs.height()/5,pixs.width()*0.6,pixs.height()*0.6);
+//            pixs=pixs.scaled(pixs.width()/2,pixs.height()/2);
             brush=QBrush(pixs);
             painter->fillRect(bounder,brush);
         }else{
@@ -30,7 +35,7 @@ void QWMGeoSimpleFormation::paint(QPainter *painter, const QStyleOptionGraphicsI
             painter->fillRect(bounder,brush);
         }
         if(this->isSelected()){
-            painter->setPen(QPen(QBrush(DARK_RED),3,Qt::DashDotDotLine));
+            painter->setPen(QPen(QBrush(DARK_RED),2,Qt::DotLine));
             painter->drawRect(boundingRect());
         }
     }

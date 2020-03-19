@@ -283,6 +283,7 @@ if(!success){\
 #define JOB_TABLE "wvJob"
 #define SURVY_DATA_TABLE "wvWellboreDirSurveyData"
 #define WELLBORE_FORMATION_TABLE "wvWellboreFormation"
+#define WELLBORE_SIZE_TABLE "wvWellboreSize"
 #define BASE_TICK 100
 #define DARK_RED qRgb(155, 0, 2)
 #define MUCH_LIGHT_RED  qRgb(252, 170, 170)
