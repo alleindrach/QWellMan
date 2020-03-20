@@ -16,6 +16,7 @@ QWMDataSerialsWidget::QWMDataSerialsWidget( QVector<QPair<float, QString> > *dat
     setFlag(QGraphicsItem::ItemIsMovable);
     setAcceptHoverEvents(true);
     setAcceptTouchEvents(true);
+    setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 
 }
 

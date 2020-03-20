@@ -15,7 +15,7 @@ QWMAbstractDelegate::QWMAbstractDelegate(QObject * parent):QStyledItemDelegate(p
 
 QWMAbstractDelegate::~QWMAbstractDelegate()
 {
-    qDebug()<<"QWMBaseDelegate delegate destructor";
+//    qDebug()<<"QWMBaseDelegate delegate destructor";
 }
 
 void QWMAbstractDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const

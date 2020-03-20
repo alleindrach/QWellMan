@@ -45,7 +45,7 @@ QWMRecordTwoStepSelector::QWMRecordTwoStepSelector(QString idwell,QWidget *paren
 
 QWMRecordTwoStepSelector::~QWMRecordTwoStepSelector()
 {
-    qDebug()<<"QWMRecordTwoStepSelector destory!";
+//    qDebug()<<"QWMRecordTwoStepSelector destory!";
 }
 
 void QWMRecordTwoStepSelector::setValue(QVariant v)

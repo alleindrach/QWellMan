@@ -20,7 +20,7 @@ QWMGeoTrackWidget::QWMGeoTrackWidget(QWMGeoTrackTitle *title, QWMGeoTrackContent
     topLayout->addItem(title);
 
     topLayout->addItem(content);
-    content->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+//    content->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     this->setLayout(topLayout);
     title->setParentItem(this);
 

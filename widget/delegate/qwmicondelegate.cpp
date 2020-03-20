@@ -16,7 +16,7 @@ QWMIconDelegate::QWMIconDelegate(QObject * parent):QWMAbstractDelegate(parent)
 
 QWMIconDelegate::~QWMIconDelegate()
 {
-    qDebug()<<"delegate destructor";
+//    qDebug()<<"delegate destructor";
 }
 
 QWidget *QWMIconDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &/*option*/, const QModelIndex &index) const

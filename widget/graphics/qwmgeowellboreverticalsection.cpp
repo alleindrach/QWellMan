@@ -62,7 +62,9 @@ QWMGeoWellboreVerticalSection::QWMGeoWellboreVerticalSection(QString idWell, QSt
 
 void QWMGeoWellboreVerticalSection::resizeEvent(QGraphicsSceneResizeEvent *event)
 {
+    QGraphicsWidget::resizeEvent(event);
     QRectF  boundingRect=this->boundingRect();
+    qDebug()<<"WS,H:"<<boundingRect.height()<<",W:"<<boundingRect.width();
     float depthScale=boundingRect.height()/ticks().height();
     for(QVector<QVector<QGraphicsWidget*>>::iterator v=_layers.begin();v!=_layers.end();v++){
         for(QVector<QGraphicsWidget*>::iterator i=v->begin() ;i!=v->end(); i++){

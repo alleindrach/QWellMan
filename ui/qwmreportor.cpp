@@ -42,7 +42,12 @@ QWMReportor::QWMReportor(QString idWell,QString title,QWidget *parent) :
     _statusData->setFont(font);
     _statusData->setMinimumWidth(160);
 
+    _statusDepth=new QLabel(this);
+    _statusDepth->setFont(font);
+    _statusDepth->setMinimumWidth(100);
+
     ui->statusbar->addWidget(_statusComponenet,0);
+    ui->statusbar->addWidget(_statusDepth,0);
     ui->statusbar->addWidget(_statusData,0);
 
     this->setWindowTitle(title);
@@ -75,12 +80,13 @@ void QWMReportor::init(){
 
 void QWMReportor::resizeEvent(QResizeEvent *event)
 {
+    QMainWindow::resizeEvent(event);
     float w=ui->graphicsView->width()-10;
     float h=ui->graphicsView->height()-10;
     QRectF f=ui->graphicsView->sceneRect();
+    qDebug()<<"H:"<<h<<",W:"<<w<<",SceneH:"<<f.height()<<",SceneW:"<<f.width();
     QWMGeoGraphicsScene* scene=( QWMGeoGraphicsScene*)ui->graphicsView->scene();
     scene->resize(QSizeF(w,h));
-    QMainWindow::resizeEvent(event);
 }
 
 bool QWMReportor::eventFilter(QObject *watched, QEvent *event)
@@ -95,7 +101,6 @@ bool QWMReportor::eventFilter(QObject *watched, QEvent *event)
     }
     if(event->type()==QEvent::Wheel){
         QPoint m=ui->graphicsView->mapFromScene(QPoint(0,0));
-        qDebug()<<"scroll:"<<m;
     }
 
 
@@ -134,6 +139,7 @@ QGraphicsItem* QWMReportor::survyDataSerial(QString survyId, QRectF ticks,QStrin
                                                           QList<QWMGeoCurveInfo>(),
                                                           ((QWMGeoGraphicsScene*)(ui->graphicsView->scene()))->topWidget());
             QWMGeoTrackWidget * track=new QWMGeoTrackWidget(title,content,((QWMGeoGraphicsScene*)(ui->graphicsView->scene()))->topWidget());
+
             track->setData(0,dataField);
             connect(track,&QWMGeoTrackWidget::hoverData,this,&QWMReportor::on_hover_data);
             return track;
@@ -225,9 +231,12 @@ void QWMReportor::on_hover_data(QPointF pos,QString comp, QString des)
 {
     _statusComponenet->setText(comp);
     _statusData->setText(des);
+    _statusDepth->setText(QString().asprintf(("MD:%6.2f"),pos.y()));
 }
 void QWMReportor::on_comboWellbore_currentIndexChanged(int index)
 {
+
+
     QWMGeoGraphicsScene * geoScene= ((QWMGeoGraphicsScene*)ui->graphicsView->scene());
     geoScene->reset();
     QString wellboreId=ui->comboWellbore->currentData().toString();
@@ -261,6 +270,7 @@ void QWMReportor::on_comboWellbore_currentIndexChanged(int index)
                 curve->setMaximumWidth(100);
                 curve->setMinimumWidth(100);
                 curve->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
+//                curve->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
                 geoScene->addTrack(curve);
             }
 
@@ -334,14 +344,15 @@ void QWMReportor::on_comboWellbore_currentIndexChanged(int index)
                 preBottom=sizeInfo.bottom;
             }
             max=int(max*2);
-            QWMGeoWellboreVerticalSection * section=new QWMGeoWellboreVerticalSection(_idWell,wellboreId,formations,sizes,QRectF(0,top,max,bottom-top),geoScene->topWidget());
-            section->setMinimumWidth(100);
-            curve->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
+            QWMGeoWellboreVerticalSection * content=new QWMGeoWellboreVerticalSection(_idWell,wellboreId,formations,sizes,QRectF(0,top,max,bottom-top),geoScene->topWidget());
+            content->setMinimumWidth(100);
+            content->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
             QWMGeoTrackTitle * title=new QWMGeoTrackTitle(_idWell,tr("井眼纵剖面"),
                                                           QList<QWMGeoCurveInfo>(),
                                                           ((QWMGeoGraphicsScene*)(ui->graphicsView->scene()))->topWidget());
-            QWMGeoTrackWidget * sectionTrack=new QWMGeoTrackWidget(title,section,((QWMGeoGraphicsScene*)(ui->graphicsView->scene()))->topWidget());
+            QWMGeoTrackWidget * sectionTrack=new QWMGeoTrackWidget(title,content,((QWMGeoGraphicsScene*)(ui->graphicsView->scene()))->topWidget());
             sectionTrack->setData(0,"section");
+            sectionTrack->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
             connect(sectionTrack,&QWMGeoTrackWidget::hoverData,this,&QWMReportor::on_hover_data);
             geoScene->addTrack(sectionTrack);
         }

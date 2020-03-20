@@ -13,7 +13,7 @@ public:
                                   QVector<QWMGeoFormationInfo>  formations,
                                   QVector<QWMGeoWellboreSizeInfo>  sizeInfos,
                                   QRectF ticks,QGraphicsItem * parent=nullptr);
-    virtual void resizeEvent(QGraphicsSceneResizeEvent *event);
+    virtual void resizeEvent(QGraphicsSceneResizeEvent *event) override;
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                        QWidget *widget) override;
     virtual QString dataAtPos(QPointF pos) override;

@@ -10,12 +10,12 @@
 QWMDistinctValueDelegate::QWMDistinctValueDelegate(QString table,QString field,QObject *parent)
     :QStyledItemDelegate(parent),_table(table),_field(field)
 {
-    qDebug()<<"delegate constructor";
+//    qDebug()<<"delegate constructor";
 }
 
 QWMDistinctValueDelegate::~QWMDistinctValueDelegate()
 {
-    qDebug()<<"delegate destructor";
+//    qDebug()<<"delegate destructor";
 }
 
 QWidget *QWMDistinctValueDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &/*option*/, const QModelIndex &/*index*/) const

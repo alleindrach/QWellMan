@@ -46,9 +46,9 @@ void QWMGeoSimpleFormation::paint(QPainter *painter, const QStyleOptionGraphicsI
 
 QSizeF QWMGeoSimpleFormation::sizeHint(Qt::SizeHint which, const QSizeF &constraint) const
 {
-    if(which==Qt::PreferredSize  || which==Qt::MaximumSize||which==Qt::MinimumSize){
+    if(which==Qt::PreferredSize){
         int height=(_bottomDepth-_topDepth)*_depthScale;
-        qDebug()<<which<<",Formation:"<<this->_title<<",top:"<<_topDepth<<",bottom:"<<_bottomDepth<<",scale:"<<_depthScale<<",sh:"<<height;
+//        qDebug()<<which<<",Formation:"<<this->_title<<",top:"<<_topDepth<<",bottom:"<<_bottomDepth<<",scale:"<<_depthScale<<",sh:"<<height;
         int width=GEO_TRACK_MIN_WIDTH;
         if(this->parentItem()==nullptr){
 

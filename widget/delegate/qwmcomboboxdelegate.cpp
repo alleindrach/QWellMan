@@ -7,12 +7,12 @@
 QWMComboBoxDelegate::QWMComboBoxDelegate(QList<QPair<QString,QVariant>> options,bool editable,QObject *parent)
     :QStyledItemDelegate(parent),m_options(options),_editable(editable)
 {
-    qDebug()<<"delegate constructor";
+//    qDebug()<<"delegate constructor";
 }
 
 QWMComboBoxDelegate::~QWMComboBoxDelegate()
 {
-    qDebug()<<"delegate destructor";
+//    qDebug()<<"delegate destructor";
 }
 
 QWidget *QWMComboBoxDelegate::createEditor(QWidget *parent , const QStyleOptionViewItem &option, const QModelIndex &index) const

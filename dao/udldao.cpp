@@ -201,9 +201,7 @@ QStringList UDLDao::fieldsVisibleInOrder(QString profile, QString table)
     QString key=QString("fieldsVisibleInOrder.%1.%2").arg(profile).arg(table);
     CS(key,QStringList);
     QStringList result;
-    if(table=="wvDepthAnnotation"){
-        qDebug()<<"wvDepthAnnotation";
-    }
+
     QSqlQuery q(APP->udl());
     QStringList groups=UDL->fieldGroup(table);
     if(groups.size()>0){

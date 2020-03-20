@@ -9,7 +9,7 @@
 QWMCurvesWidget::QWMCurvesWidget( QList<QPair<QWMGeoCurveInfo, QPointF *>> curves, QRectF ticks, QGraphicsItem *parent):
     QWMGeoTrackContent(ticks,parent),_curves(curves)
 {
-
+    this->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 }
 
 void QWMCurvesWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem */*option*/, QWidget */*widget*/)

@@ -5,6 +5,8 @@
 #include <QSqlRecord>
 #include <QGraphicsProxyWidget>
 #include "welldao.h"
+#include <QStyle>
+
 QWMGeoGraphicsScene::QWMGeoGraphicsScene(QString idWell,QObject *parent)
     :QGraphicsScene(parent),_idWell(idWell)
 {
@@ -36,23 +38,17 @@ QWMGeoGraphicsScene::QWMGeoGraphicsScene(QString idWell,QObject *parent)
     _tracksLayout->setContentsMargins(0,0,0,0);
     _tracksLayout->setItemSpacing(0,0);
     tracks->setLayout(_tracksLayout);
-
     topLayout->addItem(tracks);
-
-
     _form = new QGraphicsWidget;
     _form->setContentsMargins(8,8,0,0);
     _form->setLayout(topLayout);
-    _form->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-
-    //    form->setGeometry(QRectF(0,0,300,600));
     _form->setPos(0,0);
-    //    _form->setAutoFillBackground(true);
     this->addItem(_form);
 }
 
 void QWMGeoGraphicsScene::resize(QSizeF s)
 {
+    this->setSceneRect(0,0,s.width(),s.height());
     _form->resize(s);
 }
 
@@ -86,7 +82,6 @@ void QWMGeoGraphicsScene::reset()
     for(int i=0;i<_tracksLayout->count();i++){
         _tracksLayout->removeAt(i);
     }
-
 }
 
 void QWMGeoGraphicsScene::setTitle(QString v)

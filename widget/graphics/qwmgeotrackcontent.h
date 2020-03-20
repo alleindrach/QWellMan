@@ -39,6 +39,7 @@ protected:
     bool showGrid(){return _showGrid;}
     void setShowGrid(bool v){ _showGrid=v;};
     QRectF& ticks(){return _ticks;}
+    QRectF ticks()const {return _ticks;};
     QSize gridSize(){return _gridSize;};
     virtual QString dataAtPos(QPointF pos)=0;
 private:

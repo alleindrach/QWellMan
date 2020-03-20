@@ -7,7 +7,7 @@
 QWMGeoTrackTitle::QWMGeoTrackTitle(QString idWell,QString title, QList<QWMGeoCurveInfo> items, QGraphicsItem *parent)
     :QGraphicsWidget(parent),_idWell(idWell),_items(items),_title(title)
 {
-
+    this->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
 }
 
 void QWMGeoTrackTitle::paint(QPainter *painter, const QStyleOptionGraphicsItem */*option*/, QWidget */*widget*/)
@@ -42,18 +42,22 @@ void QWMGeoTrackTitle::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
 QSizeF QWMGeoTrackTitle::sizeHint(Qt::SizeHint which, const QSizeF &constraint) const
 {
-    int height=_height;
-    int width=GEO_TRACK_MIN_WIDTH;
-    if(height<=0){
-        height=GEO_TITLE_ITEM_HEIGHT;
-    }
-    if(this->parentItem()==nullptr){
-        return QSizeF(GEO_TRACK_MIN_WIDTH,height);
-    }else{
-        QRectF parentBoundingRect=this->parentItem()->boundingRect();
-        if(parentBoundingRect.width()>GEO_TRACK_MIN_WIDTH){
-            width=parentBoundingRect.width();
+    if(which==Qt::PreferredSize){
+        int height=_height;
+        int width=GEO_TRACK_MIN_WIDTH;
+        if(height<=0){
+            height=GEO_TITLE_ITEM_HEIGHT;
         }
-        return QSizeF(width,height);
+        if(this->parentItem()==nullptr){
+            return QSizeF(GEO_TRACK_MIN_WIDTH,height);
+        }else{
+            QRectF parentBoundingRect=this->parentItem()->boundingRect();
+            if(parentBoundingRect.width()>GEO_TRACK_MIN_WIDTH){
+                width=parentBoundingRect.width();
+            }
+            return QSizeF(width,height);
+        }
+    }else {
+        return QGraphicsWidget::sizeHint(which,constraint);
     }
 }

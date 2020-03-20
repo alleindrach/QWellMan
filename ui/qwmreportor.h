@@ -31,6 +31,7 @@ private:
     QString _title;
     QLabel * _statusComponenet;
     QLabel * _statusData;
+    QLabel * _statusDepth;
     QGraphicsWidget * _form;
 };
 

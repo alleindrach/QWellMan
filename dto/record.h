@@ -46,9 +46,9 @@ public:
                 }
             }
             bool success=o->setProperty(name.toStdString().c_str(),v);
-            if(!success){
-                qDebug()<<" set Property Error:"<<name<<",v="<<v;
-            }
+//            if(!success){
+//                qDebug()<<" set Property Error:"<<name<<",v="<<v;
+//            }
             //            QVariant::Type type=o->metaObject()->property(i).type();
             //            if(name.compare("Calculated")==0
             //                    ){

@@ -57,8 +57,11 @@ void QWMGeoTrackContent::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 void QWMGeoTrackContent::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 {
 
+    QRectF boundingRect=this->boundingRect();
+    float depth=event->pos().y()/boundingRect.height()* ticks().height()+ticks().top();
+    QPointF p(0,depth);
     QString dataDes=dataAtPos(event->pos());
-    emit hoverData(event->pos(),dataDes);
+    emit hoverData(p,dataDes);
 
 }
 
